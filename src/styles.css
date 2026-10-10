@@ -118,3 +118,5 @@
 @utility bg-gold-gradient { background-image: var(--gradient-gold); }
 @utility shadow-card { box-shadow: var(--shadow-card); }
 @utility eyebrow { font-family: var(--font-sans); font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; font-weight: 700; }
+@utility btn-gold { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.85rem 1.6rem; border-radius:var(--radius); background-image:var(--gradient-gold); color:var(--navy-deep); font-weight:700; font-size:.9rem; transition:filter .2s; &:hover{filter:brightness(1.08);} }
+@utility btn-ghost { display:inline-flex; align-items:center; justify-content:center; padding:.85rem 1.6rem; border-radius:var(--radius); border:1px solid color-mix(in oklch, var(--gold) 50%, transparent); color:inherit; font-weight:600; font-size:.9rem; &:hover{background:color-mix(in oklch, var(--gold) 12%, transparent);} }
