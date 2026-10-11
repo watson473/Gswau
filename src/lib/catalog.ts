@@ -66,9 +66,9 @@ export const books: Book[] = [
     "featured": false
   },
   {
-    "slug": "from-walk",
-    "title": "From Walk",
-    "subtitle": "In to Locked In - How Barbers and Stylists Can Turn First Time Clients into Loyalists",
+    "slug": "from-walk-in-to-locked-in",
+    "title": "From Walk-In to Locked In",
+    "subtitle": "How Barbers and Stylists Can Turn First Time Clients into Loyalists",
     "format": "E-book",
     "price": 23.99,
     "cover": "https://public-files.gumroad.com/ki3hkocaa5ewngnxrq4sn2s0pqi8",
@@ -284,7 +284,7 @@ export const books: Book[] = [
   {
     "slug": "the-science-of-the-scalp-behind-the-chair",
     "title": "The Science of the Scalp Behind the Chair",
-    "subtitle": "by G.s. W. Augustin",
+    "subtitle": "",
     "format": "E-book",
     "price": 23.99,
     "cover": "https://public-files.gumroad.com/jtwbk5smkxi8tyaqeylkukgugj2h",
