@@ -1,17 +1,13 @@
 import { Link } from "@tanstack/react-router";
+import { author } from "@/lib/catalog";
 
 export function Crest() {
-  // Placeholder slot for the official GSWAU crest — swap once uploaded.
-  return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gold bg-primary font-display text-sm font-bold text-gold">
-      GS
-    </div>
-  );
+  return <img src={author.avatar} alt="GSWAU crest" className="h-10 w-10 rounded-full border-2 border-gold object-cover" />;
 }
 
 export function Header() {
   const nav = [
-    { to: "/courses", label: "Courses" },
+    { to: "/courses", label: "Programs" },
     { to: "/library", label: "Library" },
     { to: "/coaching", label: "Coaching" },
   ] as const;
