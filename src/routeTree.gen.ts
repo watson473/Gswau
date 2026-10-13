@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoachingRouteImport } from './routes/coaching'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as LibraryIndexRouteImport } from './routes/library.index'
 import { Route as LibrarySlugRouteImport } from './routes/library.$slug'
@@ -23,6 +25,16 @@ const IndexRoute = IndexRouteImport.update({
 const CoachingRoute = CoachingRouteImport.update({
   id: '/coaching',
   path: '/coaching',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoursesIndexRoute = CoursesIndexRouteImport.update({
@@ -44,14 +56,18 @@ const LibrarySlugRoute = LibrarySlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/coaching': typeof CoachingRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/library/': typeof LibraryIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/coaching': typeof CoachingRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
+  '/blog': typeof BlogIndexRoute
   '/courses': typeof CoursesIndexRoute
   '/library': typeof LibraryIndexRoute
 }
@@ -59,20 +75,38 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/coaching': typeof CoachingRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
+  '/blog/': typeof BlogIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/library/': typeof LibraryIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/coaching' | '/library/$slug' | '/courses/' | '/library/'
+  fullPaths:
+    | '/'
+    | '/coaching'
+    | '/blog/$slug'
+    | '/library/$slug'
+    | '/blog/'
+    | '/courses/'
+    | '/library/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/coaching' | '/library/$slug' | '/courses' | '/library'
+  to:
+    | '/'
+    | '/coaching'
+    | '/blog/$slug'
+    | '/library/$slug'
+    | '/blog'
+    | '/courses'
+    | '/library'
   id:
     | '__root__'
     | '/'
     | '/coaching'
+    | '/blog/$slug'
     | '/library/$slug'
+    | '/blog/'
     | '/courses/'
     | '/library/'
   fileRoutesById: FileRoutesById
@@ -80,7 +114,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CoachingRoute: typeof CoachingRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   LibrarySlugRoute: typeof LibrarySlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   CoursesIndexRoute: typeof CoursesIndexRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
 }
@@ -99,6 +135,20 @@ declare module '@tanstack/react-router' {
       path: '/coaching'
       fullPath: '/coaching'
       preLoaderRoute: typeof CoachingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/courses/': {
@@ -128,7 +178,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CoachingRoute: CoachingRoute,
+  BlogSlugRoute: BlogSlugRoute,
   LibrarySlugRoute: LibrarySlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
   CoursesIndexRoute: CoursesIndexRoute,
   LibraryIndexRoute: LibraryIndexRoute,
 }
