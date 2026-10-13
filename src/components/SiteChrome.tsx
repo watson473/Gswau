@@ -1,32 +1,41 @@
 import { Link } from "@tanstack/react-router";
 import { author } from "@/lib/catalog";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Crest() {
   return <img src={author.avatar} alt="GSWAU crest" className="h-10 w-10 rounded-full border-2 border-gold object-cover" />;
 }
 
 export function Header() {
+  const { user, isAdmin } = useAuth();
   const nav = [
     { to: "/courses", label: "Programs" },
     { to: "/library", label: "Library" },
     { to: "/coaching", label: "Coaching" },
+    { to: "/blog", label: "Blog" },
   ] as const;
   return (
     <header className="sticky top-0 z-40 border-b border-gold/20 bg-navy-deep/95 text-primary-foreground backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <Link to="/" className="flex items-center gap-3">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-5">
+        <Link to="/" className="flex shrink-0 items-center gap-3">
           <Crest />
-          <div className="leading-tight">
+          <div className="hidden leading-tight sm:block">
             <div className="font-display text-lg font-semibold">GSWAU</div>
             <div className="eyebrow text-[0.55rem] text-gold">Augustin University</div>
           </div>
         </Link>
-        <nav className="flex items-center gap-4 text-sm sm:gap-7">
+        <nav className="flex items-center gap-3 overflow-x-auto text-sm sm:gap-6">
           {nav.map((n) => (
-            <Link key={n.to} to={n.to} className="text-primary-foreground/80 transition hover:text-gold" activeProps={{ className: "text-gold" }}>
+            <Link key={n.to} to={n.to} className="whitespace-nowrap text-primary-foreground/80 transition hover:text-gold" activeProps={{ className: "text-gold" }}>
               {n.label}
             </Link>
           ))}
+          {isAdmin && <Link to="/admin" className="whitespace-nowrap text-gold">Admin</Link>}
+          {user ? (
+            <Link to="/account" className="whitespace-nowrap rounded-sm border border-gold/50 px-3 py-1.5 text-gold">My library</Link>
+          ) : (
+            <Link to="/auth" className="whitespace-nowrap rounded-sm border border-gold/50 px-3 py-1.5 text-gold">Sign in</Link>
+          )}
         </nav>
       </div>
     </header>
@@ -41,7 +50,7 @@ export function Footer() {
           <Crest />
           <span className="font-display text-lg text-primary-foreground">GSW Augustin University</span>
         </div>
-        <p className="text-xs">© {2026} GSWAU · Education for the business of beauty.</p>
+        <p className="text-xs">© {2026} GSWAU · Books for barbers & hairstylists by {author.name}.</p>
       </div>
     </footer>
   );

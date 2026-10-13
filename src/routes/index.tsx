@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import hero from "@/assets/hero.jpg";
-import { author, books, featured, freeBook } from "@/lib/catalog";
-import { BookCard } from "@/components/Cards";
+import { author } from "@/lib/catalog";
+import { productsQuery, testimonialsQuery } from "@/lib/catalog.functions";
+import { BookCard, Stars } from "@/components/Cards";
 import { Eyebrow } from "@/components/SiteChrome";
 
 export const Route = createFileRoute("/")({
@@ -15,10 +17,15 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
+  loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(productsQuery), context.queryClient.ensureQueryData(testimonialsQuery)]),
   component: Index,
 });
 
 function Index() {
+  const { data: products } = useSuspenseQuery(productsQuery);
+  const { data: testimonials } = useSuspenseQuery(testimonialsQuery);
+  const featured = products.filter((p) => p.is_featured || p.type === "course");
+  const freeBook = products.find((p) => p.is_free);
   return (
     <>
       <section className="relative overflow-hidden bg-navy-deep text-primary-foreground">
@@ -31,7 +38,7 @@ function Index() {
           </h1>
           <p className="mt-6 max-w-lg text-lg text-primary-foreground/75">{author.bio}</p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Link to="/library" className="btn-gold">Browse all {books.length} books</Link>
+            <Link to="/library" className="btn-gold">Browse all {products.length} titles</Link>
             {freeBook && <Link to="/library/$slug" params={{ slug: freeBook.slug }} className="btn-ghost">Get a free chapter</Link>}
           </div>
         </div>
@@ -42,7 +49,7 @@ function Index() {
           <div><Eyebrow>Flagship</Eyebrow><h2 className="mt-3 text-4xl font-semibold sm:text-5xl">Programs</h2></div>
           <Link to="/courses" className="text-sm font-semibold text-primary underline-offset-4 hover:underline">View all</Link>
         </div>
-        <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">{featured.map((b) => <BookCard key={b.slug} b={b} />)}</div>
+        <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">{featured.slice(0, 8).map((b) => <BookCard key={b.id} b={b} />)}</div>
       </section>
 
       <section className="bg-secondary py-20">
@@ -51,9 +58,25 @@ function Index() {
             <div><Eyebrow>The library</Eyebrow><h2 className="mt-3 text-4xl font-semibold sm:text-5xl">Latest books</h2></div>
             <Link to="/library" className="text-sm font-semibold text-primary underline-offset-4 hover:underline">View all</Link>
           </div>
-          <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">{books.filter((b) => !b.featured && !b.free).slice(0, 8).map((b) => <BookCard key={b.slug} b={b} />)}</div>
+          <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">{products.filter((b) => !b.is_featured && !b.is_free && b.type === "ebook").slice(0, 8).map((b) => <BookCard key={b.id} b={b} />)}</div>
         </div>
       </section>
+
+      {testimonials.length > 0 && (
+        <section className="mx-auto max-w-6xl px-5 py-20">
+          <Eyebrow>From readers</Eyebrow>
+          <h2 className="mt-3 text-4xl font-semibold sm:text-5xl">What students say</h2>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {testimonials.map((t) => (
+              <blockquote key={t.id} className="rounded-md border-l-4 border-gold bg-card p-6 shadow-card">
+                <Stars n={t.rating} />
+                <p className="mt-3 font-display text-xl italic">“{t.quote}”</p>
+                <footer className="mt-3 text-sm text-muted-foreground">{t.name}{t.location ? `, ${t.location}` : ""}</footer>
+              </blockquote>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="bg-navy-gradient text-primary-foreground">
         <div className="mx-auto max-w-4xl px-5 py-20 text-center">
