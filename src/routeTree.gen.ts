@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CoachingRouteImport } from './routes/coaching'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
@@ -50,6 +51,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
@@ -95,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/coaching': typeof CoachingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/coaching': typeof CoachingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/blog': typeof BlogIndexRoute
@@ -125,6 +133,7 @@ export interface FileRoutesById {
   '/coaching': typeof CoachingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/coaching'
     | '/reset-password'
     | '/account'
+    | '/admin'
     | '/blog/$slug'
     | '/library/$slug'
     | '/blog/'
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/coaching'
     | '/reset-password'
     | '/account'
+    | '/admin'
     | '/blog/$slug'
     | '/library/$slug'
     | '/blog'
@@ -170,6 +181,7 @@ export interface FileRouteTypes {
     | '/coaching'
     | '/reset-password'
     | '/_authenticated/account'
+    | '/_authenticated/admin'
     | '/blog/$slug'
     | '/library/$slug'
     | '/blog/'
@@ -234,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account'
       preLoaderRoute: typeof AuthenticatedAccountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/blog/': {
@@ -301,11 +320,13 @@ const AuthenticatedAccountRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRouteWithChildren
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedLearnSlugRoute: typeof AuthenticatedLearnSlugRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRouteWithChildren,
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedLearnSlugRoute: AuthenticatedLearnSlugRoute,
 }
 
