@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 
 const safe = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/account");
 
@@ -53,19 +52,10 @@ function AuthPage() {
     setBusy(false);
   }
 
-  async function google() {
-    sessionStorage.setItem("gswau_after_login", target);
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/auth" });
-    if (r.error) setMsg(r.error.message);
-  }
-
   return (
     <div className="mx-auto max-w-md px-5 py-16">
       <h1 className="text-4xl font-semibold">{mode === "up" ? "Create your account" : mode === "forgot" ? "Reset password" : "Sign in"}</h1>
       <p className="mt-2 text-sm text-muted-foreground">Use the same email you bought with to unlock your books.</p>
-      {mode !== "forgot" && (
-        <button onClick={google} className="mt-8 w-full rounded-md border border-border bg-card px-4 py-3 text-sm font-semibold">Continue with Google</button>
-      )}
       <form onSubmit={submit} className="mt-6 space-y-3">
         {mode === "up" && <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" maxLength={100} className="w-full rounded-md border border-input bg-background px-4 py-3 text-sm" />}
         <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" className="w-full rounded-md border border-input bg-background px-4 py-3 text-sm" />
