@@ -26,7 +26,7 @@ function Learn() {
       const { data: u } = await supabase.auth.getUser();
       const { data: course } = await supabase
         .from("products")
-        .select("id,title,buy_url")
+        .select("id,title")
         .eq("slug", slug)
         .maybeSingle();
       if (!course) return null;
@@ -109,16 +109,9 @@ function Learn() {
         {!access && (
           <div className="mt-8 rounded-md bg-secondary p-6">
             <p className="font-semibold">You're viewing the free preview lessons.</p>
-            {course.buy_url && (
-              <a
-                href={course.buy_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-gold mt-4"
-              >
-                Buy the full course
-              </a>
-            )}
+            <Link to="/membership" className="btn-gold mt-4">
+              Subscribe for the full course
+            </Link>
           </div>
         )}
       </div>

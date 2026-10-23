@@ -18,7 +18,16 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
 });
 
-const tabs = ["Products", "Access", "Courses", "Reviews", "Blog", "Email list"] as const;
+const tabs = [
+  "Products",
+  "Subscribers",
+  "Access",
+  "Courses",
+  "Reviews",
+  "Podcast",
+  "Blog",
+  "Email list",
+] as const;
 type Tab = (typeof tabs)[number];
 const input = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 
@@ -51,9 +60,11 @@ function Admin() {
       </div>
       <div className="mt-8">
         {tab === "Products" && <Products />}
+        {tab === "Subscribers" && <Subscribers />}
         {tab === "Access" && <Access />}
         {tab === "Courses" && <Courses />}
         {tab === "Reviews" && <Reviews />}
+        {tab === "Podcast" && <PodcastAdmin />}
         {tab === "Blog" && <Blog />}
         {tab === "Email list" && <Leads />}
       </div>
@@ -129,6 +140,10 @@ function Products() {
     is_featured: false,
     buy_url: "",
     file_path: null,
+    file_size_label: "",
+    length_label: "",
+    gallery_urls: [] as string[],
+    included_with_subscription: false,
     position: data.length,
   };
 
@@ -198,13 +213,48 @@ function Products() {
           />
         </label>
         <label className="text-sm">
-          Checkout link (gswau.com)
+          Free download link (free items only)
           <input
             className={input}
             value={edit.buy_url ?? ""}
             onChange={(e) => setEdit({ ...edit, buy_url: e.target.value })}
           />
         </label>
+        <label className="text-sm">
+          Cover image links (one per line — first one is the main cover)
+          <textarea
+            rows={3}
+            className={input}
+            value={edit.gallery_urls.join("\n")}
+            onChange={(e) =>
+              setEdit({
+                ...edit,
+                gallery_urls: e.target.value
+                  .split("\n")
+                  .map((x) => x.trim())
+                  .filter(Boolean),
+              })
+            }
+          />
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="text-sm">
+            File size (e.g. 83.1 MB)
+            <input
+              className={input}
+              value={edit.file_size_label ?? ""}
+              onChange={(e) => setEdit({ ...edit, file_size_label: e.target.value })}
+            />
+          </label>
+          <label className="text-sm">
+            Length (e.g. 90 minutes)
+            <input
+              className={input}
+              value={edit.length_label ?? ""}
+              onChange={(e) => setEdit({ ...edit, length_label: e.target.value })}
+            />
+          </label>
+        </div>
         <label className="text-sm">
           Description
           <textarea
@@ -224,16 +274,25 @@ function Products() {
           />
         </label>
         <div className="flex flex-wrap gap-4 text-sm">
-          {(["is_published", "is_featured", "is_free"] as const).map((k) => (
-            <label key={k} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={edit[k]}
-                onChange={(e) => setEdit({ ...edit, [k]: e.target.checked })}
-              />
-              {{ is_published: "Show on site", is_featured: "Flagship", is_free: "Free" }[k]}
-            </label>
-          ))}
+          {(["is_published", "is_featured", "is_free", "included_with_subscription"] as const).map(
+            (k) => (
+              <label key={k} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={edit[k]}
+                  onChange={(e) => setEdit({ ...edit, [k]: e.target.checked })}
+                />
+                {
+                  {
+                    is_published: "Show on site",
+                    is_featured: "Flagship",
+                    is_free: "Free",
+                    included_with_subscription: "Included with subscription",
+                  }[k]
+                }
+              </label>
+            ),
+          )}
         </div>
         <div className="rounded-md bg-secondary p-4 text-sm">
           <div className="font-semibold">Download file (PDF, ePub, MP3…)</div>
@@ -358,8 +417,7 @@ function Access() {
       <form onSubmit={grant} className="space-y-3">
         <h2 className="text-2xl font-semibold">Give a buyer access</h2>
         <p className="text-sm text-muted-foreground">
-          When someone buys on gswau.com, enter their email here to unlock the book or course in
-          their account.
+          Enter someone's email to unlock a single book, course or bundle in their account.
         </p>
         <input
           required
@@ -842,6 +900,238 @@ function Leads() {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function Subscribers() {
+  const qc = useQueryClient();
+  const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
+  const { data = [] } = useQuery({
+    queryKey: ["admin-subscribers"],
+    queryFn: async () => {
+      const { data: subs } = await supabase
+        .from("subscriptions")
+        .select("user_id,status,started_at,current_period_end")
+        .order("started_at", { ascending: false });
+      const ids = (subs ?? []).map((x) => x.user_id);
+      const { data: profs } = ids.length
+        ? await supabase.from("profiles").select("id,email").in("id", ids)
+        : { data: [] };
+      const map = new Map((profs ?? []).map((p) => [p.id, p.email]));
+      return (subs ?? []).map((x) => ({ ...x, email: map.get(x.user_id) }));
+    },
+  });
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault();
+    setMsg(null);
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("id")
+      .ilike("email", email.trim())
+      .maybeSingle();
+    if (!prof) return setMsg("No account with that email yet. They need to sign up first.");
+    const { error } = await supabase
+      .from("subscriptions")
+      .upsert({ user_id: prof.id, status: "active", current_period_end: null });
+    setMsg(error ? error.message : "Subscriber added.");
+    setEmail("");
+    qc.invalidateQueries({ queryKey: ["admin-subscribers"] });
+  }
+
+  async function setStatus(user_id: string, status: "active" | "canceled") {
+    await supabase.from("subscriptions").update({ status }).eq("user_id", user_id);
+    qc.invalidateQueries({ queryKey: ["admin-subscribers"] });
+  }
+
+  return (
+    <div className="grid gap-10 md:grid-cols-2">
+      <form onSubmit={add} className="space-y-3">
+        <h2 className="text-2xl font-semibold">Add a subscriber</h2>
+        <p className="text-sm text-muted-foreground">
+          Subscribers can read every product marked "Included with subscription". They need an
+          account first.
+        </p>
+        <input
+          required
+          type="email"
+          placeholder="Subscriber email"
+          className={input}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <button className="btn-gold">Add subscriber</button>
+        {msg && <p className="text-sm">{msg}</p>}
+      </form>
+      <div>
+        <h2 className="text-2xl font-semibold">{data.length} subscribers</h2>
+        <ul className="mt-4 divide-y divide-border text-sm">
+          {data.map((x) => (
+            <li key={x.user_id} className="flex items-center justify-between py-2">
+              <span>
+                {x.email ?? "—"} · {x.status}
+              </span>
+              <button
+                className="underline"
+                onClick={() => setStatus(x.user_id, x.status === "active" ? "canceled" : "active")}
+              >
+                {x.status === "active" ? "Cancel" : "Reactivate"}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function PodcastAdmin() {
+  const qc = useQueryClient();
+  const empty = {
+    id: "",
+    slug: "",
+    title: "",
+    description: "",
+    audio_url: "",
+    cover_image_url: "",
+    duration_label: "",
+    is_published: false,
+  };
+  const [p, setP] = useState(empty);
+  const [msg, setMsg] = useState<string | null>(null);
+  const { data = [] } = useQuery({
+    queryKey: ["admin-episodes"],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("podcast_episodes")
+          .select("*")
+          .order("created_at", { ascending: false })
+      ).data ?? [],
+  });
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    const { id, ...rest } = p;
+    const row = {
+      ...rest,
+      slug: rest.slug
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9-]+/g, "-"),
+      cover_image_url: rest.cover_image_url || null,
+      duration_label: rest.duration_label || null,
+      published_at: rest.is_published ? new Date().toISOString() : null,
+    };
+    const { error } = id
+      ? await supabase.from("podcast_episodes").update(row).eq("id", id)
+      : await supabase.from("podcast_episodes").insert(row);
+    setMsg(error ? error.message : "Saved.");
+    if (!error) {
+      setP(empty);
+      qc.invalidateQueries({ queryKey: ["admin-episodes"] });
+      qc.invalidateQueries({ queryKey: ["episodes"] });
+    }
+  }
+
+  return (
+    <div className="grid gap-10 md:grid-cols-2">
+      <form onSubmit={save} className="space-y-3">
+        <h2 className="text-2xl font-semibold">{p.id ? "Edit episode" : "New episode"}</h2>
+        <input
+          required
+          placeholder="Episode title"
+          className={input}
+          value={p.title}
+          onChange={(e) => setP({ ...p, title: e.target.value })}
+        />
+        <input
+          required
+          placeholder="Web address name (e.g. episode-1)"
+          className={input}
+          value={p.slug}
+          onChange={(e) => setP({ ...p, slug: e.target.value })}
+        />
+        <input
+          required
+          placeholder="Audio file link (MP3)"
+          className={input}
+          value={p.audio_url}
+          onChange={(e) => setP({ ...p, audio_url: e.target.value })}
+        />
+        <input
+          placeholder="Cover image link (optional)"
+          className={input}
+          value={p.cover_image_url}
+          onChange={(e) => setP({ ...p, cover_image_url: e.target.value })}
+        />
+        <input
+          placeholder="Length (e.g. 32 min)"
+          className={input}
+          value={p.duration_label}
+          onChange={(e) => setP({ ...p, duration_label: e.target.value })}
+        />
+        <textarea
+          rows={5}
+          placeholder="Description"
+          className={input}
+          value={p.description}
+          onChange={(e) => setP({ ...p, description: e.target.value })}
+        />
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={p.is_published}
+            onChange={(e) => setP({ ...p, is_published: e.target.checked })}
+          />
+          Published
+        </label>
+        <button className="btn-gold">Save episode</button>
+        {msg && <p className="text-sm">{msg}</p>}
+      </form>
+      <div>
+        <h2 className="text-2xl font-semibold">{data.length} episodes</h2>
+        <ul className="mt-4 divide-y divide-border text-sm">
+          {data.map((x) => (
+            <li key={x.id} className="flex items-center justify-between py-2">
+              <span>
+                {x.title} {x.is_published ? "" : "(draft)"}
+              </span>
+              <span className="flex gap-3">
+                <button
+                  className="underline"
+                  onClick={() =>
+                    setP({
+                      id: x.id,
+                      slug: x.slug,
+                      title: x.title,
+                      description: x.description,
+                      audio_url: x.audio_url,
+                      cover_image_url: x.cover_image_url ?? "",
+                      duration_label: x.duration_label ?? "",
+                      is_published: x.is_published,
+                    })
+                  }
+                >
+                  Edit
+                </button>
+                <button
+                  className="underline"
+                  onClick={async () => {
+                    await supabase.from("podcast_episodes").delete().eq("id", x.id);
+                    qc.invalidateQueries({ queryKey: ["admin-episodes"] });
+                    qc.invalidateQueries({ queryKey: ["episodes"] });
+                  }}
+                >
+                  Delete
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

@@ -4,7 +4,9 @@ import { z } from "zod";
 import { publicClient } from "./public-client.server";
 
 const PRODUCT_COLS =
-  "id,slug,type,title,subtitle,description,cover_image_url,price_cents,is_free,is_featured,buy_url,position";
+  "id,slug,type,title,subtitle,description,cover_image_url,gallery_urls,price_cents,is_free,is_featured,included_with_subscription,file_size_label,length_label,buy_url,position";
+
+const RATING_COLS = "product_id,review_count,average,stars_1,stars_2,stars_3,stars_4,stars_5";
 
 export const listProducts = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await publicClient()
@@ -13,7 +15,13 @@ export const listProducts = createServerFn({ method: "GET" }).handler(async () =
     .eq("is_published", true)
     .order("position");
   if (error) throw new Error(error.message);
-  return data;
+  const { data: ratings } = await publicClient().from("product_ratings").select(RATING_COLS);
+  const byProduct = new Map((ratings ?? []).map((r) => [r.product_id, r]));
+  return data.map((p) => ({
+    ...p,
+    rating_average: byProduct.get(p.id)?.average ?? null,
+    review_count: byProduct.get(p.id)?.review_count ?? 0,
+  }));
 });
 
 export const getProduct = createServerFn({ method: "GET" })
@@ -28,19 +36,34 @@ export const getProduct = createServerFn({ method: "GET" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!product) return null;
-    const [{ data: modules }, { data: outline }, { data: bundle }] = await Promise.all([
+    const [
+      { data: modules },
+      { data: outline },
+      { data: bundle },
+      { data: rating },
+      { data: reviews },
+    ] = await Promise.all([
       sb.from("modules").select("id,title,position").eq("course_id", product.id).order("position"),
       sb.rpc("course_outline", { _course: product.id }),
       sb
         .from("bundle_items")
         .select("product:products!bundle_items_product_id_fkey(slug,title,cover_image_url)")
         .eq("bundle_id", product.id),
+      sb.from("product_ratings").select(RATING_COLS).eq("product_id", product.id).maybeSingle(),
+      sb
+        .from("testimonials")
+        .select("id,name,location,quote,rating,created_at")
+        .eq("product_id", product.id)
+        .eq("is_published", true)
+        .order("created_at", { ascending: false }),
     ]);
     return {
       product,
       modules: modules ?? [],
       outline: outline ?? [],
       bundle: (bundle ?? []).map((b) => b.product).filter(Boolean),
+      rating,
+      reviews: reviews ?? [],
     };
   });
 
@@ -75,6 +98,15 @@ export const getPost = createServerFn({ method: "GET" })
     return post;
   });
 
+export const listEpisodes = createServerFn({ method: "GET" }).handler(async () => {
+  const { data } = await publicClient()
+    .from("podcast_episodes")
+    .select("id,slug,title,description,audio_url,cover_image_url,duration_label,published_at")
+    .eq("is_published", true)
+    .order("published_at", { ascending: false });
+  return data ?? [];
+});
+
 export const productsQuery = queryOptions({
   queryKey: ["products"],
   queryFn: () => listProducts(),
@@ -84,6 +116,10 @@ export const productQuery = (slug: string) =>
 export const testimonialsQuery = queryOptions({
   queryKey: ["testimonials"],
   queryFn: () => listTestimonials(),
+});
+export const episodesQuery = queryOptions({
+  queryKey: ["episodes"],
+  queryFn: () => listEpisodes(),
 });
 export const postsQuery = queryOptions({ queryKey: ["posts"], queryFn: () => listPosts() });
 export const postQuery = (slug: string) =>

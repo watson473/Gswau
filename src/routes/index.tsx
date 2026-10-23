@@ -5,6 +5,7 @@ import { author } from "@/lib/catalog";
 import { productsQuery, testimonialsQuery } from "@/lib/catalog.functions";
 import { BookCard, Stars } from "@/components/Cards";
 import { Eyebrow } from "@/components/SiteChrome";
+import { SubscribeBox } from "@/components/SubscribeBox";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -130,6 +131,28 @@ function Index() {
           </div>
         </section>
       )}
+
+      <section className="bg-secondary py-20">
+        <div className="mx-auto max-w-3xl px-5 text-center">
+          <Eyebrow>Membership</Eyebrow>
+          <h2 className="mt-3 text-4xl font-semibold sm:text-5xl">
+            Browse free. Subscribe to read.
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">
+            Explore the site and listen to the podcast for free. Subscribers get every book and
+            course in their library.
+          </p>
+          <div className="mx-auto mt-8 max-w-lg text-left">
+            <SubscribeBox source="home" />
+          </div>
+          <Link
+            to="/membership"
+            className="mt-5 inline-block text-sm font-semibold text-primary underline-offset-4 hover:underline"
+          >
+            See what subscribers get
+          </Link>
+        </div>
+      </section>
 
       <section className="bg-navy-gradient text-primary-foreground">
         <div className="mx-auto max-w-4xl px-5 py-20 text-center">

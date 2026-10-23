@@ -17,6 +17,7 @@ export function Header() {
   const nav = [
     { to: "/courses", label: "Programs" },
     { to: "/library", label: "Library" },
+    { to: "/podcast", label: "Podcast" },
     { to: "/coaching", label: "Coaching" },
     { to: "/blog", label: "Blog" },
   ] as const;
@@ -77,6 +78,9 @@ export function Footer() {
             GSW Augustin University
           </span>
         </div>
+        <Link to="/membership" className="text-sm text-gold underline-offset-4 hover:underline">
+          Membership
+        </Link>
         <p className="text-xs">
           © {2026} GSWAU · Books for barbers & hairstylists by {author.name}.
         </p>

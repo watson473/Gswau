@@ -234,6 +234,10 @@ export type Database = {
       };
       products: {
         Row: {
+          file_size_label: string | null;
+          gallery_urls: string[];
+          included_with_subscription: boolean;
+          length_label: string | null;
           buy_url: string | null;
           cover_image_url: string | null;
           created_at: string;
@@ -253,6 +257,10 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          file_size_label?: string | null;
+          gallery_urls?: string[];
+          included_with_subscription?: boolean;
+          length_label?: string | null;
           buy_url?: string | null;
           cover_image_url?: string | null;
           created_at?: string;
@@ -272,6 +280,10 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          file_size_label?: string | null;
+          gallery_urls?: string[];
+          included_with_subscription?: boolean;
+          length_label?: string | null;
           buy_url?: string | null;
           cover_image_url?: string | null;
           created_at?: string;
@@ -288,6 +300,48 @@ export type Database = {
           subtitle?: string;
           title?: string;
           type?: Database["public"]["Enums"]["product_type"];
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      podcast_episodes: {
+        Row: {
+          audio_url: string;
+          cover_image_url: string | null;
+          created_at: string;
+          description: string;
+          duration_label: string | null;
+          id: string;
+          is_published: boolean;
+          published_at: string | null;
+          slug: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          audio_url: string;
+          cover_image_url?: string | null;
+          created_at?: string;
+          description?: string;
+          duration_label?: string | null;
+          id?: string;
+          is_published?: boolean;
+          published_at?: string | null;
+          slug: string;
+          title: string;
+          updated_at?: string;
+        };
+        Update: {
+          audio_url?: string;
+          cover_image_url?: string | null;
+          created_at?: string;
+          description?: string;
+          duration_label?: string | null;
+          id?: string;
+          is_published?: boolean;
+          published_at?: string | null;
+          slug?: string;
+          title?: string;
           updated_at?: string;
         };
         Relationships: [];
@@ -316,6 +370,33 @@ export type Database = {
           full_name?: string | null;
           id?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      subscriptions: {
+        Row: {
+          current_period_end: string | null;
+          provider: string | null;
+          provider_ref: string | null;
+          started_at: string;
+          status: string;
+          user_id: string;
+        };
+        Insert: {
+          current_period_end?: string | null;
+          provider?: string | null;
+          provider_ref?: string | null;
+          started_at?: string;
+          status?: string;
+          user_id: string;
+        };
+        Update: {
+          current_period_end?: string | null;
+          provider?: string | null;
+          provider_ref?: string | null;
+          started_at?: string;
+          status?: string;
+          user_id?: string;
         };
         Relationships: [];
       };
@@ -383,7 +464,19 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      product_ratings: {
+        Row: {
+          average: number | null;
+          product_id: string | null;
+          review_count: number | null;
+          stars_1: number | null;
+          stars_2: number | null;
+          stars_3: number | null;
+          stars_4: number | null;
+          stars_5: number | null;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       course_outline: {
@@ -399,6 +492,7 @@ export type Database = {
         }[];
       };
       has_access: { Args: { _product: string }; Returns: boolean };
+      has_subscription: { Args: { _user?: string }; Returns: boolean };
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"];

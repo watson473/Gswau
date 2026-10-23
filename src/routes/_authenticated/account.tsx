@@ -52,6 +52,15 @@ function useLibrary() {
           (i) => i.product && owned.set((i.product as Owned).id, i.product as Owned),
         );
       }
+      const { data: subscribed } = await supabase.rpc("has_subscription", { _user: uid });
+      if (subscribed) {
+        const { data: included } = await supabase
+          .from("products")
+          .select("id,slug,title,type,cover_image_url,file_path")
+          .eq("included_with_subscription", true)
+          .eq("is_published", true);
+        (included ?? []).forEach((p) => owned.set(p.id, p));
+      }
       const { data: free } = await supabase
         .from("products")
         .select("id,slug,title,type,cover_image_url,file_path")
@@ -62,7 +71,12 @@ function useLibrary() {
         .select("full_name,email")
         .eq("id", uid)
         .maybeSingle();
-      return { items: [...owned.values()], profile, email: u.user!.email };
+      return {
+        items: [...owned.values()],
+        profile,
+        email: u.user!.email,
+        subscribed: !!subscribed,
+      };
     },
   });
 }
@@ -146,8 +160,17 @@ function Account() {
             ))}
           </div>
           <p className="mt-10 rounded-md bg-secondary p-5 text-sm text-muted-foreground">
-            Bought something on gswau.com that isn't showing? Books are added to your account once
-            your purchase is confirmed — make sure you signed up with the same email you paid with.
+            {data?.subscribed ? (
+              "You're a subscriber — every book and course included with the subscription is in your library."
+            ) : (
+              <>
+                Your library has the free chapter and anything granted to your account.{" "}
+                <Link to="/membership" className="underline">
+                  Subscribe
+                </Link>{" "}
+                to unlock all the books and courses.
+              </>
+            )}
           </p>
         </>
       )}
