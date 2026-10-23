@@ -8,7 +8,11 @@ export const Route = createFileRoute("/library/")({
   head: () => ({
     meta: [
       { title: "Library: Books for Barbers & Stylists — GSWAU" },
-      { name: "description", content: "Every GSWAU e-book, bundle and course by Gs. W. Augustin on pricing, clientele, branding, leadership and running a shop." },
+      {
+        name: "description",
+        content:
+          "Every GSWAU e-book, bundle and course by Gs. W. Augustin on pricing, clientele, branding, leadership and running a shop.",
+      },
       { property: "og:title", content: "The GSWAU Library" },
       { property: "og:description", content: "Practical books for barbers and hairstylists." },
       { property: "og:type", content: "website" },
@@ -25,7 +29,11 @@ function Library() {
     <div className="mx-auto max-w-6xl px-5 py-16">
       <Eyebrow>The library</Eyebrow>
       <h1 className="mt-3 text-5xl font-semibold">All titles</h1>
-      <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">{data.map((b) => <BookCard key={b.id} b={b} />)}</div>
+      <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">
+        {data.map((b) => (
+          <BookCard key={b.id} b={b} />
+        ))}
+      </div>
     </div>
   );
 }

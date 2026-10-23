@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CoachingRouteImport } from './routes/coaching'
+import { Route as MembershipRouteImport } from './routes/membership'
+import { Route as PodcastRouteImport } from './routes/podcast'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -41,6 +43,16 @@ const AuthRoute = AuthRouteImport.update({
 const CoachingRoute = CoachingRouteImport.update({
   id: '/coaching',
   path: '/coaching',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MembershipRoute = MembershipRouteImport.update({
+  id: '/membership',
+  path: '/membership',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PodcastRoute = PodcastRouteImport.update({
+  id: '/podcast',
+  path: '/podcast',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -99,6 +111,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/coaching': typeof CoachingRoute
+  '/membership': typeof MembershipRoute
+  '/podcast': typeof PodcastRoute
   '/reset-password': typeof ResetPasswordRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
@@ -114,6 +128,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/coaching': typeof CoachingRoute
+  '/membership': typeof MembershipRoute
+  '/podcast': typeof PodcastRoute
   '/reset-password': typeof ResetPasswordRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
@@ -131,6 +147,8 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/coaching': typeof CoachingRoute
+  '/membership': typeof MembershipRoute
+  '/podcast': typeof PodcastRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -148,6 +166,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/coaching'
+    | '/membership'
+    | '/podcast'
     | '/reset-password'
     | '/account'
     | '/admin'
@@ -163,6 +183,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/coaching'
+    | '/membership'
+    | '/podcast'
     | '/reset-password'
     | '/account'
     | '/admin'
@@ -179,6 +201,8 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/coaching'
+    | '/membership'
+    | '/podcast'
     | '/reset-password'
     | '/_authenticated/account'
     | '/_authenticated/admin'
@@ -196,6 +220,8 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CoachingRoute: typeof CoachingRoute
+  MembershipRoute: typeof MembershipRoute
+  PodcastRoute: typeof PodcastRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   BlogSlugRoute: typeof BlogSlugRoute
   LibrarySlugRoute: typeof LibrarySlugRoute
@@ -232,6 +258,20 @@ declare module '@tanstack/react-router' {
       path: '/coaching'
       fullPath: '/coaching'
       preLoaderRoute: typeof CoachingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/membership': {
+      id: '/membership'
+      path: '/membership'
+      fullPath: '/membership'
+      preLoaderRoute: typeof MembershipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/podcast': {
+      id: '/podcast'
+      path: '/podcast'
+      fullPath: '/podcast'
+      preLoaderRoute: typeof PodcastRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -338,6 +378,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CoachingRoute: CoachingRoute,
+  MembershipRoute: MembershipRoute,
+  PodcastRoute: PodcastRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   BlogSlugRoute: BlogSlugRoute,
   LibrarySlugRoute: LibrarySlugRoute,

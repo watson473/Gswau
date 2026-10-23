@@ -3,7 +3,13 @@ import { author } from "@/lib/catalog";
 import { useAuth } from "@/hooks/useAuth";
 
 export function Crest() {
-  return <img src={author.avatar} alt="GSWAU crest" className="h-10 w-10 rounded-full border-2 border-gold object-cover" />;
+  return (
+    <img
+      src={author.avatar}
+      alt="GSWAU crest"
+      className="h-10 w-10 rounded-full border-2 border-gold object-cover"
+    />
+  );
 }
 
 export function Header() {
@@ -11,6 +17,7 @@ export function Header() {
   const nav = [
     { to: "/courses", label: "Programs" },
     { to: "/library", label: "Library" },
+    { to: "/podcast", label: "Podcast" },
     { to: "/coaching", label: "Coaching" },
     { to: "/blog", label: "Blog" },
   ] as const;
@@ -26,15 +33,34 @@ export function Header() {
         </Link>
         <nav className="flex items-center gap-3 overflow-x-auto text-sm sm:gap-6">
           {nav.map((n) => (
-            <Link key={n.to} to={n.to} className="whitespace-nowrap text-primary-foreground/80 transition hover:text-gold" activeProps={{ className: "text-gold" }}>
+            <Link
+              key={n.to}
+              to={n.to}
+              className="whitespace-nowrap text-primary-foreground/80 transition hover:text-gold"
+              activeProps={{ className: "text-gold" }}
+            >
               {n.label}
             </Link>
           ))}
-          {isAdmin && <Link to="/admin" className="whitespace-nowrap text-gold">Admin</Link>}
+          {isAdmin && (
+            <Link to="/admin" className="whitespace-nowrap text-gold">
+              Admin
+            </Link>
+          )}
           {user ? (
-            <Link to="/account" className="whitespace-nowrap rounded-sm border border-gold/50 px-3 py-1.5 text-gold">My library</Link>
+            <Link
+              to="/account"
+              className="whitespace-nowrap rounded-sm border border-gold/50 px-3 py-1.5 text-gold"
+            >
+              My library
+            </Link>
           ) : (
-            <Link to="/auth" className="whitespace-nowrap rounded-sm border border-gold/50 px-3 py-1.5 text-gold">Sign in</Link>
+            <Link
+              to="/auth"
+              className="whitespace-nowrap rounded-sm border border-gold/50 px-3 py-1.5 text-gold"
+            >
+              Sign in
+            </Link>
           )}
         </nav>
       </div>
@@ -48,9 +74,16 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-12 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Crest />
-          <span className="font-display text-lg text-primary-foreground">GSW Augustin University</span>
+          <span className="font-display text-lg text-primary-foreground">
+            GSW Augustin University
+          </span>
         </div>
-        <p className="text-xs">© {2026} GSWAU · Books for barbers & hairstylists by {author.name}.</p>
+        <Link to="/membership" className="text-sm text-gold underline-offset-4 hover:underline">
+          Membership
+        </Link>
+        <p className="text-xs">
+          © {2026} GSWAU · Books for barbers & hairstylists by {author.name}.
+        </p>
       </div>
     </footer>
   );

@@ -8,9 +8,16 @@ export const Route = createFileRoute("/courses/")({
   head: () => ({
     meta: [
       { title: "Programs & Courses — GSWAU" },
-      { name: "description", content: "Video courses, the GSWAU Barber Success Bundle, Business Bootcamp and flagship guides by Gs. W. Augustin." },
+      {
+        name: "description",
+        content:
+          "Video courses, the GSWAU Barber Success Bundle, Business Bootcamp and flagship guides by Gs. W. Augustin.",
+      },
       { property: "og:title", content: "Programs & Courses — GSWAU" },
-      { property: "og:description", content: "Flagship business programs for barbers and stylists." },
+      {
+        property: "og:description",
+        content: "Flagship business programs for barbers and stylists.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -30,11 +37,19 @@ function Programs() {
       {courses.length > 0 && (
         <>
           <h2 className="mt-12 text-3xl font-semibold">Video courses</h2>
-          <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">{courses.map((b) => <BookCard key={b.id} b={b} />)}</div>
+          <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
+            {courses.map((b) => (
+              <BookCard key={b.id} b={b} />
+            ))}
+          </div>
         </>
       )}
       <h2 className="mt-12 text-3xl font-semibold">Flagship guides & bundles</h2>
-      <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">{featured.map((b) => <BookCard key={b.id} b={b} />)}</div>
+      <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
+        {featured.map((b) => (
+          <BookCard key={b.id} b={b} />
+        ))}
+      </div>
     </div>
   );
 }
