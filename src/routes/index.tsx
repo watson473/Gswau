@@ -10,14 +10,22 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "GSWAU — Books for Barbers & Hairstylists by Gs. W. Augustin" },
-      { name: "description", content: "Practical books for barbers and hairstylists: client retention, pricing, branding, leadership and running a profitable shop." },
+      {
+        name: "description",
+        content:
+          "Practical books for barbers and hairstylists: client retention, pricing, branding, leadership and running a profitable shop.",
+      },
       { property: "og:title", content: "GSW Augustin University" },
       { property: "og:description", content: "Master your craft and build a profitable business." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  loader: ({ context }) => Promise.all([context.queryClient.ensureQueryData(productsQuery), context.queryClient.ensureQueryData(testimonialsQuery)]),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(productsQuery),
+      context.queryClient.ensureQueryData(testimonialsQuery),
+    ]),
   component: Index,
 });
 
@@ -29,7 +37,13 @@ function Index() {
   return (
     <>
       <section className="relative overflow-hidden bg-navy-deep text-primary-foreground">
-        <img src={hero} alt="Barber fading a client's hair" width={1600} height={1008} className="absolute inset-0 h-full w-full object-cover opacity-50" />
+        <img
+          src={hero}
+          alt="Barber fading a client's hair"
+          width={1600}
+          height={1008}
+          className="absolute inset-0 h-full w-full object-cover opacity-50"
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/85 to-transparent" />
         <div className="relative mx-auto max-w-6xl px-5 py-24 sm:py-36">
           <div className="eyebrow text-gold">Books for barbers & hairstylists</div>
@@ -38,27 +52,60 @@ function Index() {
           </h1>
           <p className="mt-6 max-w-lg text-lg text-primary-foreground/75">{author.bio}</p>
           <div className="mt-9 flex flex-wrap gap-3">
-            <Link to="/library" className="btn-gold">Browse all {products.length} titles</Link>
-            {freeBook && <Link to="/library/$slug" params={{ slug: freeBook.slug }} className="btn-ghost">Get a free chapter</Link>}
+            <Link to="/library" className="btn-gold">
+              Browse all {products.length} titles
+            </Link>
+            {freeBook && (
+              <Link to="/library/$slug" params={{ slug: freeBook.slug }} className="btn-ghost">
+                Get a free chapter
+              </Link>
+            )}
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-5 py-20">
         <div className="flex items-end justify-between">
-          <div><Eyebrow>Flagship</Eyebrow><h2 className="mt-3 text-4xl font-semibold sm:text-5xl">Programs</h2></div>
-          <Link to="/courses" className="text-sm font-semibold text-primary underline-offset-4 hover:underline">View all</Link>
+          <div>
+            <Eyebrow>Flagship</Eyebrow>
+            <h2 className="mt-3 text-4xl font-semibold sm:text-5xl">Programs</h2>
+          </div>
+          <Link
+            to="/courses"
+            className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
+          >
+            View all
+          </Link>
         </div>
-        <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">{featured.slice(0, 8).map((b) => <BookCard key={b.id} b={b} />)}</div>
+        <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">
+          {featured.slice(0, 8).map((b) => (
+            <BookCard key={b.id} b={b} />
+          ))}
+        </div>
       </section>
 
       <section className="bg-secondary py-20">
         <div className="mx-auto max-w-6xl px-5">
           <div className="flex items-end justify-between">
-            <div><Eyebrow>The library</Eyebrow><h2 className="mt-3 text-4xl font-semibold sm:text-5xl">Latest books</h2></div>
-            <Link to="/library" className="text-sm font-semibold text-primary underline-offset-4 hover:underline">View all</Link>
+            <div>
+              <Eyebrow>The library</Eyebrow>
+              <h2 className="mt-3 text-4xl font-semibold sm:text-5xl">Latest books</h2>
+            </div>
+            <Link
+              to="/library"
+              className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              View all
+            </Link>
           </div>
-          <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">{products.filter((b) => !b.is_featured && !b.is_free && b.type === "ebook").slice(0, 8).map((b) => <BookCard key={b.id} b={b} />)}</div>
+          <div className="mt-10 grid grid-cols-2 gap-6 md:grid-cols-4">
+            {products
+              .filter((b) => !b.is_featured && !b.is_free && b.type === "ebook")
+              .slice(0, 8)
+              .map((b) => (
+                <BookCard key={b.id} b={b} />
+              ))}
+          </div>
         </div>
       </section>
 
@@ -68,10 +115,16 @@ function Index() {
           <h2 className="mt-3 text-4xl font-semibold sm:text-5xl">What students say</h2>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {testimonials.map((t) => (
-              <blockquote key={t.id} className="rounded-md border-l-4 border-gold bg-card p-6 shadow-card">
+              <blockquote
+                key={t.id}
+                className="rounded-md border-l-4 border-gold bg-card p-6 shadow-card"
+              >
                 <Stars n={t.rating} />
                 <p className="mt-3 font-display text-xl italic">“{t.quote}”</p>
-                <footer className="mt-3 text-sm text-muted-foreground">{t.name}{t.location ? `, ${t.location}` : ""}</footer>
+                <footer className="mt-3 text-sm text-muted-foreground">
+                  {t.name}
+                  {t.location ? `, ${t.location}` : ""}
+                </footer>
               </blockquote>
             ))}
           </div>
@@ -80,11 +133,19 @@ function Index() {
 
       <section className="bg-navy-gradient text-primary-foreground">
         <div className="mx-auto max-w-4xl px-5 py-20 text-center">
-          <img src={author.avatar} alt={author.name} className="mx-auto h-20 w-20 rounded-full border-2 border-gold object-cover" />
+          <img
+            src={author.avatar}
+            alt={author.name}
+            className="mx-auto h-20 w-20 rounded-full border-2 border-gold object-cover"
+          />
           <div className="eyebrow mt-6 text-gold">1:1 Coaching</div>
           <h2 className="mt-4 text-4xl font-semibold sm:text-5xl">A mentor in your corner.</h2>
-          <p className="mx-auto mt-4 max-w-xl text-primary-foreground/75">Private sessions with {author.name} on pricing, hiring, branding and opening your shop.</p>
-          <Link to="/coaching" className="btn-gold mt-8">See coaching</Link>
+          <p className="mx-auto mt-4 max-w-xl text-primary-foreground/75">
+            Private sessions with {author.name} on pricing, hiring, branding and opening your shop.
+          </p>
+          <Link to="/coaching" className="btn-gold mt-8">
+            See coaching
+          </Link>
         </div>
       </section>
     </>
