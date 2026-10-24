@@ -74,7 +74,7 @@ function ProductPage() {
             width={360}
             height={540}
             fetchPriority="high"
-            className="h-auto w-full rounded-md shadow-card"
+            className="mx-auto h-auto w-full max-w-[260px] rounded-md shadow-card md:max-w-none"
           />
         )}
         {images.length > 1 && (
