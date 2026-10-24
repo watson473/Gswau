@@ -8,6 +8,33 @@ export type Database = {
   };
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          anon_id: string | null;
+          created_at: string;
+          id: number;
+          name: string;
+          props: Json;
+          user_id: string | null;
+        };
+        Insert: {
+          anon_id?: string | null;
+          created_at?: string;
+          id?: never;
+          name: string;
+          props?: Json;
+          user_id?: string | null;
+        };
+        Update: {
+          anon_id?: string | null;
+          created_at?: string;
+          id?: never;
+          name?: string;
+          props?: Json;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       blog_posts: {
         Row: {
           body: string;
@@ -79,22 +106,34 @@ export type Database = {
       };
       entitlements: {
         Row: {
+          email: string | null;
           granted_at: string;
+          gumroad_sale_id: string | null;
           id: string;
           product_id: string;
-          user_id: string;
+          revoked_at: string | null;
+          source: string;
+          user_id: string | null;
         };
         Insert: {
+          email?: string | null;
           granted_at?: string;
+          gumroad_sale_id?: string | null;
           id?: string;
           product_id: string;
-          user_id: string;
+          revoked_at?: string | null;
+          source?: string;
+          user_id?: string | null;
         };
         Update: {
+          email?: string | null;
           granted_at?: string;
+          gumroad_sale_id?: string | null;
           id?: string;
           product_id?: string;
-          user_id?: string;
+          revoked_at?: string | null;
+          source?: string;
+          user_id?: string | null;
         };
         Relationships: [
           {
@@ -105,6 +144,57 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      gumroad_events: {
+        Row: {
+          dedupe_key: string;
+          email: string | null;
+          error: string | null;
+          gumroad_product_id: string | null;
+          id: string;
+          is_test: boolean;
+          outcome: string | null;
+          payload: Json;
+          permalink: string | null;
+          product_id: string | null;
+          received_at: string;
+          resource: string;
+          sale_id: string | null;
+          subscription_id: string | null;
+        };
+        Insert: {
+          dedupe_key: string;
+          email?: string | null;
+          error?: string | null;
+          gumroad_product_id?: string | null;
+          id?: string;
+          is_test?: boolean;
+          outcome?: string | null;
+          payload: Json;
+          permalink?: string | null;
+          product_id?: string | null;
+          received_at?: string;
+          resource: string;
+          sale_id?: string | null;
+          subscription_id?: string | null;
+        };
+        Update: {
+          dedupe_key?: string;
+          email?: string | null;
+          error?: string | null;
+          gumroad_product_id?: string | null;
+          id?: string;
+          is_test?: boolean;
+          outcome?: string | null;
+          payload?: Json;
+          permalink?: string | null;
+          product_id?: string | null;
+          received_at?: string;
+          resource?: string;
+          sale_id?: string | null;
+          subscription_id?: string | null;
+        };
+        Relationships: [];
       };
       leads: {
         Row: {
@@ -234,21 +324,25 @@ export type Database = {
       };
       products: {
         Row: {
-          file_size_label: string | null;
-          gallery_urls: string[];
-          included_with_subscription: boolean;
-          length_label: string | null;
+          access_tier: Database["public"]["Enums"]["access_tier"];
+          audio_path: string | null;
           buy_url: string | null;
           cover_image_url: string | null;
           created_at: string;
           description: string;
           file_path: string | null;
+          file_size_label: string | null;
+          gallery_urls: string[];
+          gumroad_permalink: string | null;
+          gumroad_product_id: string | null;
           id: string;
           is_featured: boolean;
           is_free: boolean;
           is_lead_magnet: boolean;
           is_published: boolean;
+          length_label: string | null;
           position: number;
+          preview_path: string | null;
           price_cents: number;
           slug: string;
           subtitle: string;
@@ -257,21 +351,25 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
-          file_size_label?: string | null;
-          gallery_urls?: string[];
-          included_with_subscription?: boolean;
-          length_label?: string | null;
+          access_tier?: Database["public"]["Enums"]["access_tier"];
+          audio_path?: string | null;
           buy_url?: string | null;
           cover_image_url?: string | null;
           created_at?: string;
           description?: string;
           file_path?: string | null;
+          file_size_label?: string | null;
+          gallery_urls?: string[];
+          gumroad_permalink?: string | null;
+          gumroad_product_id?: string | null;
           id?: string;
           is_featured?: boolean;
-          is_free?: boolean;
+          is_free?: never;
           is_lead_magnet?: boolean;
           is_published?: boolean;
+          length_label?: string | null;
           position?: number;
+          preview_path?: string | null;
           price_cents?: number;
           slug: string;
           subtitle?: string;
@@ -280,21 +378,25 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
-          file_size_label?: string | null;
-          gallery_urls?: string[];
-          included_with_subscription?: boolean;
-          length_label?: string | null;
+          access_tier?: Database["public"]["Enums"]["access_tier"];
+          audio_path?: string | null;
           buy_url?: string | null;
           cover_image_url?: string | null;
           created_at?: string;
           description?: string;
           file_path?: string | null;
+          file_size_label?: string | null;
+          gallery_urls?: string[];
+          gumroad_permalink?: string | null;
+          gumroad_product_id?: string | null;
           id?: string;
           is_featured?: boolean;
-          is_free?: boolean;
+          is_free?: never;
           is_lead_magnet?: boolean;
           is_published?: boolean;
+          length_label?: string | null;
           position?: number;
+          preview_path?: string | null;
           price_cents?: number;
           slug?: string;
           subtitle?: string;
@@ -373,30 +475,72 @@ export type Database = {
         };
         Relationships: [];
       };
-      subscriptions: {
+      memberships: {
         Row: {
+          cancelled_at: string | null;
           current_period_end: string | null;
-          provider: string | null;
-          provider_ref: string | null;
+          email: string;
+          ended_at: string | null;
+          gumroad_product_id: string | null;
+          gumroad_subscription_id: string | null;
+          id: string;
+          manage_url: string | null;
+          plan: string;
+          source: string;
           started_at: string;
           status: string;
-          user_id: string;
+          updated_at: string;
+          user_id: string | null;
         };
         Insert: {
+          cancelled_at?: string | null;
           current_period_end?: string | null;
-          provider?: string | null;
-          provider_ref?: string | null;
+          email: string;
+          ended_at?: string | null;
+          gumroad_product_id?: string | null;
+          gumroad_subscription_id?: string | null;
+          id?: string;
+          manage_url?: string | null;
+          plan?: string;
+          source?: string;
           started_at?: string;
           status?: string;
-          user_id: string;
+          updated_at?: string;
+          user_id?: string | null;
         };
         Update: {
+          cancelled_at?: string | null;
           current_period_end?: string | null;
-          provider?: string | null;
-          provider_ref?: string | null;
+          email?: string;
+          ended_at?: string | null;
+          gumroad_product_id?: string | null;
+          gumroad_subscription_id?: string | null;
+          id?: string;
+          manage_url?: string | null;
+          plan?: string;
+          source?: string;
           started_at?: string;
           status?: string;
-          user_id?: string;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      site_settings: {
+        Row: {
+          key: string;
+          updated_at: string;
+          value: string;
+        };
+        Insert: {
+          key: string;
+          updated_at?: string;
+          value?: string;
+        };
+        Update: {
+          key?: string;
+          updated_at?: string;
+          value?: string;
         };
         Relationships: [];
       };
@@ -492,7 +636,8 @@ export type Database = {
         }[];
       };
       has_access: { Args: { _product: string }; Returns: boolean };
-      has_subscription: { Args: { _user?: string }; Returns: boolean };
+      has_membership: { Args: { _user?: string }; Returns: boolean };
+      user_email: { Args: { _user: string }; Returns: string };
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"];
@@ -502,6 +647,7 @@ export type Database = {
       };
     };
     Enums: {
+      access_tier: "free" | "members" | "premium";
       app_role: "admin" | "user";
       lesson_type: "video" | "audio" | "text";
       product_type: "ebook" | "audiobook" | "course" | "bundle";
