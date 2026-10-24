@@ -10,9 +10,16 @@ the Gumroad notification log, settings, analytics and the public `previews` buck
 
 ## 2. Hosting (Vercel)
 
+Vercel's free Hobby plan is for personal, non-commercial sites. GSWAU sells memberships, so use
+the **Pro** plan for the live site.
+
 1. Sign in at vercel.com with GitHub and import `watson473/Gswau`.
 2. Framework preset: **Other**. Build command `npm run build`. Leave the output directory empty.
-3. Add these environment variables (Settings → Environment Variables), for Production and Preview:
+3. Settings → Git → Production Branch: `feat/phase-1-membership` until the branch is merged.
+   (`main` still has the old code, which no longer matches the database.)
+4. Settings → Deployment Protection: turn off **Vercel Authentication** while testing, or Gumroad's
+   notifications to the preview address are blocked.
+5. Add these environment variables (Settings → Environment Variables), for Production and Preview:
 
 | Name | Value | Secret? |
 | --- | --- | --- |
@@ -22,17 +29,24 @@ the Gumroad notification log, settings, analytics and the public `previews` buck
 | `SUPABASE_PROJECT_ID` / `VITE_SUPABASE_PROJECT_ID` | from `.env` | no |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Project Settings → API keys → secret key | **yes** |
 | `GUMROAD_ACCESS_TOKEN` | Gumroad → Settings → Advanced → Applications → your app → access token | **yes** |
-| `GUMROAD_WEBHOOK_SECRET` | any long random string (e.g. 40 letters and numbers) | **yes** |
+| `GUMROAD_WEBHOOK_SECRET` | a random string: run `openssl rand -hex 24` in your own Terminal | **yes** |
 
 Never put the three secret values in `.env`, the code, or chat.
+
+6. Redeploy (Deployments → ⋯ → Redeploy) so the variables take effect.
+7. Supabase → Authentication → URL Configuration: add the Vercel address to **Redirect URLs**
+   (e.g. `https://gswau-*.vercel.app/**`), so sign-up and password emails link back to the site.
 
 Every branch gets its own preview address on Vercel, so payments can be tested before merging.
 
 ## 3. Gumroad
 
-1. Create one **Membership** product with two prices: Monthly $19.99 and Yearly $199.
-2. Admin → Settings: paste the checkout links (monthly and annual), and the membership's short
-   link (the part after `/l/`).
+1. Create one **Membership** product with two prices: Monthly $19.99 and Yearly $199
+   (done: `gswau.gumroad.com/l/membership`). Publish it before the first test purchase.
+2. Admin → Settings:
+   - Monthly and annual checkout links: `https://gswau.gumroad.com/l/membership`
+     (buyers choose Monthly or Yearly on Gumroad's page)
+   - Membership short link: `membership`
 3. Admin → Gumroad: check all three server settings show ✓, then click
    **Connect Gumroad notifications**.
 4. Click **Import past buyers** once.
