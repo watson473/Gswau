@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isSubscriber, setIsSubscriber] = useState(false);
+  const [isMember, setIsMember] = useState(false);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -14,17 +14,17 @@ export function useAuth() {
       if (!active) return;
       setUser(u);
       if (u) {
-        const [{ data: admin }, { data: subscriber }] = await Promise.all([
+        const [{ data: admin }, { data: member }] = await Promise.all([
           supabase.rpc("has_role", { _user_id: u.id, _role: "admin" }),
-          supabase.rpc("has_subscription", { _user: u.id }),
+          supabase.rpc("has_membership", { _user: u.id }),
         ]);
         if (active) {
           setIsAdmin(!!admin);
-          setIsSubscriber(!!subscriber);
+          setIsMember(!!member);
         }
       } else {
         setIsAdmin(false);
-        setIsSubscriber(false);
+        setIsMember(false);
       }
       if (active) setReady(true);
     };
@@ -39,5 +39,5 @@ export function useAuth() {
     };
   }, []);
 
-  return { user, isAdmin, isSubscriber, ready };
+  return { user, isAdmin, isMember, ready };
 }
