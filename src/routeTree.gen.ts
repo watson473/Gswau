@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CoachingRouteImport } from './routes/coaching'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as PodcastRouteImport } from './routes/podcast'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -25,6 +26,7 @@ import { Route as LibraryIndexRouteImport } from './routes/library.index'
 import { Route as LibrarySlugRouteImport } from './routes/library.$slug'
 import { Route as AuthenticatedAccountReviewRouteImport } from './routes/_authenticated/account.review'
 import { Route as AuthenticatedLearnSlugRouteImport } from './routes/_authenticated/learn.$slug'
+import { Route as ApiGumroadSecretRouteImport } from './routes/api/gumroad.$secret'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -53,6 +55,11 @@ const MembershipRoute = MembershipRouteImport.update({
 const PodcastRoute = PodcastRouteImport.update({
   id: '/podcast',
   path: '/podcast',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -106,6 +113,11 @@ const AuthenticatedLearnSlugRoute = AuthenticatedLearnSlugRouteImport.update({
   path: '/learn/$slug',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiGumroadSecretRoute = ApiGumroadSecretRouteImport.update({
+  id: '/api/gumroad/$secret',
+  path: '/api/gumroad/$secret',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -113,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/coaching': typeof CoachingRoute
   '/membership': typeof MembershipRoute
   '/podcast': typeof PodcastRoute
+  '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
@@ -123,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/library/': typeof LibraryIndexRoute
   '/account/review': typeof AuthenticatedAccountReviewRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
+  '/api/gumroad/$secret': typeof ApiGumroadSecretRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -130,6 +144,7 @@ export interface FileRoutesByTo {
   '/coaching': typeof CoachingRoute
   '/membership': typeof MembershipRoute
   '/podcast': typeof PodcastRoute
+  '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
@@ -140,6 +155,7 @@ export interface FileRoutesByTo {
   '/library': typeof LibraryIndexRoute
   '/account/review': typeof AuthenticatedAccountReviewRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
+  '/api/gumroad/$secret': typeof ApiGumroadSecretRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -149,6 +165,7 @@ export interface FileRoutesById {
   '/coaching': typeof CoachingRoute
   '/membership': typeof MembershipRoute
   '/podcast': typeof PodcastRoute
+  '/pricing': typeof PricingRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -159,6 +176,7 @@ export interface FileRoutesById {
   '/library/': typeof LibraryIndexRoute
   '/_authenticated/account/review': typeof AuthenticatedAccountReviewRoute
   '/_authenticated/learn/$slug': typeof AuthenticatedLearnSlugRoute
+  '/api/gumroad/$secret': typeof ApiGumroadSecretRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -168,6 +186,7 @@ export interface FileRouteTypes {
     | '/coaching'
     | '/membership'
     | '/podcast'
+    | '/pricing'
     | '/reset-password'
     | '/account'
     | '/admin'
@@ -178,6 +197,7 @@ export interface FileRouteTypes {
     | '/library/'
     | '/account/review'
     | '/learn/$slug'
+    | '/api/gumroad/$secret'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -185,6 +205,7 @@ export interface FileRouteTypes {
     | '/coaching'
     | '/membership'
     | '/podcast'
+    | '/pricing'
     | '/reset-password'
     | '/account'
     | '/admin'
@@ -195,6 +216,7 @@ export interface FileRouteTypes {
     | '/library'
     | '/account/review'
     | '/learn/$slug'
+    | '/api/gumroad/$secret'
   id:
     | '__root__'
     | '/'
@@ -203,6 +225,7 @@ export interface FileRouteTypes {
     | '/coaching'
     | '/membership'
     | '/podcast'
+    | '/pricing'
     | '/reset-password'
     | '/_authenticated/account'
     | '/_authenticated/admin'
@@ -213,6 +236,7 @@ export interface FileRouteTypes {
     | '/library/'
     | '/_authenticated/account/review'
     | '/_authenticated/learn/$slug'
+    | '/api/gumroad/$secret'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -222,12 +246,14 @@ export interface RootRouteChildren {
   CoachingRoute: typeof CoachingRoute
   MembershipRoute: typeof MembershipRoute
   PodcastRoute: typeof PodcastRoute
+  PricingRoute: typeof PricingRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   BlogSlugRoute: typeof BlogSlugRoute
   LibrarySlugRoute: typeof LibrarySlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CoursesIndexRoute: typeof CoursesIndexRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
+  ApiGumroadSecretRoute: typeof ApiGumroadSecretRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -272,6 +298,13 @@ declare module '@tanstack/react-router' {
       path: '/podcast'
       fullPath: '/podcast'
       preLoaderRoute: typeof PodcastRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -344,6 +377,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLearnSlugRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/gumroad/$secret': {
+      id: '/api/gumroad/$secret'
+      path: '/api/gumroad/$secret'
+      fullPath: '/api/gumroad/$secret'
+      preLoaderRoute: typeof ApiGumroadSecretRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -380,12 +420,14 @@ const rootRouteChildren: RootRouteChildren = {
   CoachingRoute: CoachingRoute,
   MembershipRoute: MembershipRoute,
   PodcastRoute: PodcastRoute,
+  PricingRoute: PricingRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   BlogSlugRoute: BlogSlugRoute,
   LibrarySlugRoute: LibrarySlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   CoursesIndexRoute: CoursesIndexRoute,
   LibraryIndexRoute: LibraryIndexRoute,
+  ApiGumroadSecretRoute: ApiGumroadSecretRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
