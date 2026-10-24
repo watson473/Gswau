@@ -1,15 +1,20 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { author, formatLabel, money } from "@/lib/catalog";
-import { productQuery } from "@/lib/catalog.functions";
+import { author, formatMoney } from "@/lib/catalog";
+import { productQuery, settingsQuery } from "@/lib/catalog.functions";
+import { track } from "@/lib/analytics";
+import { useT } from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Stars } from "@/components/Cards";
 
 export const Route = createFileRoute("/library/$slug")({
   loader: async ({ context, params }) => {
-    const data = await context.queryClient.ensureQueryData(productQuery(params.slug));
+    const [data] = await Promise.all([
+      context.queryClient.ensureQueryData(productQuery(params.slug)),
+      context.queryClient.ensureQueryData(settingsQuery),
+    ]);
     if (!data) throw notFound();
     return data;
   },
@@ -40,7 +45,9 @@ export const Route = createFileRoute("/library/$slug")({
 function ProductPage() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(productQuery(slug));
+  const { data: settings } = useSuspenseQuery(settingsQuery);
   const { user } = useAuth();
+  const { t, locale } = useT();
   const [shown, setShown] = useState(0);
   const { data: hasAccess } = useQuery({
     queryKey: ["has-access", user?.id, data?.product.id],
@@ -64,7 +71,10 @@ function ProductPage() {
           <img
             src={images[shown] ?? images[0]}
             alt={b.title}
-            className="w-full rounded-md shadow-card"
+            width={360}
+            height={540}
+            fetchPriority="high"
+            className="h-auto w-full rounded-md shadow-card"
           />
         )}
         {images.length > 1 && (
@@ -84,62 +94,93 @@ function ProductPage() {
       </div>
       <div>
         <div className="eyebrow text-crimson">
-          {formatLabel[b.type]} · by {author.name}
+          {t("product.by", { format: t(`format.${b.type}`), author: author.name })}
         </div>
-        <h1 className="mt-3 text-5xl font-semibold leading-tight">{b.title}</h1>
+        <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">{b.title}</h1>
         {b.subtitle && (
           <p className="mt-2 font-display text-xl italic text-muted-foreground">{b.subtitle}</p>
         )}
         <div className="mt-8 rounded-md border border-border bg-card p-6">
-          <div className="font-display text-4xl font-semibold">{money(b.price_cents)}</div>
-          {b.is_free ? (
+          <div className="font-display text-4xl font-semibold">
+            {b.price_cents === 0 ? t("price.free") : formatMoney(b.price_cents / 100, locale)}
+          </div>
+          {b.access_tier === "free" ? (
             <FreeForm source={b.slug} buyUrl={b.buy_url} />
-          ) : (
-            <div className="mt-4 flex flex-wrap gap-3">
-              {hasAccess && b.type === "course" && (
+          ) : hasAccess ? (
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              {b.type === "course" ? (
                 <Link to="/learn/$slug" params={{ slug: b.slug }} className="btn-gold">
-                  Go to course
+                  {t("product.goToCourse")}
                 </Link>
-              )}
-              {hasAccess && b.type !== "course" && (
+              ) : (
                 <Link to="/account" className="btn-gold">
-                  Open in my library
-                </Link>
-              )}
-              {!hasAccess && b.included_with_subscription && (
-                <Link to="/membership" className="btn-gold">
-                  Subscribe to read this
-                </Link>
-              )}
-              {!hasAccess && b.type === "course" && user && (
-                <Link to="/learn/$slug" params={{ slug: b.slug }} className="btn-ghost">
-                  Free preview lessons
-                </Link>
-              )}
-              {!user && (
-                <Link to="/auth" className="btn-ghost">
-                  Sign in
+                  {t("product.openLibrary")}
                 </Link>
               )}
             </div>
+          ) : (
+            <>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                {b.access_tier === "members" && (
+                  <Link to="/pricing" className="btn-gold">
+                    {t("product.join")}
+                  </Link>
+                )}
+                {b.buy_url && (
+                  <a
+                    href={b.buy_url}
+                    rel="noopener"
+                    className={b.access_tier === "premium" ? "btn-gold" : "btn-ghost"}
+                  >
+                    {t("product.buy", { price: formatMoney(b.price_cents / 100, locale) })}
+                  </a>
+                )}
+                {b.type === "course" && user && (
+                  <Link to="/learn/$slug" params={{ slug: b.slug }} className="btn-ghost">
+                    {t("product.previewLessons")}
+                  </Link>
+                )}
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                {b.access_tier === "premium" ? t("product.premiumNote") : t("product.includedNote")}
+              </p>
+              {!user && (
+                <p className="mt-2 text-xs text-muted-foreground">
+                  {t("product.bought")}{" "}
+                  <Link to="/auth" className="underline">
+                    {t("product.signInLink")}
+                  </Link>{" "}
+                  {t("product.signInNote")}
+                </p>
+              )}
+            </>
           )}
-          {b.included_with_subscription && !b.is_free && (
-            <p className="mt-3 text-sm text-muted-foreground">
-              Included with a GSWAU subscription — browse the site free, subscribe to read.
-            </p>
+          {b.preview_path && (
+            <a
+              href={previewUrl(b.preview_path)}
+              target="_blank"
+              rel="noopener"
+              onClick={() => track("preview_read", { product: b.slug })}
+              className="mt-5 flex items-center justify-between gap-3 rounded-md border border-gold/50 px-4 py-3 text-sm font-semibold hover:bg-secondary"
+            >
+              <span>{t("product.preview")}</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {t("product.previewPages", { count: settings.previewPages })}
+              </span>
+            </a>
           )}
           {(b.file_size_label || b.length_label) && (
             <dl className="mt-4 flex gap-8 border-t border-border pt-4 text-sm">
               {b.file_size_label && (
                 <div>
-                  <dt className="eyebrow text-muted-foreground">Size</dt>
+                  <dt className="eyebrow text-muted-foreground">{t("product.size")}</dt>
                   <dd className="mt-1 font-semibold">{b.file_size_label}</dd>
                 </div>
               )}
               {b.length_label && (
                 <div>
                   <dt className="eyebrow text-muted-foreground">
-                    {/page/i.test(b.length_label) ? "Length" : "Duration"}
+                    {/page/i.test(b.length_label) ? t("product.length") : t("product.duration")}
                   </dt>
                   <dd className="mt-1 font-semibold">{b.length_label}</dd>
                 </div>
@@ -196,6 +237,10 @@ function ProductPage() {
       </div>
     </div>
   );
+}
+
+function previewUrl(path: string) {
+  return supabase.storage.from("previews").getPublicUrl(path).data.publicUrl;
 }
 
 type Reviews = NonNullable<
@@ -342,20 +387,16 @@ function ProductReviewForm({ productId }: { productId: string }) {
 }
 
 function FreeForm({ source, buyUrl }: { source: string; buyUrl: string | null }) {
+  const { t } = useT();
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
   const [email, setEmail] = useState("");
   if (state === "done")
     return (
-      <p className="mt-4 text-sm">
-        You're on the list.{" "}
+      <p role="status" className="mt-4 text-sm">
+        {t("freeForm.done")}{" "}
         {buyUrl && (
-          <a
-            href={buyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold underline"
-          >
-            Download your free chapter
+          <a href={buyUrl} target="_blank" rel="noopener" className="font-semibold underline">
+            {t("freeForm.download")}
           </a>
         )}
       </p>
@@ -369,23 +410,28 @@ function FreeForm({ source, buyUrl }: { source: string; buyUrl: string | null })
         const { error } = await supabase
           .from("leads")
           .insert({ email: email.trim().toLowerCase(), source });
+        if (!error) track("newsletter_signup", { source });
         setState(error ? "error" : "done");
       }}
     >
       <input
         required
         type="email"
+        autoComplete="email"
         maxLength={255}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="you@email.com"
+        placeholder={t("subscribe.placeholder")}
+        aria-label={t("subscribe.placeholder")}
         className="flex-1 rounded-md border border-input bg-background px-4 py-3 text-sm"
       />
       <button className="btn-gold" disabled={state === "sending"}>
-        {state === "sending" ? "Sending…" : "Send it free"}
+        {state === "sending" ? t("freeForm.sending") : t("freeForm.button")}
       </button>
       {state === "error" && (
-        <p className="text-sm text-crimson">Something went wrong — please try again.</p>
+        <p role="alert" className="text-sm text-crimson">
+          {t("freeForm.error")}
+        </p>
       )}
     </form>
   );
