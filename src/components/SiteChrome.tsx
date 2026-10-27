@@ -14,7 +14,7 @@ export function Logo({ size = 40 }: { size?: number }) {
       alt={t("brand.logoAlt")}
       width={size}
       height={size}
-      className="rounded-full border-2 border-gold object-cover"
+      className="rounded-full object-cover"
       style={{ width: size, height: size }}
     />
   );
