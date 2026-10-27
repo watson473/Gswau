@@ -10,6 +10,7 @@ import {
   importGumroadBuyers,
   replayGumroadNotification,
 } from "@/lib/admin-gumroad.functions";
+import { checkKit, sendToKit } from "@/lib/admin-kit.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -972,6 +973,70 @@ function Blog() {
   );
 }
 
+// Kit connection: check the key, look an email up on Kit, or send one email to Kit now.
+function KitCheck() {
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [lines, setLines] = useState<string[]>([]);
+
+  async function run(fn: () => Promise<string[]>) {
+    setBusy(true);
+    try {
+      setLines(await fn());
+    } catch (e) {
+      setLines([`Error: ${e instanceof Error ? e.message : String(e)}`]);
+    }
+    setBusy(false);
+  }
+
+  const check = () =>
+    run(async () => {
+      const r = await checkKit({ data: { email } });
+      if (!r.configured) return ["✗ KIT_API_KEY is not set on the server (Vercel)."];
+      if (r.error) return [`✗ Kit refused the key: ${r.error}`];
+      const out = [`✓ Connected to Kit account “${r.account ?? ""}”.`];
+      if (r.email)
+        out.push(
+          r.subscriber
+            ? `${r.email} is on Kit, state: ${r.subscriber.state} (added ${new Date(r.subscriber.created_at).toLocaleString()}).`
+            : `${r.email} is not on Kit.`,
+        );
+      return out;
+    });
+  const send = () => run(async () => [`Kit: ${(await sendToKit({ data: { email } })).result}`]);
+
+  return (
+    <div className="rounded-md border border-border bg-card p-5 text-sm">
+      <h2 className="text-2xl font-semibold">Kit</h2>
+      <p className="mt-2 text-muted-foreground">
+        Sign-ups are sent to Kit as they come in. Check the connection, or look up an email.
+      </p>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+        <input
+          className={input}
+          type="email"
+          placeholder="Email to look up (optional)"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <button className="btn-gold" disabled={busy} onClick={check}>
+          {busy ? "Checking…" : "Check Kit"}
+        </button>
+        <button className="btn-ghost" disabled={busy || !email} onClick={send}>
+          Send to Kit now
+        </button>
+      </div>
+      {lines.length > 0 && (
+        <ul className="mt-4 space-y-1">
+          {lines.map((l) => (
+            <li key={l}>{l}</li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function Leads() {
   const { data = [] } = useQuery({
     queryKey: ["admin-leads"],
@@ -989,7 +1054,8 @@ function Leads() {
   }
   return (
     <div>
-      <div className="flex items-center justify-between">
+      <KitCheck />
+      <div className="mt-10 flex items-center justify-between">
         <h2 className="text-2xl font-semibold">{data.length} sign-ups</h2>
         {data.length > 0 && (
           <button className="btn-gold" onClick={exportCsv}>
