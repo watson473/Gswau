@@ -1,88 +1,141 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import logo from "@/assets/brand/logo.png";
 import { author } from "@/lib/catalog";
 import { useAuth } from "@/hooks/useAuth";
+import { useT } from "@/i18n";
 
-export function Crest() {
+// The one place the logo is drawn. To swap it, replace src/assets/brand/logo.png and run `npm run brand`.
+export function Logo({ size = 40 }: { size?: number }) {
+  const { t } = useT();
   return (
     <img
-      src={author.avatar}
-      alt="GSWAU crest"
-      className="h-10 w-10 rounded-full border-2 border-gold object-cover"
+      src={logo}
+      alt={t("brand.logoAlt")}
+      width={size}
+      height={size}
+      className="rounded-full border-2 border-gold object-cover"
+      style={{ width: size, height: size }}
     />
   );
 }
 
+const navItems = [
+  { to: "/library", key: "nav.library" },
+  { to: "/courses", key: "nav.programs" },
+  { to: "/podcast", key: "nav.podcast" },
+  { to: "/pricing", key: "nav.pricing" },
+  { to: "/coaching", key: "nav.coaching" },
+  { to: "/blog", key: "nav.blog" },
+] as const;
+
 export function Header() {
   const { user, isAdmin } = useAuth();
-  const nav = [
-    { to: "/courses", label: "Programs" },
-    { to: "/library", label: "Library" },
-    { to: "/podcast", label: "Podcast" },
-    { to: "/coaching", label: "Coaching" },
-    { to: "/blog", label: "Blog" },
-  ] as const;
+  const { t } = useT();
+  const [open, setOpen] = useState(false);
+  const account = user ? (
+    <Link to="/account" className="rounded-sm border border-gold/50 px-3 py-1.5 text-gold">
+      {t("nav.myLibrary")}
+    </Link>
+  ) : (
+    <Link to="/auth" className="rounded-sm border border-gold/50 px-3 py-1.5 text-gold">
+      {t("nav.signIn")}
+    </Link>
+  );
   return (
     <header className="sticky top-0 z-40 border-b border-gold/20 bg-navy-deep/95 text-primary-foreground backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-5">
-        <Link to="/" className="flex shrink-0 items-center gap-3">
-          <Crest />
-          <div className="hidden leading-tight sm:block">
-            <div className="font-display text-lg font-semibold">GSWAU</div>
-            <div className="eyebrow text-[0.55rem] text-gold">Augustin University</div>
+        <Link to="/" className="flex shrink-0 items-center gap-3" onClick={() => setOpen(false)}>
+          <Logo />
+          <div className="leading-tight">
+            <div className="font-display text-lg font-semibold">{t("brand.name")}</div>
+            <div className="eyebrow text-[0.55rem] text-gold">{t("brand.tagline")}</div>
           </div>
         </Link>
-        <nav className="flex items-center gap-3 overflow-x-auto text-sm sm:gap-6">
-          {nav.map((n) => (
+        <nav aria-label={t("nav.main")} className="hidden items-center gap-6 text-sm lg:flex">
+          {navItems.map((n) => (
             <Link
               key={n.to}
               to={n.to}
               className="whitespace-nowrap text-primary-foreground/80 transition hover:text-gold"
               activeProps={{ className: "text-gold" }}
             >
-              {n.label}
+              {t(n.key)}
             </Link>
           ))}
           {isAdmin && (
-            <Link to="/admin" className="whitespace-nowrap text-gold">
-              Admin
+            <Link to="/admin" className="text-gold">
+              {t("nav.admin")}
             </Link>
           )}
-          {user ? (
-            <Link
-              to="/account"
-              className="whitespace-nowrap rounded-sm border border-gold/50 px-3 py-1.5 text-gold"
-            >
-              My library
-            </Link>
-          ) : (
-            <Link
-              to="/auth"
-              className="whitespace-nowrap rounded-sm border border-gold/50 px-3 py-1.5 text-gold"
-            >
-              Sign in
-            </Link>
-          )}
+          {account}
         </nav>
+        <div className="flex items-center gap-3 text-sm lg:hidden">
+          {account}
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls="mobile-nav"
+            onClick={() => setOpen(!open)}
+            className="rounded-sm px-2 py-1.5 text-primary-foreground/90"
+          >
+            {open ? t("nav.close") : t("nav.menu")}
+          </button>
+        </div>
       </div>
+      {open && (
+        <nav
+          id="mobile-nav"
+          aria-label={t("nav.main")}
+          className="border-t border-gold/20 lg:hidden"
+        >
+          <ul className="mx-auto max-w-6xl px-5 py-2">
+            {navItems.map((n) => (
+              <li key={n.to}>
+                <Link
+                  to={n.to}
+                  onClick={() => setOpen(false)}
+                  className="block py-3 text-base text-primary-foreground/90"
+                  activeProps={{ className: "text-gold" }}
+                >
+                  {t(n.key)}
+                </Link>
+              </li>
+            ))}
+            {isAdmin && (
+              <li>
+                <Link to="/admin" onClick={() => setOpen(false)} className="block py-3 text-gold">
+                  {t("nav.admin")}
+                </Link>
+              </li>
+            )}
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }
 
 export function Footer() {
+  const { t } = useT();
   return (
     <footer className="bg-navy-deep text-primary-foreground/70">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-12 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-[1fr_auto] sm:items-center">
         <div className="flex items-center gap-3">
-          <Crest />
-          <span className="font-display text-lg text-primary-foreground">
-            GSW Augustin University
-          </span>
+          <Logo />
+          <span className="font-display text-lg text-primary-foreground">{t("brand.full")}</span>
         </div>
-        <Link to="/membership" className="text-sm text-gold underline-offset-4 hover:underline">
-          Membership
-        </Link>
-        <p className="text-xs">
-          © {2026} GSWAU · Books for barbers & hairstylists by {author.name}.
+        <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+          {navItems.map((n) => (
+            <li key={n.to}>
+              <Link to={n.to} className="hover:text-gold">
+                {t(n.key)}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <p className="text-xs sm:col-span-2">
+          {t("footer.copyright", { year: new Date().getFullYear(), author: author.name })}
         </p>
       </div>
     </footer>

@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { Header, Footer } from "../components/SiteChrome";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { I18nProvider, defaultLocale, textDirection } from "@/i18n";
 
 function NotFoundComponent() {
   return (
@@ -95,7 +96,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", href: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
   }),
   shellComponent: RootShell,
@@ -106,7 +109,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang={defaultLocale} dir={textDirection(defaultLocale)}>
       <head>
         <HeadContent />
       </head>
@@ -123,12 +126,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Header />
-      <main className="min-h-[60vh] font-sans">
-        <Outlet />
-      </main>
-      <Footer />
+      <I18nProvider locale={defaultLocale}>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Header />
+        <main className="min-h-[60vh] font-sans">
+          <Outlet />
+        </main>
+        <Footer />
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

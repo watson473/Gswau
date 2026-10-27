@@ -4,6 +4,12 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatLabel, money } from "@/lib/catalog";
+import {
+  connectGumroad,
+  gumroadSetupStatus,
+  importGumroadBuyers,
+  replayGumroadNotification,
+} from "@/lib/admin-gumroad.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -20,8 +26,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 const tabs = [
   "Products",
-  "Subscribers",
+  "Members",
   "Access",
+  "Gumroad",
+  "Settings",
+  "Analytics",
   "Courses",
   "Reviews",
   "Podcast",
@@ -30,6 +39,33 @@ const tabs = [
 ] as const;
 type Tab = (typeof tabs)[number];
 const input = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
+const tierLabel = { free: "Free", members: "Members", premium: "Premium" } as const;
+
+// Copies the first pages of a book PDF into the public previews bucket.
+async function makePreview(productId: string, slug: string, file: File) {
+  const { PDFDocument } = await import("pdf-lib");
+  const { data: setting } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "preview_pages")
+    .maybeSingle();
+  const pages = Number(setting?.value) || 10;
+  const source = await PDFDocument.load(await file.arrayBuffer(), { ignoreEncryption: true });
+  const preview = await PDFDocument.create();
+  const count = Math.min(pages, source.getPageCount());
+  const copied = await preview.copyPages(source, [...Array(count).keys()]);
+  copied.forEach((page) => preview.addPage(page));
+  preview.setTitle(`${source.getTitle() ?? slug} — free preview`);
+  const bytes = await preview.save();
+  const path = `${productId}/${slug}-preview.pdf`;
+  const { error } = await supabase.storage
+    .from("previews")
+    .upload(path, new Blob([bytes.slice().buffer as ArrayBuffer], { type: "application/pdf" }), {
+      upsert: true,
+    });
+  if (error) throw new Error(error.message);
+  return path;
+}
 
 function Admin() {
   const { isAdmin, ready } = useAuth();
@@ -60,8 +96,11 @@ function Admin() {
       </div>
       <div className="mt-8">
         {tab === "Products" && <Products />}
-        {tab === "Subscribers" && <Subscribers />}
+        {tab === "Members" && <Members />}
         {tab === "Access" && <Access />}
+        {tab === "Gumroad" && <GumroadAdmin />}
+        {tab === "Settings" && <SettingsAdmin />}
+        {tab === "Analytics" && <AnalyticsAdmin />}
         {tab === "Courses" && <Courses />}
         {tab === "Reviews" && <Reviews />}
         {tab === "Podcast" && <PodcastAdmin />}
@@ -92,9 +131,11 @@ function Products() {
   async function save(e: React.FormEvent) {
     e.preventDefault();
     if (!edit) return;
-    const { id, created_at, updated_at, ...rest } = edit;
+    const { id, created_at, updated_at, is_free, ...rest } = edit;
     const row = {
       ...rest,
+      gumroad_permalink: rest.gumroad_permalink?.trim() || null,
+      gumroad_product_id: rest.gumroad_product_id?.trim() || null,
       slug: rest.slug
         .trim()
         .toLowerCase()
@@ -110,16 +151,34 @@ function Products() {
     }
   }
 
-  async function upload(file: File) {
-    if (!edit?.id) return setMsg("Save the product first, then upload its file.");
+  // Uploads the book PDF or audiobook; for a PDF, also makes the free preview from its first pages.
+  async function upload(file: File, kind: "file" | "audio") {
+    if (!edit?.id) return setMsg("Save the product first, then upload its files.");
+    setMsg(`Uploading ${file.name}…`);
     const path = `${edit.id}/${file.name.replace(/[^\w.-]+/g, "_")}`;
     const { error } = await supabase.storage
       .from("product-files")
       .upload(path, file, { upsert: true });
     if (error) return setMsg(error.message);
-    await supabase.from("products").update({ file_path: path }).eq("id", edit.id);
-    setEdit({ ...edit, file_path: path });
-    setMsg("File uploaded.");
+    const column = kind === "audio" ? "audio_path" : "file_path";
+    await supabase
+      .from("products")
+      .update(kind === "audio" ? { audio_path: path } : { file_path: path })
+      .eq("id", edit.id);
+    let next = { ...edit, [column]: path };
+    let note = "File uploaded.";
+    if (kind === "file" && file.type === "application/pdf") {
+      try {
+        const previewPath = await makePreview(edit.id, edit.slug, file);
+        await supabase.from("products").update({ preview_path: previewPath }).eq("id", edit.id);
+        next = { ...next, preview_path: previewPath };
+        note = "File uploaded and preview created.";
+      } catch (err) {
+        note = `File uploaded, but the preview failed: ${err instanceof Error ? err.message : err}`;
+      }
+    }
+    setEdit(next);
+    setMsg(note);
     refresh();
   }
 
@@ -135,6 +194,11 @@ function Products() {
     cover_image_url: "",
     price_cents: 0,
     is_free: false,
+    access_tier: "members" as const,
+    gumroad_permalink: "",
+    gumroad_product_id: "",
+    preview_path: null,
+    audio_path: null,
     is_lead_magnet: false,
     is_published: true,
     is_featured: false,
@@ -143,7 +207,6 @@ function Products() {
     file_size_label: "",
     length_label: "",
     gallery_urls: [] as string[],
-    included_with_subscription: false,
     position: data.length,
   };
 
@@ -192,6 +255,38 @@ function Products() {
           </select>
         </label>
         <label className="text-sm">
+          Who can open it
+          <select
+            className={input}
+            value={edit.access_tier}
+            onChange={(e) =>
+              setEdit({ ...edit, access_tier: e.target.value as typeof edit.access_tier })
+            }
+          >
+            <option value="free">Free for everyone</option>
+            <option value="members">Included with membership (also sold on its own)</option>
+            <option value="premium">Premium extra (paid by everyone, members too)</option>
+          </select>
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          <label className="text-sm">
+            Gumroad short link (e.g. qegay)
+            <input
+              className={input}
+              value={edit.gumroad_permalink ?? ""}
+              onChange={(e) => setEdit({ ...edit, gumroad_permalink: e.target.value })}
+            />
+          </label>
+          <label className="text-sm">
+            Gumroad product ID (filled in automatically)
+            <input
+              className={input}
+              value={edit.gumroad_product_id ?? ""}
+              onChange={(e) => setEdit({ ...edit, gumroad_product_id: e.target.value })}
+            />
+          </label>
+        </div>
+        <label className="text-sm">
           Price (USD)
           <input
             type="number"
@@ -213,7 +308,7 @@ function Products() {
           />
         </label>
         <label className="text-sm">
-          Free download link (free items only)
+          Gumroad link (buy button; download link for the free chapter)
           <input
             className={input}
             value={edit.buy_url ?? ""}
@@ -274,36 +369,47 @@ function Products() {
           />
         </label>
         <div className="flex flex-wrap gap-4 text-sm">
-          {(["is_published", "is_featured", "is_free", "included_with_subscription"] as const).map(
-            (k) => (
-              <label key={k} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={edit[k]}
-                  onChange={(e) => setEdit({ ...edit, [k]: e.target.checked })}
-                />
-                {
-                  {
-                    is_published: "Show on site",
-                    is_featured: "Flagship",
-                    is_free: "Free",
-                    included_with_subscription: "Included with subscription",
-                  }[k]
-                }
-              </label>
-            ),
-          )}
+          {(["is_published", "is_featured"] as const).map((k) => (
+            <label key={k} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={edit[k]}
+                onChange={(e) => setEdit({ ...edit, [k]: e.target.checked })}
+              />
+              {{ is_published: "Show on site", is_featured: "Featured on home page" }[k]}
+            </label>
+          ))}
         </div>
-        <div className="rounded-md bg-secondary p-4 text-sm">
-          <div className="font-semibold">Download file (PDF, ePub, MP3…)</div>
-          <div className="mt-1 text-muted-foreground">
-            {edit.file_path ? `Current: ${edit.file_path.split("/").pop()}` : "No file yet"}
+        <div className="grid gap-3 rounded-md bg-secondary p-4 text-sm sm:grid-cols-2">
+          <div>
+            <div className="font-semibold">Book PDF</div>
+            <div className="mt-1 text-muted-foreground">
+              {edit.file_path ? `Current: ${edit.file_path.split("/").pop()}` : "No file yet"}
+              {edit.preview_path ? " · preview ready" : ""}
+            </div>
+            <input
+              type="file"
+              accept="application/pdf,.epub"
+              className="mt-2 max-w-full"
+              onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], "file")}
+            />
           </div>
-          <input
-            type="file"
-            className="mt-2"
-            onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
-          />
+          <div>
+            <div className="font-semibold">Audiobook (MP3)</div>
+            <div className="mt-1 text-muted-foreground">
+              {edit.audio_path ? `Current: ${edit.audio_path.split("/").pop()}` : "No audio yet"}
+            </div>
+            <input
+              type="file"
+              accept="audio/*"
+              className="mt-2 max-w-full"
+              onChange={(e) => e.target.files?.[0] && upload(e.target.files[0], "audio")}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground sm:col-span-2">
+            Uploading a PDF also creates the free preview from its first pages (Settings → preview
+            pages).
+          </p>
         </div>
         <div className="flex gap-3">
           <button className="btn-gold">Save</button>
@@ -343,9 +449,11 @@ function Products() {
             <div className="flex-1">
               <div className="font-semibold">{p.title}</div>
               <div className="text-xs text-muted-foreground">
-                {formatLabel[p.type]} · {money(p.price_cents)} ·{" "}
+                {formatLabel[p.type]} · {money(p.price_cents)} · {tierLabel[p.access_tier]} ·{" "}
                 {p.is_published ? "Live" : "Hidden"}
-                {p.file_path ? " · File ready" : " · No file"}
+                {p.file_path ? " · PDF" : " · No PDF"}
+                {p.audio_path ? " · Audio" : ""}
+                {p.preview_path ? " · Preview" : ""}
               </div>
             </div>
             <button
@@ -372,57 +480,60 @@ function Access() {
   const [msg, setMsg] = useState<string | null>(null);
   const { data: grants = [] } = useQuery({
     queryKey: ["admin-grants"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("entitlements")
-        .select("id,user_id,granted_at,product:products(title)")
-        .order("granted_at", { ascending: false })
-        .limit(100);
-      const ids = [...new Set((data ?? []).map((g) => g.user_id))];
-      const { data: profs } = ids.length
-        ? await supabase.from("profiles").select("id,email").in("id", ids)
-        : { data: [] };
-      const map = new Map((profs ?? []).map((p) => [p.id, p.email]));
-      return (data ?? []).map((g) => ({ ...g, email: map.get(g.user_id) }));
-    },
+    queryFn: async () =>
+      (
+        await supabase
+          .from("entitlements")
+          .select("id,email,user_id,source,granted_at,revoked_at,product:products(title)")
+          .order("granted_at", { ascending: false })
+          .limit(200)
+      ).data ?? [],
   });
 
   async function grant(e: React.FormEvent) {
     e.preventDefault();
     setMsg(null);
+    const clean = email.trim().toLowerCase();
     const { data: prof } = await supabase
       .from("profiles")
       .select("id")
-      .ilike("email", email.trim())
+      .ilike("email", clean)
       .maybeSingle();
-    if (!prof)
-      return setMsg(
-        "No account with that email yet. Ask the buyer to create an account first, using the email they paid with.",
-      );
     const { error } = await supabase
       .from("entitlements")
-      .insert({ user_id: prof.id, product_id: productId });
+      .insert({ email: clean, user_id: prof?.id ?? null, product_id: productId, source: "admin" });
     setMsg(
       error
         ? error.code === "23505"
           ? "They already have it."
           : error.message
-        : "Access granted.",
+        : prof
+          ? "Access granted."
+          : "Access granted. It will appear when they sign up with this email.",
     );
+    qc.invalidateQueries({ queryKey: ["admin-grants"] });
+  }
+
+  async function setRevoked(id: string, revoked: boolean) {
+    await supabase
+      .from("entitlements")
+      .update({ revoked_at: revoked ? new Date().toISOString() : null })
+      .eq("id", id);
     qc.invalidateQueries({ queryKey: ["admin-grants"] });
   }
 
   return (
     <div className="grid gap-10 md:grid-cols-2">
       <form onSubmit={grant} className="space-y-3">
-        <h2 className="text-2xl font-semibold">Give a buyer access</h2>
+        <h2 className="text-2xl font-semibold">Give someone a book or course</h2>
         <p className="text-sm text-muted-foreground">
-          Enter someone's email to unlock a single book, course or bundle in their account.
+          Gumroad purchases are added automatically. Use this for gifts, or when someone paid with a
+          different email. No account is needed yet.
         </p>
         <input
           required
           type="email"
-          placeholder="buyer@email.com"
+          placeholder="Email"
           className={input}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -434,33 +545,29 @@ function Access() {
           onChange={(e) => setProductId(e.target.value)}
         >
           <option value="">Choose a product…</option>
-          {products
-            .filter((p) => !p.is_free)
-            .map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.title}
-              </option>
-            ))}
+          {products.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.title}
+            </option>
+          ))}
         </select>
-        <button className="btn-gold">Grant access</button>
+        <button className="btn-gold">Give access</button>
         {msg && <p className="text-sm">{msg}</p>}
       </form>
       <div>
         <h2 className="text-2xl font-semibold">Recent access</h2>
         <ul className="mt-4 divide-y divide-border text-sm">
           {grants.map((g) => (
-            <li key={g.id} className="flex justify-between gap-3 py-2">
-              <span>
-                {g.email ?? "—"} · {(g.product as { title: string } | null)?.title}
+            <li key={g.id} className="flex items-center justify-between gap-3 py-2">
+              <span className={g.revoked_at ? "text-muted-foreground line-through" : ""}>
+                {g.email ?? "—"} · {(g.product as { title: string } | null)?.title} · {g.source}
+                {g.user_id ? "" : " · no account yet"}
               </span>
               <button
-                className="text-crimson underline"
-                onClick={async () => {
-                  await supabase.from("entitlements").delete().eq("id", g.id);
-                  qc.invalidateQueries({ queryKey: ["admin-grants"] });
-                }}
+                className="shrink-0 underline"
+                onClick={() => setRevoked(g.id, !g.revoked_at)}
               >
-                Remove
+                {g.revoked_at ? "Restore" : "Remove"}
               </button>
             </li>
           ))}
@@ -904,85 +1011,309 @@ function Leads() {
   );
 }
 
-function Subscribers() {
+function Members() {
   const qc = useQueryClient();
   const [email, setEmail] = useState("");
+  const [until, setUntil] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const { data = [] } = useQuery({
-    queryKey: ["admin-subscribers"],
-    queryFn: async () => {
-      const { data: subs } = await supabase
-        .from("subscriptions")
-        .select("user_id,status,started_at,current_period_end")
-        .order("started_at", { ascending: false });
-      const ids = (subs ?? []).map((x) => x.user_id);
-      const { data: profs } = ids.length
-        ? await supabase.from("profiles").select("id,email").in("id", ids)
-        : { data: [] };
-      const map = new Map((profs ?? []).map((p) => [p.id, p.email]));
-      return (subs ?? []).map((x) => ({ ...x, email: map.get(x.user_id) }));
-    },
+    queryKey: ["admin-members"],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("memberships")
+          .select("id,email,user_id,plan,status,source,current_period_end,updated_at")
+          .order("updated_at", { ascending: false })
+      ).data ?? [],
   });
+  const active = data.filter((m) => m.status !== "ended").length;
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
     setMsg(null);
+    const clean = email.trim().toLowerCase();
     const { data: prof } = await supabase
       .from("profiles")
       .select("id")
-      .ilike("email", email.trim())
+      .ilike("email", clean)
       .maybeSingle();
-    if (!prof) return setMsg("No account with that email yet. They need to sign up first.");
-    const { error } = await supabase
-      .from("subscriptions")
-      .upsert({ user_id: prof.id, status: "active", current_period_end: null });
-    setMsg(error ? error.message : "Subscriber added.");
+    const { error } = await supabase.from("memberships").insert({
+      email: clean,
+      user_id: prof?.id ?? null,
+      plan: "manual",
+      source: "admin",
+      status: "active",
+      current_period_end: until ? new Date(until).toISOString() : null,
+    });
+    setMsg(
+      error
+        ? error.code === "23505"
+          ? "They already have a complimentary membership."
+          : error.message
+        : "Member added.",
+    );
     setEmail("");
-    qc.invalidateQueries({ queryKey: ["admin-subscribers"] });
+    qc.invalidateQueries({ queryKey: ["admin-members"] });
   }
 
-  async function setStatus(user_id: string, status: "active" | "canceled") {
-    await supabase.from("subscriptions").update({ status }).eq("user_id", user_id);
-    qc.invalidateQueries({ queryKey: ["admin-subscribers"] });
+  async function setStatus(id: string, status: "active" | "ended") {
+    await supabase
+      .from("memberships")
+      .update({ status, ended_at: status === "ended" ? new Date().toISOString() : null })
+      .eq("id", id);
+    qc.invalidateQueries({ queryKey: ["admin-members"] });
   }
 
   return (
-    <div className="grid gap-10 md:grid-cols-2">
+    <div className="grid gap-10 md:grid-cols-[1fr_1.4fr]">
       <form onSubmit={add} className="space-y-3">
-        <h2 className="text-2xl font-semibold">Add a subscriber</h2>
+        <h2 className="text-2xl font-semibold">Add a complimentary member</h2>
         <p className="text-sm text-muted-foreground">
-          Subscribers can read every product marked "Included with subscription". They need an
-          account first.
+          Paying members are added automatically from Gumroad. Use this for gifts and partners.
         </p>
         <input
           required
           type="email"
-          placeholder="Subscriber email"
+          placeholder="Email"
           className={input}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <button className="btn-gold">Add subscriber</button>
+        <label className="block text-sm">
+          Until (leave empty for no end date)
+          <input
+            type="date"
+            className={input}
+            value={until}
+            onChange={(e) => setUntil(e.target.value)}
+          />
+        </label>
+        <button className="btn-gold">Add member</button>
         {msg && <p className="text-sm">{msg}</p>}
       </form>
       <div>
-        <h2 className="text-2xl font-semibold">{data.length} subscribers</h2>
+        <h2 className="text-2xl font-semibold">
+          {active} active · {data.length} total
+        </h2>
         <ul className="mt-4 divide-y divide-border text-sm">
-          {data.map((x) => (
-            <li key={x.user_id} className="flex items-center justify-between py-2">
+          {data.map((m) => (
+            <li key={m.id} className="flex items-center justify-between gap-3 py-2">
               <span>
-                {x.email ?? "—"} · {x.status}
+                {m.email} · {m.plan} · <strong>{m.status}</strong> · {m.source}
+                {m.current_period_end
+                  ? ` · until ${new Date(m.current_period_end).toLocaleDateString()}`
+                  : ""}
+                {m.user_id ? "" : " · no account yet"}
               </span>
-              <button
-                className="underline"
-                onClick={() => setStatus(x.user_id, x.status === "active" ? "canceled" : "active")}
-              >
-                {x.status === "active" ? "Cancel" : "Reactivate"}
-              </button>
+              {m.source === "admin" && (
+                <button
+                  className="shrink-0 underline"
+                  onClick={() => setStatus(m.id, m.status === "ended" ? "active" : "ended")}
+                >
+                  {m.status === "ended" ? "Reactivate" : "End"}
+                </button>
+              )}
             </li>
           ))}
         </ul>
       </div>
+    </div>
+  );
+}
+
+function GumroadAdmin() {
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState<string | null>(null);
+  const [result, setResult] = useState<Record<string, string | number> | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const { data: status } = useQuery({
+    queryKey: ["gumroad-status"],
+    queryFn: () => gumroadSetupStatus(),
+  });
+  const { data: events = [] } = useQuery({
+    queryKey: ["gumroad-events"],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("gumroad_events")
+          .select("id,resource,email,permalink,outcome,error,is_test,received_at")
+          .order("received_at", { ascending: false })
+          .limit(50)
+      ).data ?? [],
+  });
+
+  async function run(name: string, fn: () => Promise<Record<string, string | number>>) {
+    setBusy(name);
+    setErr(null);
+    setResult(null);
+    try {
+      setResult(await fn());
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    }
+    setBusy(null);
+    qc.invalidateQueries({ queryKey: ["gumroad-events"] });
+  }
+
+  const ready = status?.accessToken && status.webhookSecret && status.serviceRole;
+  return (
+    <div className="space-y-8">
+      <div className="rounded-md border border-border bg-card p-5 text-sm">
+        <h2 className="text-2xl font-semibold">Server setup</h2>
+        <ul className="mt-3 space-y-1">
+          <li>{status?.accessToken ? "✓" : "✗"} GUMROAD_ACCESS_TOKEN</li>
+          <li>{status?.webhookSecret ? "✓" : "✗"} GUMROAD_WEBHOOK_SECRET</li>
+          <li>{status?.serviceRole ? "✓" : "✗"} SUPABASE_SERVICE_ROLE_KEY</li>
+        </ul>
+        {!ready && (
+          <p className="mt-3 text-muted-foreground">
+            These are set on the hosting server (never in the code). The buttons below need all
+            three.
+          </p>
+        )}
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            className="btn-gold"
+            disabled={!ready || !!busy}
+            onClick={() => run("connect", () => connectGumroad())}
+          >
+            {busy === "connect" ? "Connecting…" : "Connect Gumroad notifications"}
+          </button>
+          <button
+            className="btn-ghost"
+            disabled={!ready || !!busy}
+            onClick={() => run("import", () => importGumroadBuyers())}
+          >
+            {busy === "import" ? "Importing…" : "Import past buyers"}
+          </button>
+        </div>
+        {result && (
+          <ul className="mt-4 space-y-1">
+            {Object.entries(result).map(([k, v]) => (
+              <li key={k}>
+                {k}: {v}
+              </li>
+            ))}
+          </ul>
+        )}
+        {err && <p className="mt-3 text-crimson">{err}</p>}
+      </div>
+      <div>
+        <h2 className="text-2xl font-semibold">Recent Gumroad notifications</h2>
+        <ul className="mt-4 divide-y divide-border text-sm">
+          {events.length === 0 && <li className="py-2 text-muted-foreground">None yet.</li>}
+          {events.map((e) => (
+            <li key={e.id} className="py-2">
+              {new Date(e.received_at).toLocaleString()} · {e.resource}
+              {e.is_test ? " (test)" : ""} · {e.email ?? "—"} · {e.permalink ?? ""} ·{" "}
+              <strong className={e.error ? "text-crimson" : ""}>{e.outcome ?? "processing"}</strong>
+              {e.error ? ` — ${e.error}` : ""}
+              {!e.is_test && (e.error || /\bno\b|^ignored|^failed/.test(e.outcome ?? "")) && (
+                <button
+                  className="ml-3 underline disabled:opacity-50"
+                  disabled={!ready || !!busy}
+                  onClick={() =>
+                    run(`replay-${e.id}`, () => replayGumroadNotification({ data: { id: e.id } }))
+                  }
+                >
+                  {busy === `replay-${e.id}` ? "Replaying…" : "Replay"}
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+const settingFields = [
+  { key: "membership_monthly_url", label: "Monthly membership checkout link (Gumroad)" },
+  { key: "membership_annual_url", label: "Annual membership checkout link (Gumroad)" },
+  {
+    key: "membership_permalinks",
+    label:
+      "Membership product on Gumroad: short link(s) or product ID(s), comma-separated (e.g. membership). The product ID is added automatically after the first sale.",
+  },
+  { key: "preview_pages", label: "Free preview length (pages)" },
+] as const;
+
+function SettingsAdmin() {
+  const qc = useQueryClient();
+  const [values, setValues] = useState<Record<string, string> | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const { data } = useQuery({
+    queryKey: ["admin-settings"],
+    queryFn: async () => {
+      const rows = (await supabase.from("site_settings").select("key,value")).data ?? [];
+      return Object.fromEntries(rows.map((r) => [r.key, r.value]));
+    },
+  });
+  const v = values ?? data ?? {};
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault();
+    const rows = settingFields.map((f) => ({ key: f.key, value: (v[f.key] ?? "").trim() }));
+    const { error } = await supabase.from("site_settings").upsert(rows);
+    setMsg(error ? error.message : "Saved.");
+    qc.invalidateQueries({ queryKey: ["admin-settings"] });
+    qc.invalidateQueries({ queryKey: ["settings"] });
+  }
+
+  return (
+    <form onSubmit={save} className="grid max-w-2xl gap-4">
+      <h2 className="text-2xl font-semibold">Settings</h2>
+      {settingFields.map((f) => (
+        <label key={f.key} className="text-sm">
+          {f.label}
+          <input
+            className={input}
+            value={v[f.key] ?? ""}
+            onChange={(e) => setValues({ ...v, [f.key]: e.target.value })}
+          />
+        </label>
+      ))}
+      <button className="btn-gold w-fit">Save settings</button>
+      {msg && <p className="text-sm">{msg}</p>}
+    </form>
+  );
+}
+
+function AnalyticsAdmin() {
+  const { data = [] } = useQuery({
+    queryKey: ["admin-analytics"],
+    queryFn: async () => {
+      const since = new Date(Date.now() - 30 * 864e5).toISOString();
+      const rows =
+        (
+          await supabase
+            .from("analytics_events")
+            .select("name")
+            .gte("created_at", since)
+            .limit(10000)
+        ).data ?? [];
+      const counts = new Map<string, number>();
+      rows.forEach((r) => counts.set(r.name, (counts.get(r.name) ?? 0) + 1));
+      return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    },
+  });
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold">Last 30 days</h2>
+      {data.length === 0 ? (
+        <p className="mt-4 text-sm text-muted-foreground">No events yet.</p>
+      ) : (
+        <table className="mt-4 text-sm">
+          <tbody>
+            {data.map(([name, n]) => (
+              <tr key={name} className="border-b border-border">
+                <td className="py-2 pr-10">{name.replace(/_/g, " ")}</td>
+                <td className="py-2 text-right font-semibold">{n}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { publicClient } from "./public-client.server";
 
 const PRODUCT_COLS =
-  "id,slug,type,title,subtitle,description,cover_image_url,gallery_urls,price_cents,is_free,is_featured,included_with_subscription,file_size_label,length_label,buy_url,position";
+  "id,slug,type,title,subtitle,description,cover_image_url,gallery_urls,price_cents,is_free,is_featured,access_tier,preview_path,file_size_label,length_label,buy_url,position";
 
 const RATING_COLS = "product_id,review_count,average,stars_1,stars_2,stars_3,stars_4,stars_5";
 
@@ -107,6 +107,16 @@ export const listEpisodes = createServerFn({ method: "GET" }).handler(async () =
   return data ?? [];
 });
 
+export const getSettings = createServerFn({ method: "GET" }).handler(async () => {
+  const { data } = await publicClient().from("site_settings").select("key,value");
+  const map = Object.fromEntries((data ?? []).map((r) => [r.key, r.value]));
+  return {
+    monthlyUrl: map["membership_monthly_url"] ?? "",
+    annualUrl: map["membership_annual_url"] ?? "",
+    previewPages: Number(map["preview_pages"] ?? 10) || 10,
+  };
+});
+
 export const productsQuery = queryOptions({
   queryKey: ["products"],
   queryFn: () => listProducts(),
@@ -120,6 +130,10 @@ export const testimonialsQuery = queryOptions({
 export const episodesQuery = queryOptions({
   queryKey: ["episodes"],
   queryFn: () => listEpisodes(),
+});
+export const settingsQuery = queryOptions({
+  queryKey: ["settings"],
+  queryFn: () => getSettings(),
 });
 export const postsQuery = queryOptions({ queryKey: ["posts"], queryFn: () => listPosts() });
 export const postQuery = (slug: string) =>

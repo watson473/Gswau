@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { track } from "@/lib/analytics";
 
 const safe = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/account");
 
@@ -57,6 +58,7 @@ function AuthPage() {
         password,
         options: { emailRedirectTo: window.location.origin + target, data: { full_name: name } },
       });
+      if (!error) track("signup");
       setMsg(error ? error.message : "Check your email to confirm your account.");
     } else {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
