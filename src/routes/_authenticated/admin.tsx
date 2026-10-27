@@ -1236,6 +1236,11 @@ const settingFields = [
       "Membership product on Gumroad: short link(s) or product ID(s), comma-separated (e.g. membership). The product ID is added automatically after the first sale.",
   },
   { key: "preview_pages", label: "Free preview length (pages)" },
+  {
+    key: "kit_form_id",
+    label:
+      "Kit form ID (optional): newsletter sign-ups are also added to this Kit form. The number in the form's address on Kit.",
+  },
 ] as const;
 
 function SettingsAdmin() {

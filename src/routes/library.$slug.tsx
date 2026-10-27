@@ -4,6 +4,7 @@ import { useState } from "react";
 import { author, formatMoney } from "@/lib/catalog";
 import { productQuery, settingsQuery } from "@/lib/catalog.functions";
 import { track } from "@/lib/analytics";
+import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { useT } from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -407,11 +408,13 @@ function FreeForm({ source, buyUrl }: { source: string; buyUrl: string | null })
       onSubmit={async (e) => {
         e.preventDefault();
         setState("sending");
-        const { error } = await supabase
-          .from("leads")
-          .insert({ email: email.trim().toLowerCase(), source });
-        if (!error) track("newsletter_signup", { source });
-        setState(error ? "error" : "done");
+        try {
+          await subscribeNewsletter({ data: { email, source } });
+          track("newsletter_signup", { source });
+          setState("done");
+        } catch {
+          setState("error");
+        }
       }}
     >
       <input

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { track } from "@/lib/analytics";
 import { useT } from "@/i18n";
 
@@ -19,11 +19,13 @@ export function SubscribeBox({ source = "subscribe-box" }: { source?: string }) 
       onSubmit={async (e) => {
         e.preventDefault();
         setState("sending");
-        const { error } = await supabase
-          .from("leads")
-          .insert({ email: email.trim().toLowerCase(), source });
-        if (!error) track("newsletter_signup", { source });
-        setState(error ? "error" : "done");
+        try {
+          await subscribeNewsletter({ data: { email, source } });
+          track("newsletter_signup", { source });
+          setState("done");
+        } catch {
+          setState("error");
+        }
       }}
     >
       <input
