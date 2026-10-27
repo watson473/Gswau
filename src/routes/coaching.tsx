@@ -16,22 +16,26 @@ export const Route = createFileRoute("/coaching")({
   component: Coaching,
 });
 
+// Each Gumroad product shows the buyer the Calendly booking link after payment.
 const plans = [
   {
     name: "Single Session",
     price: "$150",
     desc: "60 minutes on one challenge — pricing, hiring or branding.",
+    buyUrl: "https://gswau.gumroad.com/l/sttsrx",
   },
   {
     name: "Growth Month",
     price: "$500",
     desc: "Four weekly sessions plus messaging support between calls.",
+    buyUrl: "https://gswau.gumroad.com/l/iyggt",
     featured: true,
   },
   {
     name: "Shop Launch",
     price: "$1,200",
     desc: "Twelve weeks taking you from chair to shop opening.",
+    buyUrl: "https://gswau.gumroad.com/l/fsqiqd",
   },
 ];
 
@@ -52,9 +56,12 @@ function Coaching() {
             <h2 className="mt-3 text-3xl font-semibold">{p.name}</h2>
             <div className="mt-2 font-display text-4xl">{p.price}</div>
             <p className="mt-4 text-sm opacity-80">{p.desc}</p>
-            <button className="btn-gold mt-8 w-full" disabled>
-              Booking coming soon
-            </button>
+            <a href={p.buyUrl} rel="noopener" className="btn-gold mt-8 w-full">
+              Book for {p.price}
+            </a>
+            <p className="mt-3 text-center text-xs opacity-70">
+              Pay on Gumroad, then pick your time on Calendly.
+            </p>
           </div>
         ))}
       </div>
