@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   interpretGumroad,
-  isMembershipPermalink,
+  isMembershipProduct,
   parseGumroadBody,
   periodEnd,
   planFromRecurrence,
@@ -78,9 +78,12 @@ describe("membership helpers", () => {
     expect(statusFromSubscriber({ ended_at: "2026-01-01" })).toBe("ended");
   });
 
-  it("recognises the membership product", () => {
-    expect(isMembershipPermalink("gswau-membership", "gswau-membership, other")).toBe(true);
-    expect(isMembershipPermalink("qegay", "gswau-membership")).toBe(false);
-    expect(isMembershipPermalink("anything", "")).toBe(true);
+  it("recognises the membership product by any of its Gumroad names", () => {
+    expect(isMembershipProduct(["gswau-membership"], "gswau-membership, other")).toBe(true);
+    expect(isMembershipProduct(["qegay"], "gswau-membership")).toBe(false);
+    expect(isMembershipProduct(["anything"], "")).toBe(true);
+    // The API gives the random short link; the notification gives the custom one.
+    expect(isMembershipProduct(["xYzAb", "membership", "P9"], "membership")).toBe(true);
+    expect(isMembershipProduct(["xYzAb", null, "P9"], "membership, P9")).toBe(true);
   });
 });

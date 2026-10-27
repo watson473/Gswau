@@ -8,6 +8,7 @@ import {
   connectGumroad,
   gumroadSetupStatus,
   importGumroadBuyers,
+  replayGumroadNotification,
 } from "@/lib/admin-gumroad.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -1207,6 +1208,17 @@ function GumroadAdmin() {
               {e.is_test ? " (test)" : ""} · {e.email ?? "—"} · {e.permalink ?? ""} ·{" "}
               <strong className={e.error ? "text-crimson" : ""}>{e.outcome ?? "processing"}</strong>
               {e.error ? ` — ${e.error}` : ""}
+              {!e.is_test && (e.error || e.outcome?.startsWith("no ")) && (
+                <button
+                  className="ml-3 underline disabled:opacity-50"
+                  disabled={!ready || !!busy}
+                  onClick={() =>
+                    run(`replay-${e.id}`, () => replayGumroadNotification({ data: { id: e.id } }))
+                  }
+                >
+                  {busy === `replay-${e.id}` ? "Replaying…" : "Replay"}
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -1220,7 +1232,8 @@ const settingFields = [
   { key: "membership_annual_url", label: "Annual membership checkout link (Gumroad)" },
   {
     key: "membership_permalinks",
-    label: "Membership product short link(s) on Gumroad, comma-separated (e.g. gswau-membership)",
+    label:
+      "Membership product on Gumroad: short link(s) or product ID(s), comma-separated (e.g. membership). The product ID is added automatically after the first sale.",
   },
   { key: "preview_pages", label: "Free preview length (pages)" },
 ] as const;

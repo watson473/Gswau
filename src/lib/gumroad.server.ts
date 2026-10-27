@@ -4,10 +4,12 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Json } from "@/integrations/supabase/types";
 import {
   interpretGumroad,
-  isMembershipPermalink,
+  isMembershipProduct,
+  membershipList,
   periodEnd,
   planFromRecurrence,
   statusFromSubscriber,
+  type GumroadEventInfo,
   type GumroadFields,
 } from "./gumroad";
 
@@ -23,7 +25,9 @@ type Sale = {
   created_at?: string;
   timestamp?: string;
   subscription_id?: string | null;
+  subscription_duration?: string | null;
   recurrence?: string | null;
+  recurring_charge?: boolean;
   refunded?: boolean;
   chargedback?: boolean;
 };
@@ -175,17 +179,46 @@ async function upsertMembership(fields: {
   if (error) throw new Error(error.message);
 }
 
+// The membership's subscription ID if this verified sale is a membership charge, else null.
+// Also links the membership's Gumroad product ID in Settings the first time it is seen, since
+// past-buyer imports only get the API's names for the product, not its custom short link.
+async function membershipSubscription(sale: Sale, info?: GumroadEventInfo) {
+  const subscriptionId = sale.subscription_id ?? info?.subscriptionId ?? null;
+  if (!subscriptionId) return null;
+  const configured = await setting("membership_permalinks");
+  const names = [
+    sale.product_permalink,
+    sale.permalink,
+    sale.product_id,
+    info?.permalink,
+    info?.gumroadProductId,
+  ];
+  if (!isMembershipProduct(names, configured)) return null;
+  const list = membershipList(configured);
+  if (list.length > 0 && sale.product_id && !list.includes(sale.product_id))
+    await supabaseAdmin
+      .from("site_settings")
+      .update({ value: [...list, sale.product_id].join(", ") })
+      .eq("key", "membership_permalinks");
+  return subscriptionId;
+}
+
 async function applyMembershipCharge(
   sale: Sale,
+  subscriptionId: string,
   firstCharge: boolean,
   source: "gumroad" | "import",
+  notifiedRecurrence?: string,
 ) {
   const email = (sale.email ?? sale.purchase_email ?? "").toLowerCase();
-  if (!email || !sale.subscription_id) return "no email or subscription on sale";
-  const plan = planFromRecurrence(sale.recurrence);
+  if (!email) return "no email on sale";
+  // The API calls it subscription_duration; notifications call it recurrence.
+  const plan = planFromRecurrence(
+    sale.subscription_duration ?? sale.recurrence ?? notifiedRecurrence,
+  );
   const chargedAt = new Date(sale.created_at ?? sale.timestamp ?? Date.now());
   await upsertMembership({
-    subscriptionId: sale.subscription_id,
+    subscriptionId,
     email,
     gumroadProductId: sale.product_id ?? null,
     plan,
@@ -256,7 +289,23 @@ export async function handleGumroadNotification(resource: string, fields: Gumroa
     .single();
   if (logError?.code === "23505") return "duplicate";
   if (logError || !logged) throw new Error(logError?.message ?? "could not log event");
+  return processEvent(logged.id, info, fields);
+}
 
+// Admin > Gumroad > Replay: process a logged notification again, e.g. after fixing settings.
+export async function replayGumroadEvent(id: string) {
+  const { data: row, error } = await supabaseAdmin
+    .from("gumroad_events")
+    .select("resource,payload")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!row) throw new Error("Notification not found");
+  const fields = (row.payload ?? {}) as GumroadFields;
+  return processEvent(id, interpretGumroad(row.resource, fields), fields);
+}
+
+async function processEvent(id: string, info: GumroadEventInfo, fields: GumroadFields) {
   let outcome: string;
   let error: string | null = null;
   try {
@@ -269,14 +318,16 @@ export async function handleGumroadNotification(resource: string, fields: Gumroa
     else {
       // Never trust the notification itself: confirm the sale with Gumroad.
       const { sale } = await gumroadGet<{ sale: Sale }>(`/sales/${e.saleId}`);
-      const isMembership =
-        e.kind === "membership_charge" &&
-        isMembershipPermalink(
-          sale.product_permalink ?? info.permalink,
-          await setting("membership_permalinks"),
-        );
-      outcome = isMembership
-        ? await applyMembershipCharge(sale, e.firstCharge, "gumroad")
+      const subscriptionId = await membershipSubscription(sale, info);
+      const firstCharge = e.kind === "membership_charge" ? e.firstCharge : !sale.recurring_charge;
+      outcome = subscriptionId
+        ? await applyMembershipCharge(
+            sale,
+            subscriptionId,
+            firstCharge,
+            "gumroad",
+            fields["recurrence"],
+          )
         : await grantPurchase(sale, "gumroad");
     }
   } catch (err) {
@@ -289,16 +340,15 @@ export async function handleGumroadNotification(resource: string, fields: Gumroa
     .update({
       outcome,
       error,
-      ...(error ? { dedupe_key: `${info.dedupeKey}:failed:${logged.id}` } : {}),
+      ...(error ? { dedupe_key: `${info.dedupeKey}:failed:${id}` } : {}),
     })
-    .eq("id", logged.id);
+    .eq("id", id);
   if (error) throw new Error(error);
   return outcome;
 }
 
 // One-time import of every past Gumroad sale, so earlier buyers get their books.
 export async function importPastSales() {
-  const membershipPermalinks = await setting("membership_permalinks");
   const counts: Record<string, number> = {};
   let pageKey: string | undefined;
   for (let page = 0; page < 200; page++) {
@@ -309,11 +359,10 @@ export async function importPastSales() {
     for (const sale of res.sales ?? []) {
       let outcome: string;
       try {
-        outcome =
-          sale.subscription_id &&
-          isMembershipPermalink(sale.product_permalink ?? null, membershipPermalinks)
-            ? await applyMembershipCharge(sale, false, "import")
-            : await grantPurchase(sale, "import");
+        const subscriptionId = await membershipSubscription(sale);
+        outcome = subscriptionId
+          ? await applyMembershipCharge(sale, subscriptionId, false, "import")
+          : await grantPurchase(sale, "import");
       } catch (err) {
         outcome = `failed: ${err instanceof Error ? err.message : String(err)}`;
       }

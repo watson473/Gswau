@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -28,6 +29,16 @@ export const importGumroadBuyers = createServerFn({ method: "POST" })
     await assertAdmin(context);
     const { importPastSales } = await import("./gumroad.server");
     return importPastSales();
+  });
+
+// Admin > Gumroad: process a logged notification again (Gumroad never resends one it delivered).
+export const replayGumroadNotification = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context);
+    const { replayGumroadEvent } = await import("./gumroad.server");
+    return { outcome: await replayGumroadEvent(data.id) };
   });
 
 // Admin > Gumroad: whether the server has the settings it needs (never returns the values).

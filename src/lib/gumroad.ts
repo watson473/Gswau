@@ -138,11 +138,20 @@ export function statusFromSubscriber(s: {
   return "active";
 }
 
-export function isMembershipPermalink(permalink: string | null, configured: string) {
-  const list = configured
+export function membershipList(configured: string) {
+  return configured
     .split(/[\s,]+/)
     .map((x) => x.trim())
     .filter(Boolean);
+}
+
+// The same Gumroad product goes by several names: its custom short link (in notifications),
+// its random short link (in the API) and its product ID. A match on any of them counts.
+export function isMembershipProduct(
+  names: (string | null | undefined)[],
+  configured: string,
+): boolean {
+  const list = membershipList(configured);
   // If no membership product is configured yet, any recurring sale counts as the membership.
-  return list.length === 0 || (permalink != null && list.includes(permalink));
+  return list.length === 0 || names.some((n) => n != null && list.includes(n));
 }
