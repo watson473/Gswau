@@ -34,7 +34,8 @@ type Sale = {
 type Subscriber = {
   id: string;
   product_id?: string;
-  user_email?: string;
+  email?: string | null; // the buyer's checkout email
+  user_email?: string | null; // their Gumroad account email; empty for guest checkouts
   recurrence?: string | null;
   status?: string | null;
   cancelled_at?: string | null;
@@ -237,7 +238,13 @@ async function syncSubscriber(subscriptionId: string, resource: string) {
     `/subscribers/${subscriptionId}`,
   );
   const status = statusFromSubscriber(subscriber);
-  const email = (subscriber.user_email ?? "").toLowerCase();
+  // Prefer the email the membership already has here (from the verified first sale).
+  const { data: existing } = await supabaseAdmin
+    .from("memberships")
+    .select("email")
+    .eq("gumroad_subscription_id", subscriptionId)
+    .maybeSingle();
+  const email = (existing?.email || subscriber.email || subscriber.user_email || "").toLowerCase();
   if (!email) return "subscriber has no email";
   await upsertMembership({
     subscriptionId,

@@ -74,6 +74,7 @@ describe("membership helpers", () => {
     expect(statusFromSubscriber({ status: "alive" })).toBe("active");
     expect(statusFromSubscriber({ status: "pending_cancellation" })).toBe("cancelled");
     expect(statusFromSubscriber({ status: "pending_failure" })).toBe("past_due");
+    expect(statusFromSubscriber({ status: "payment_method_update_required" })).toBe("past_due");
     expect(statusFromSubscriber({ status: "failed_payment" })).toBe("ended");
     expect(statusFromSubscriber({ ended_at: "2026-01-01" })).toBe("ended");
   });

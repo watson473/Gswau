@@ -127,6 +127,7 @@ export function statusFromSubscriber(s: {
     case "pending_cancellation":
       return "cancelled";
     case "pending_failure":
+    case "payment_method_update_required":
       return "past_due";
     case "failed_payment":
     case "fixed_subscription_period_ended":

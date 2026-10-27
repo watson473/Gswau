@@ -1208,7 +1208,7 @@ function GumroadAdmin() {
               {e.is_test ? " (test)" : ""} · {e.email ?? "—"} · {e.permalink ?? ""} ·{" "}
               <strong className={e.error ? "text-crimson" : ""}>{e.outcome ?? "processing"}</strong>
               {e.error ? ` — ${e.error}` : ""}
-              {!e.is_test && (e.error || e.outcome?.startsWith("no ")) && (
+              {!e.is_test && (e.error || /\bno\b|^ignored|^failed/.test(e.outcome ?? "")) && (
                 <button
                   className="ml-3 underline disabled:opacity-50"
                   disabled={!ready || !!busy}
