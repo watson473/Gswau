@@ -1,18 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { episodesQuery } from "@/lib/catalog.functions";
+import { podcastName, spotifyEpisodeId, spotifyShowUrl } from "@/lib/podcast";
 import { Eyebrow } from "@/components/SiteChrome";
+import { EpisodePlayer } from "@/components/EpisodePlayer";
 
 export const Route = createFileRoute("/podcast")({
   head: () => ({
     meta: [
-      { title: "Podcast — GSWAU" },
+      { title: `${podcastName} Podcast — GSWAU` },
       {
         name: "description",
-        content: "Listen free: business talk for barbers and stylists from Gs. W. Augustin.",
+        content: `Listen free: ${podcastName}, the podcast for barbers and hairstylists from Gs. W. Augustin.`,
       },
-      { property: "og:title", content: "The GSWAU Podcast" },
-      { property: "og:description", content: "Free episodes for barbers and stylists." },
+      { property: "og:title", content: `${podcastName} Podcast` },
+      { property: "og:description", content: "Free episodes for barbers and hairstylists." },
       { property: "og:type", content: "website" },
     ],
   }),
@@ -25,14 +27,21 @@ function Podcast() {
   return (
     <div className="mx-auto max-w-4xl px-5 py-16">
       <Eyebrow>Listen free</Eyebrow>
-      <h1 className="mt-3 text-5xl font-semibold">Podcast</h1>
+      <h1 className="mt-3 text-5xl font-semibold">{podcastName}</h1>
+      <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+        The podcast for barbers and hairstylists from Gs. W. Augustin: building wealth behind the
+        chair, the craft itself, and the science of hair.
+      </p>
+      <a href={spotifyShowUrl} target="_blank" rel="noopener" className="btn-gold mt-6 inline-flex">
+        Follow on Spotify
+      </a>
       {data.length === 0 ? (
         <p className="mt-10 text-muted-foreground">New episodes are coming soon.</p>
       ) : (
-        <div className="mt-10 divide-y divide-border">
+        <div className="mt-12 divide-y divide-border">
           {data.map((ep) => (
             <article key={ep.id} className="flex gap-6 py-8">
-              {ep.cover_image_url && (
+              {ep.cover_image_url && !spotifyEpisodeId(ep.audio_url) && (
                 <img
                   src={ep.cover_image_url}
                   alt=""
@@ -50,7 +59,7 @@ function Podcast() {
                     {ep.description}
                   </p>
                 )}
-                <audio controls preload="none" src={ep.audio_url} className="mt-4 w-full" />
+                <EpisodePlayer url={ep.audio_url} title={ep.title} />
               </div>
             </article>
           ))}

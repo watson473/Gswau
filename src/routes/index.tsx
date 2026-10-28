@@ -11,6 +11,7 @@ import {
 import { BookCard, Stars } from "@/components/Cards";
 import { Eyebrow } from "@/components/SiteChrome";
 import { SubscribeBox } from "@/components/SubscribeBox";
+import { EpisodePlayer } from "@/components/EpisodePlayer";
 import { PricingPlans } from "@/components/Pricing";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
 
@@ -155,7 +156,7 @@ function Index() {
                   {ep.duration_label ? ` · ${ep.duration_label}` : ""}
                 </div>
                 <h3 className="mt-2 text-xl font-semibold">{ep.title}</h3>
-                <audio controls preload="none" src={ep.audio_url} className="mt-4 w-full" />
+                <EpisodePlayer url={ep.audio_url} title={ep.title} />
               </article>
             ))}
           </div>

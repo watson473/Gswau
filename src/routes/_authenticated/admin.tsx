@@ -1458,7 +1458,7 @@ function PodcastAdmin() {
         />
         <input
           required
-          placeholder="Audio file link (MP3)"
+          placeholder="Spotify episode link, or an audio file link (MP3)"
           className={input}
           value={p.audio_url}
           onChange={(e) => setP({ ...p, audio_url: e.target.value })}
