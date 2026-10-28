@@ -99,15 +99,15 @@ export const getPost = createServerFn({ method: "GET" })
     return post;
   });
 
-// Newest first: straight from Spotify when its keys are set, otherwise Admin > Podcast.
+// Newest first: from the show's RSS feed, or Admin > Podcast if the feed can't be read.
 export const listEpisodes = createServerFn({ method: "GET" }).handler(
   async (): Promise<PodcastEpisode[]> => {
     try {
-      const { spotifyEpisodes } = await import("./spotify.server");
-      const fromSpotify = await spotifyEpisodes();
-      if (fromSpotify?.length) return fromSpotify;
+      const { feedEpisodes } = await import("./podcast-feed.server");
+      const fromFeed = await feedEpisodes();
+      if (fromFeed.length) return fromFeed;
     } catch (err) {
-      console.error("[spotify]", err);
+      console.error("[podcast feed]", err);
     }
     const { data } = await publicClient()
       .from("podcast_episodes")

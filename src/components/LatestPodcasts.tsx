@@ -10,7 +10,7 @@ import {
 import { useT } from "@/i18n";
 
 // Homepage "Latest Podcasts": a big player (the newest episode to start with) and the other
-// episodes beside it. Choosing one plays it in the big player.
+// episodes beside it. Choosing one starts it playing in the big player.
 export function LatestPodcasts({ episodes }: { episodes: PodcastEpisode[] }) {
   const { t, locale } = useT();
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -43,7 +43,9 @@ export function LatestPodcasts({ episodes }: { episodes: PodcastEpisode[] }) {
                   url={current.audioUrl}
                   title={current.title}
                   image={current.image}
+                  durationLabel={current.durationLabel}
                   size="large"
+                  autoPlay={selectedId !== null}
                 />
               </>
             ) : (

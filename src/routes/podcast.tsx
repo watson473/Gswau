@@ -75,7 +75,11 @@ function Podcast() {
                     {ep.description}
                   </p>
                 )}
-                <EpisodePlayer url={ep.audioUrl} title={ep.title} />
+                <EpisodePlayer
+                  url={ep.audioUrl}
+                  title={ep.title}
+                  durationLabel={ep.durationLabel}
+                />
               </div>
             </article>
           ))}
