@@ -4,6 +4,7 @@ import hero from "@/assets/hero.jpg";
 import { author, bookCount } from "@/lib/catalog";
 import {
   episodesQuery,
+  postsQuery,
   productsQuery,
   settingsQuery,
   testimonialsQuery,
@@ -12,6 +13,7 @@ import { BookCard, Stars } from "@/components/Cards";
 import { Eyebrow } from "@/components/SiteChrome";
 import { SubscribeBox } from "@/components/SubscribeBox";
 import { EpisodePlayer } from "@/components/EpisodePlayer";
+import { LatestPosts } from "@/components/LatestPosts";
 import { PricingPlans } from "@/components/Pricing";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
 
@@ -39,6 +41,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(testimonialsQuery),
       context.queryClient.ensureQueryData(episodesQuery),
       context.queryClient.ensureQueryData(settingsQuery),
+      context.queryClient.ensureQueryData(postsQuery),
     ]),
   component: Index,
 });
@@ -77,6 +80,7 @@ function Index() {
   const { data: products } = useSuspenseQuery(productsQuery);
   const { data: testimonials } = useSuspenseQuery(testimonialsQuery);
   const { data: episodes } = useSuspenseQuery(episodesQuery);
+  const { data: posts } = useSuspenseQuery(postsQuery);
   const count = bookCount(products);
   const books = products.filter((p) => p.type === "ebook" || p.type === "audiobook");
   const featured = [
@@ -162,6 +166,8 @@ function Index() {
           </div>
         </section>
       )}
+
+      <LatestPosts posts={posts} />
 
       {testimonials.length > 0 && (
         <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">

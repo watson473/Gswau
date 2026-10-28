@@ -140,3 +140,4 @@ export const postQuery = (slug: string) =>
   queryOptions({ queryKey: ["post", slug], queryFn: () => getPost({ data: { slug } }) });
 
 export type Product = Awaited<ReturnType<typeof listProducts>>[number];
+export type Post = Awaited<ReturnType<typeof listPosts>>[number];
