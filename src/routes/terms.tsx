@@ -97,10 +97,7 @@ function Terms() {
       </p>
 
       <h2>Governing law</h2>
-      <p>
-        These terms are governed by the laws of{" "}
-        <mark className="rounded bg-gold/30 px-1">[to confirm: country or state]</mark>.
-      </p>
+      <p>These terms are governed by the laws of the Commonwealth of The Bahamas.</p>
 
       <h2>Contact</h2>
       <p>
