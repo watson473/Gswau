@@ -9,7 +9,7 @@ export function LatestPosts({ posts }: { posts: Post[] }) {
   const large = posts.slice(0, 3);
   const small = posts.slice(3, 7);
   return (
-    <section className="bg-navy-deep py-16 text-primary-foreground sm:py-24">
+    <section className="border-t border-gold/20 bg-navy-deep py-16 text-primary-foreground sm:py-24">
       <div className="mx-auto max-w-6xl px-5">
         <div className="flex items-center gap-4">
           <span className="h-px w-10 bg-gold" />

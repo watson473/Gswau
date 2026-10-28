@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { publicClient } from "./public-client.server";
+import type { PodcastEpisode } from "./podcast";
 
 const PRODUCT_COLS =
   "id,slug,type,title,subtitle,description,cover_image_url,gallery_urls,price_cents,is_free,is_featured,access_tier,preview_path,file_size_label,length_label,buy_url,position";
@@ -98,14 +99,32 @@ export const getPost = createServerFn({ method: "GET" })
     return post;
   });
 
-export const listEpisodes = createServerFn({ method: "GET" }).handler(async () => {
-  const { data } = await publicClient()
-    .from("podcast_episodes")
-    .select("id,slug,title,description,audio_url,cover_image_url,duration_label,published_at")
-    .eq("is_published", true)
-    .order("published_at", { ascending: false });
-  return data ?? [];
-});
+// Newest first: straight from Spotify when its keys are set, otherwise Admin > Podcast.
+export const listEpisodes = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PodcastEpisode[]> => {
+    try {
+      const { spotifyEpisodes } = await import("./spotify.server");
+      const fromSpotify = await spotifyEpisodes();
+      if (fromSpotify?.length) return fromSpotify;
+    } catch (err) {
+      console.error("[spotify]", err);
+    }
+    const { data } = await publicClient()
+      .from("podcast_episodes")
+      .select("id,title,description,audio_url,cover_image_url,duration_label,published_at")
+      .eq("is_published", true)
+      .order("published_at", { ascending: false });
+    return (data ?? []).map((e) => ({
+      id: e.id,
+      title: e.title,
+      description: e.description,
+      publishedAt: e.published_at,
+      durationLabel: e.duration_label,
+      audioUrl: e.audio_url,
+      image: e.cover_image_url,
+    }));
+  },
+);
 
 export const getSettings = createServerFn({ method: "GET" }).handler(async () => {
   const { data } = await publicClient().from("site_settings").select("key,value");

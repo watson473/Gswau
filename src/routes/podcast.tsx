@@ -1,7 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { episodesQuery } from "@/lib/catalog.functions";
-import { podcastName, spotifyEpisodeId, spotifyShowEmbedUrl, spotifyShowUrl } from "@/lib/podcast";
+import {
+  formatEpisodeDate,
+  podcastName,
+  spotifyEpisodeId,
+  spotifyShowEmbedUrl,
+  spotifyShowUrl,
+} from "@/lib/podcast";
+import { useT } from "@/i18n";
 import { Eyebrow } from "@/components/SiteChrome";
 import { EpisodePlayer } from "@/components/EpisodePlayer";
 
@@ -24,6 +31,7 @@ export const Route = createFileRoute("/podcast")({
 
 function Podcast() {
   const { data } = useSuspenseQuery(episodesQuery);
+  const { locale } = useT();
   return (
     <div className="mx-auto max-w-4xl px-5 py-16">
       <Eyebrow>Listen free</Eyebrow>
@@ -36,7 +44,7 @@ function Podcast() {
         Open the show on Spotify
       </a>
       {data.length === 0 ? (
-        // No episodes in Admin > Podcast yet: Spotify's show player lists and plays every episode.
+        // No episodes yet (no Spotify keys, nothing in Admin > Podcast): Spotify's show player.
         <iframe
           title={`${podcastName} on Spotify`}
           src={spotifyShowEmbedUrl}
@@ -48,17 +56,18 @@ function Podcast() {
         <div className="mt-12 divide-y divide-border">
           {data.map((ep) => (
             <article key={ep.id} className="flex gap-6 py-8">
-              {ep.cover_image_url && !spotifyEpisodeId(ep.audio_url) && (
+              {ep.image && !spotifyEpisodeId(ep.audioUrl) && (
                 <img
-                  src={ep.cover_image_url}
+                  src={ep.image}
                   alt=""
                   className="hidden h-28 w-28 shrink-0 rounded-md object-cover sm:block"
                 />
               )}
               <div className="min-w-0 flex-1">
                 <div className="eyebrow text-muted-foreground">
-                  {ep.published_at ? new Date(ep.published_at).toLocaleDateString() : ""}
-                  {ep.duration_label ? ` · ${ep.duration_label}` : ""}
+                  {[formatEpisodeDate(ep.publishedAt, locale), ep.durationLabel]
+                    .filter(Boolean)
+                    .join(" · ")}
                 </div>
                 <h2 className="mt-1 text-2xl font-semibold">{ep.title}</h2>
                 {ep.description && (
@@ -66,7 +75,7 @@ function Podcast() {
                     {ep.description}
                   </p>
                 )}
-                <EpisodePlayer url={ep.audio_url} title={ep.title} />
+                <EpisodePlayer url={ep.audioUrl} title={ep.title} />
               </div>
             </article>
           ))}

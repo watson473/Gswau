@@ -12,7 +12,7 @@ import {
 import { BookCard, Stars } from "@/components/Cards";
 import { Eyebrow } from "@/components/SiteChrome";
 import { SubscribeBox } from "@/components/SubscribeBox";
-import { EpisodePlayer } from "@/components/EpisodePlayer";
+import { LatestPodcasts } from "@/components/LatestPodcasts";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PricingPlans } from "@/components/Pricing";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
@@ -145,27 +145,7 @@ function Index() {
         </div>
       </section>
 
-      {episodes.length > 0 && (
-        <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
-          <SectionHead
-            eyebrow={t("home.podcast.eyebrow")}
-            title={t("home.podcast.title")}
-            link="/podcast"
-          />
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
-            {episodes.slice(0, 3).map((ep) => (
-              <article key={ep.id} className="rounded-lg bg-card p-5 shadow-card">
-                <div className="eyebrow text-muted-foreground">
-                  {ep.published_at ? new Date(ep.published_at).toLocaleDateString() : ""}
-                  {ep.duration_label ? ` · ${ep.duration_label}` : ""}
-                </div>
-                <h3 className="mt-2 text-xl font-semibold">{ep.title}</h3>
-                <EpisodePlayer url={ep.audio_url} title={ep.title} />
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
+      <LatestPodcasts episodes={episodes} />
 
       <LatestPosts posts={posts} />
 
