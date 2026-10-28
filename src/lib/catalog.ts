@@ -5,7 +5,7 @@ export const author = {
 };
 
 export const formatLabel: Record<string, string> = {
-  ebook: "E-book",
+  ebook: "Audiobook",
   audiobook: "Audiobook",
   course: "Course",
   bundle: "Bundle",
@@ -19,7 +19,7 @@ export const membershipPrices = { monthly: 19.99, annual: 199 } as const;
 export const formatMoney = (amount: number, locale = "en") =>
   new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(amount);
 
-// Paid e-books and audiobooks (excludes the free chapter, bundles and courses).
+// Paid audiobooks (excludes the free chapter, bundles and courses).
 export function bookCount(products: { type: string; access_tier: string }[]) {
   return products.filter(
     (p) => (p.type === "ebook" || p.type === "audiobook") && p.access_tier !== "free",

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/library/")({
       {
         name: "description",
         content:
-          "Every GSWAU e-book, bundle and course by Gs. W. Augustin on pricing, clientele, branding, leadership and running a shop.",
+          "Every GSWAU audiobook, bundle and course by Gs. W. Augustin on pricing, clientele, branding, leadership and running a shop.",
       },
       { property: "og:title", content: "The GSWAU Library" },
       { property: "og:description", content: "Practical books for barbers and hairstylists." },
