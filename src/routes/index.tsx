@@ -11,7 +11,6 @@ import {
 } from "@/lib/catalog.functions";
 import { BookCard, Stars } from "@/components/Cards";
 import { Eyebrow } from "@/components/SiteChrome";
-import { SubscribeBox } from "@/components/SubscribeBox";
 import { LatestPodcasts } from "@/components/LatestPodcasts";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PricingPlans } from "@/components/Pricing";
@@ -188,19 +187,6 @@ function Index() {
           <Link to="/coaching" className="btn-gold mt-8">
             {t("home.coaching.cta")}
           </Link>
-        </div>
-      </section>
-
-      <section className="bg-secondary py-16 sm:py-20">
-        <div className="mx-auto max-w-3xl px-5 text-center">
-          <div className="flex justify-center">
-            <Eyebrow>{t("home.newsletter.eyebrow")}</Eyebrow>
-          </div>
-          <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">{t("home.newsletter.title")}</h2>
-          <p className="mx-auto mt-4 max-w-xl text-muted-foreground">{t("home.newsletter.body")}</p>
-          <div className="mx-auto mt-8 max-w-lg text-left">
-            <SubscribeBox source="home" />
-          </div>
         </div>
       </section>
     </>

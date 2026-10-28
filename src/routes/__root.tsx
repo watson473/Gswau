@@ -11,7 +11,8 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { Header, Footer } from "../components/SiteChrome";
+import { Header } from "../components/SiteChrome";
+import { SiteFooter } from "../components/SiteFooter";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider, defaultLocale, textDirection } from "@/i18n";
 
@@ -132,7 +133,7 @@ function RootComponent() {
         <main className="min-h-[60vh] font-sans">
           <Outlet />
         </main>
-        <Footer />
+        <SiteFooter />
       </I18nProvider>
     </QueryClientProvider>
   );

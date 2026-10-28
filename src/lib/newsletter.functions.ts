@@ -10,6 +10,7 @@ export const subscribeNewsletter = createServerFn({ method: "POST" })
     z
       .object({
         email: z.string().trim().toLowerCase().email().max(255),
+        name: z.string().trim().max(100).optional(),
         source: z.string().min(1).max(100),
       })
       .parse(d),
@@ -21,7 +22,7 @@ export const subscribeNewsletter = createServerFn({ method: "POST" })
     if (error) throw new Error("Could not save your email");
     try {
       const { addToKit } = await import("./kit.server");
-      await addToKit(data.email, new URL(getRequest().url).origin);
+      await addToKit(data.email, new URL(getRequest().url).origin, data.name || undefined);
     } catch (err) {
       console.error("[kit]", err);
     }

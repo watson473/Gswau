@@ -116,32 +116,6 @@ export function Header() {
   );
 }
 
-export function Footer() {
-  const { t } = useT();
-  return (
-    <footer className="bg-navy-deep text-primary-foreground/70">
-      <div className="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-[1fr_auto] sm:items-center">
-        <div className="flex items-center gap-3">
-          <Logo />
-          <span className="font-display text-lg text-primary-foreground">{t("brand.full")}</span>
-        </div>
-        <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
-          {navItems.map((n) => (
-            <li key={n.to}>
-              <Link to={n.to} className="hover:text-gold">
-                {t(n.key)}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <p className="text-xs sm:col-span-2">
-          {t("footer.copyright", { year: new Date().getFullYear(), author: author.name })}
-        </p>
-      </div>
-    </footer>
-  );
-}
-
 export function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
     <div className="eyebrow flex items-center gap-3 text-crimson">

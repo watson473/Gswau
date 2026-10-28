@@ -53,11 +53,14 @@ export async function kitCheck(email: string | null): Promise<KitCheckResult> {
   }
 }
 
-export async function addToKit(email: string, referrer: string) {
+export async function addToKit(email: string, referrer: string, firstName?: string) {
   const apiKey = process.env["KIT_API_KEY"];
   if (!apiKey) return "kit not configured";
-  // Creates the subscriber, or leaves an existing one as they are.
-  await kitPost("/subscribers", apiKey, { email_address: email });
+  // Creates the subscriber, or updates an existing one's first name.
+  await kitPost("/subscribers", apiKey, {
+    email_address: email,
+    ...(firstName ? { first_name: firstName } : {}),
+  });
   const { data } = await publicClient()
     .from("site_settings")
     .select("value")
