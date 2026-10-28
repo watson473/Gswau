@@ -84,11 +84,7 @@ function Pricing() {
             t("pricing.free.newsletter"),
           ]}
         />
-        <List
-          tone="muted"
-          title={t("pricing.extra.title")}
-          items={[t("pricing.extra.premium"), t("pricing.extra.coaching")]}
-        />
+        <List tone="muted" title={t("pricing.extra.title")} items={[t("pricing.extra.premium")]} />
       </div>
       <section className="mx-auto mt-16 max-w-3xl">
         <h2 className="text-3xl font-semibold">{t("pricing.faq.title")}</h2>

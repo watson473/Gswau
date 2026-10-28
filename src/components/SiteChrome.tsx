@@ -25,7 +25,6 @@ const navItems = [
   { to: "/courses", key: "nav.programs" },
   { to: "/podcast", key: "nav.podcast" },
   { to: "/pricing", key: "nav.pricing" },
-  { to: "/coaching", key: "nav.coaching" },
   { to: "/blog", key: "nav.blog" },
 ] as const;
 

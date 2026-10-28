@@ -39,10 +39,6 @@ function About() {
           <strong>The {podcastName} Podcast</strong>, free for everyone.
         </li>
         <li>
-          <strong>1:1 coaching</strong> with {author.name} for barbers and stylists who want
-          personal guidance.
-        </li>
-        <li>
           <strong>A weekly newsletter</strong> with one practical tip to cut better and earn more.
         </li>
       </ul>

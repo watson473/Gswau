@@ -20,8 +20,8 @@ function Contact() {
   return (
     <InfoPage eyebrow="The Company" title="Contact Us">
       <p>
-        Questions about the audiobooks, courses, membership or coaching? Get in touch and we will
-        reply as soon as we can.
+        Questions about the audiobooks, courses or membership? Get in touch and we will reply as
+        soon as we can.
       </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">

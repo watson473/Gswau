@@ -66,9 +66,6 @@ function Privacy() {
           <strong>Kit</strong>: sends the newsletter.
         </li>
         <li>
-          <strong>Calendly</strong>: books coaching sessions.
-        </li>
-        <li>
           <strong>Spotify for Creators</strong>: delivers the podcast audio.
         </li>
         <li>

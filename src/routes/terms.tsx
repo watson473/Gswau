@@ -12,9 +12,9 @@ function Terms() {
     <InfoPage eyebrow="The Company" title="Terms of Use" updated={policiesUpdated}>
       <p>
         These terms apply to the GSWAU website and everything offered through it, including
-        audiobooks, courses, membership, the podcast, the newsletter and coaching. The site is run
-        by {businessName}. By using the site you agree to these terms. If you do not agree, please
-        do not use the site.
+        audiobooks, courses, membership, the podcast and the newsletter. The site is run by{" "}
+        {businessName}. By using the site you agree to these terms. If you do not agree, please do
+        not use the site.
       </p>
 
       <h2>Your account</h2>
@@ -27,9 +27,9 @@ function Terms() {
 
       <h2>Purchases and payments</h2>
       <p>
-        Audiobooks, memberships and coaching are sold through Gumroad, our payment provider.
-        Gumroad’s own terms also apply to your payment. Prices are shown before you pay and may
-        change in the future; a change never affects a purchase you have already made.
+        Audiobooks and memberships are sold through Gumroad, our payment provider. Gumroad’s own
+        terms also apply to your payment. Prices are shown before you pay and may change in the
+        future; a change never affects a purchase you have already made.
       </p>
 
       <h2>Membership</h2>
@@ -56,17 +56,11 @@ function Terms() {
         <li>use them to create competing products or train software.</li>
       </ul>
 
-      <h2>Coaching</h2>
-      <p>
-        Coaching sessions are booked through Calendly after payment. Please arrive on time.
-        Cancellations and rescheduling follow our <Link to="/refunds">Refund Policy</Link>.
-      </p>
-
       <h2>Educational content only</h2>
       <p>
-        Our content and coaching share experience and practical ideas for barbers and hairstylists.
-        They are not legal, financial, tax or medical advice, and results depend on your own work
-        and circumstances. We do not guarantee any particular income or result.
+        Our content shares experience and practical ideas for barbers and hairstylists. It is not
+        legal, financial, tax or medical advice, and results depend on your own work and
+        circumstances. We do not guarantee any particular income or result.
       </p>
 
       <h2>Your behaviour on the site</h2>
@@ -78,8 +72,8 @@ function Terms() {
 
       <h2>Other services</h2>
       <p>
-        The site links to and uses services run by others, such as Gumroad, Calendly, Spotify and
-        Kit. We are not responsible for those services, and their own terms apply.
+        The site links to and uses services run by others, such as Gumroad, Spotify and Kit. We are
+        not responsible for those services, and their own terms apply.
       </p>
 
       <h2>Limits of our responsibility</h2>
@@ -97,7 +91,7 @@ function Terms() {
       </p>
 
       <h2>Governing law</h2>
-      <p>These terms are governed by the laws of the Commonwealth of The Bahamas.</p>
+      <p>These terms are governed by the laws of the State of Florida, United States.</p>
 
       <h2>Contact</h2>
       <p>

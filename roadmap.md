@@ -18,7 +18,7 @@
 - [ ] Confirm Gumroad fields with a real test purchase (cancellation, manage link)
 
 ## Later
-- Phase 2: Calendly coaching, podcast page + RSS, newsletter storage and email service
+- Phase 2: podcast page + RSS, newsletter storage and email service (Calendly coaching was discontinued)
 - Phase 3: course certificates, premium course purchases, admin improvements
 - Phase 4: Spanish and French, podcast/clip automation
 - Phase 5: mobile app

@@ -168,27 +168,6 @@ function Index() {
           </div>
         </section>
       )}
-
-      <section className="bg-navy-gradient text-primary-foreground">
-        <div className="mx-auto max-w-4xl px-5 py-16 text-center sm:py-20">
-          <img
-            src={author.avatar}
-            alt={author.name}
-            width={80}
-            height={80}
-            loading="lazy"
-            className="mx-auto h-20 w-20 rounded-full border-2 border-gold object-cover"
-          />
-          <div className="eyebrow mt-6 text-gold">{t("home.coaching.eyebrow")}</div>
-          <h2 className="mt-4 text-3xl font-semibold sm:text-5xl">{t("home.coaching.title")}</h2>
-          <p className="mx-auto mt-4 max-w-xl text-primary-foreground/80">
-            {t("home.coaching.body", { author: author.name })}
-          </p>
-          <Link to="/coaching" className="btn-gold mt-8">
-            {t("home.coaching.cta")}
-          </Link>
-        </div>
-      </section>
     </>
   );
 }

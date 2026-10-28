@@ -5,10 +5,7 @@ import { contact, pageMeta } from "@/lib/site";
 
 export const Route = createFileRoute("/faq")({
   head: () =>
-    pageMeta(
-      "FAQ",
-      "Answers about GSWAU audiobooks, membership, coaching, purchases and your account.",
-    ),
+    pageMeta("FAQ", "Answers about GSWAU audiobooks, membership, purchases and your account."),
   component: Faq,
 });
 
@@ -18,7 +15,7 @@ function Faq() {
       <h2>What is GSWAU?</h2>
       <p>
         GSWAU is an education platform for barbers and hairstylists. It offers audiobooks, courses,
-        the {podcastName} Podcast, a weekly newsletter and 1:1 coaching.
+        the {podcastName} Podcast, and a weekly newsletter.
       </p>
 
       <h2>What do I get with a membership?</h2>
@@ -62,12 +59,6 @@ function Faq() {
       <p>
         Yes. Many audiobooks have a free preview, and the podcast and newsletter are free for
         everyone.
-      </p>
-
-      <h2>How does coaching work?</h2>
-      <p>
-        Choose a coaching plan on the <Link to="/coaching">Coaching</Link> page and pay through
-        Gumroad. After payment you receive a link to book your session time on Calendly.
       </p>
 
       <h2>Can I share my account or files?</h2>
