@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { episodesQuery } from "@/lib/catalog.functions";
-import { podcastName, spotifyEpisodeId, spotifyShowUrl } from "@/lib/podcast";
+import { podcastName, spotifyEpisodeId, spotifyShowEmbedUrl, spotifyShowUrl } from "@/lib/podcast";
 import { Eyebrow } from "@/components/SiteChrome";
 import { EpisodePlayer } from "@/components/EpisodePlayer";
 
@@ -33,10 +33,17 @@ function Podcast() {
         chair, the craft itself, and the science of hair.
       </p>
       <a href={spotifyShowUrl} target="_blank" rel="noopener" className="btn-gold mt-6 inline-flex">
-        Follow on Spotify
+        Open the show on Spotify
       </a>
       {data.length === 0 ? (
-        <p className="mt-10 text-muted-foreground">New episodes are coming soon.</p>
+        // No episodes in Admin > Podcast yet: Spotify's show player lists and plays every episode.
+        <iframe
+          title={`${podcastName} on Spotify`}
+          src={spotifyShowEmbedUrl}
+          className="mt-12 h-[352px] w-full rounded-xl border-0"
+          loading="lazy"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        />
       ) : (
         <div className="mt-12 divide-y divide-border">
           {data.map((ep) => (
