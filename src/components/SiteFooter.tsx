@@ -9,12 +9,19 @@ import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { track } from "@/lib/analytics";
 import { useT } from "@/i18n";
 
-// Social profile links. An empty link shows the icon without linking anywhere.
+// Social profiles, shown as icons in the footer.
 const socialLinks: { name: keyof typeof socialIconPaths; label: string; url: string }[] = [
-  { name: "instagram", label: "Instagram", url: "" },
-  { name: "facebook", label: "Facebook", url: "" },
-  { name: "youtube", label: "YouTube", url: "" },
-  { name: "tiktok", label: "TikTok", url: "" },
+  { name: "instagram", label: "Instagram", url: "https://www.instagram.com/gswau_" },
+  {
+    name: "facebook",
+    label: "Facebook",
+    url: "https://www.facebook.com/profile.php?id=61580415614670",
+  },
+  { name: "youtube", label: "YouTube", url: "https://www.youtube.com/@gswau" },
+  { name: "tiktok", label: "TikTok", url: "https://www.tiktok.com/@gswau" },
+  { name: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/in/gswau-71b5ba384" },
+  { name: "threads", label: "Threads", url: "https://www.threads.com/@gswau_" },
+  { name: "x", label: "X", url: "https://x.com/gswau_" },
 ];
 
 const usefulLinks = [
@@ -149,7 +156,7 @@ function Footer() {
           <p className="mt-5 max-w-xs leading-relaxed">
             {t("footer.about", { author: author.name })}
           </p>
-          <ul className="mt-6 flex gap-3">
+          <ul className="mt-6 flex flex-wrap gap-2">
             {socialLinks.map((s) => {
               const icon = (
                 <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
@@ -157,7 +164,7 @@ function Footer() {
                 </svg>
               );
               const cls =
-                "grid h-10 w-10 place-items-center rounded-full ring-1 ring-gold/40 text-gold transition";
+                "grid h-9 w-9 place-items-center rounded-full ring-1 ring-gold/40 text-gold transition";
               return (
                 <li key={s.name}>
                   {s.url ? (
