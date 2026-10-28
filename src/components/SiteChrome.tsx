@@ -82,35 +82,41 @@ export function Header() {
           </button>
         </div>
       </div>
-      {open && (
-        <nav
-          id="mobile-nav"
-          aria-label={t("nav.main")}
-          className="border-t border-gold/20 lg:hidden"
-        >
-          <ul className="mx-auto max-w-6xl px-5 py-2">
-            {navItems.map((n) => (
-              <li key={n.to}>
-                <Link
-                  to={n.to}
-                  onClick={() => setOpen(false)}
-                  className="block py-3 text-base text-primary-foreground/90"
-                  activeProps={{ className: "text-gold" }}
-                >
-                  {t(n.key)}
-                </Link>
-              </li>
-            ))}
-            {isAdmin && (
-              <li>
-                <Link to="/admin" onClick={() => setOpen(false)} className="block py-3 text-gold">
-                  {t("nav.admin")}
-                </Link>
-              </li>
-            )}
-          </ul>
-        </nav>
-      )}
+      <div
+        className="menu-panel grid lg:hidden"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
+      >
+        <div className="overflow-hidden">
+          <nav
+            id="mobile-nav"
+            aria-label={t("nav.main")}
+            inert={!open}
+            className="border-t border-gold/20"
+          >
+            <ul className="mx-auto max-w-6xl px-5 py-2">
+              {navItems.map((n) => (
+                <li key={n.to}>
+                  <Link
+                    to={n.to}
+                    onClick={() => setOpen(false)}
+                    className="block py-3 text-base text-primary-foreground/90"
+                    activeProps={{ className: "text-gold" }}
+                  >
+                    {t(n.key)}
+                  </Link>
+                </li>
+              ))}
+              {isAdmin && (
+                <li>
+                  <Link to="/admin" onClick={() => setOpen(false)} className="block py-3 text-gold">
+                    {t("nav.admin")}
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </nav>
+        </div>
+      </div>
     </header>
   );
 }

@@ -14,8 +14,11 @@ export function BookCard({ b, eager = false }: { b: Product; eager?: boolean }) 
           ? { text: t(`format.${b.type}`), cls: "bg-gold text-navy-deep" }
           : null;
   return (
-    <Link to="/library/$slug" params={{ slug: b.slug }} className="group block">
-      <div className="relative aspect-square overflow-hidden rounded-md bg-navy-deep shadow-card">
+    <Link to="/library/$slug" params={{ slug: b.slug }} className="group lift block">
+      <div
+        data-parallax="cover"
+        className="lift-shadow relative aspect-square overflow-hidden rounded-md bg-navy-deep shadow-card"
+      >
         {b.cover_image_url && (
           <img
             src={b.cover_image_url}

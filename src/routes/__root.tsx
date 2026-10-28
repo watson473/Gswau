@@ -4,15 +4,17 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Header } from "../components/SiteChrome";
 import { SiteFooter } from "../components/SiteFooter";
+import { MotionEffects } from "../components/MotionEffects";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider, defaultLocale, textDirection } from "@/i18n";
 
@@ -124,6 +126,14 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (st) => st.location.pathname });
+  // Pages fade in after a navigation, never on the very first load.
+  const lastPath = useRef(pathname);
+  const navigated = useRef(false);
+  if (lastPath.current !== pathname) {
+    lastPath.current = pathname;
+    navigated.current = true;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -131,8 +141,11 @@ function RootComponent() {
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Header />
         <main className="min-h-[60vh] font-sans">
-          <Outlet />
+          <div key={pathname} className={navigated.current ? "page-fade" : undefined}>
+            <Outlet />
+          </div>
         </main>
+        <MotionEffects />
         <SiteFooter />
       </I18nProvider>
     </QueryClientProvider>

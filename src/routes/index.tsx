@@ -12,6 +12,7 @@ import {
 import { BookCard, Stars } from "@/components/Cards";
 import { Eyebrow } from "@/components/SiteChrome";
 import { LatestPodcasts } from "@/components/LatestPodcasts";
+import { Slider } from "@/components/Slider";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PricingPlans } from "@/components/Pricing";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
@@ -95,7 +96,8 @@ function Index() {
           width={1600}
           height={1008}
           fetchPriority="high"
-          className="absolute inset-0 h-full w-full object-cover opacity-45"
+          data-parallax="hero"
+          className="absolute -top-20 left-0 h-[calc(100%+5rem)] w-full object-cover opacity-45 will-change-transform"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-navy-deep via-navy-deep/85 to-navy-deep/30" />
         <div className="relative mx-auto max-w-6xl px-5 py-20 sm:py-32">
@@ -136,10 +138,12 @@ function Index() {
             title={t("home.featured.title")}
             link="/library"
           />
-          <div className="mt-10 grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-4">
-            {featured.map((b) => (
-              <BookCard key={b.id} b={b} />
-            ))}
+          <div className="mt-10">
+            <Slider slideClass="basis-1/2 md:basis-1/4" label={t("slider.featured")}>
+              {featured.map((b) => (
+                <BookCard key={b.id} b={b} />
+              ))}
+            </Slider>
           </div>
         </div>
       </section>
@@ -155,7 +159,7 @@ function Index() {
             {testimonials.map((r) => (
               <blockquote
                 key={r.id}
-                className="rounded-md border-l-4 border-gold bg-card p-6 shadow-card"
+                className="lift lift-box rounded-md border-l-4 border-gold bg-card p-6 shadow-card"
               >
                 <Stars n={r.rating} />
                 <p className="mt-3 font-display text-xl italic">“{r.quote}”</p>
