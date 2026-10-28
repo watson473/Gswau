@@ -37,6 +37,7 @@ const tabs = [
   "Podcast",
   "Blog",
   "Email list",
+  "Messages",
 ] as const;
 type Tab = (typeof tabs)[number];
 const input = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
@@ -107,6 +108,7 @@ function Admin() {
         {tab === "Podcast" && <PodcastAdmin />}
         {tab === "Blog" && <Blog />}
         {tab === "Email list" && <Leads />}
+        {tab === "Messages" && <Messages />}
       </div>
     </div>
   );
@@ -966,6 +968,73 @@ function Blog() {
                 Delete
               </button>
             </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// Contact Us messages, newest first.
+function Messages() {
+  const qc = useQueryClient();
+  const { data = [] } = useQuery({
+    queryKey: ["admin-messages"],
+    queryFn: async () =>
+      (
+        await supabase
+          .from("contact_messages")
+          .select("*")
+          .order("created_at", { ascending: false })
+      ).data ?? [],
+  });
+  async function setHandled(id: string, handled: boolean) {
+    await supabase.from("contact_messages").update({ handled }).eq("id", id);
+    qc.invalidateQueries({ queryKey: ["admin-messages"] });
+  }
+  async function remove(id: string) {
+    if (!confirm("Delete this message?")) return;
+    await supabase.from("contact_messages").delete().eq("id", id);
+    qc.invalidateQueries({ queryKey: ["admin-messages"] });
+  }
+  const open = data.filter((m) => !m.handled).length;
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold">
+        {data.length} messages{open ? ` · ${open} to answer` : ""}
+      </h2>
+      {data.length === 0 && (
+        <p className="mt-4 text-sm text-muted-foreground">
+          Messages from the Contact Us page appear here.
+        </p>
+      )}
+      <ul className="mt-6 space-y-4">
+        {data.map((m) => (
+          <li
+            key={m.id}
+            className={`rounded-md border border-border p-4 text-sm ${m.handled ? "opacity-60" : "bg-card"}`}
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <div className="font-semibold">
+                {m.name} ·{" "}
+                <a href={`mailto:${m.email}`} className="text-primary underline">
+                  {m.email}
+                </a>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {new Date(m.created_at).toLocaleString()}
+              </div>
+            </div>
+            {m.subject && <div className="mt-2 font-semibold">{m.subject}</div>}
+            <p className="mt-2 whitespace-pre-line">{m.message}</p>
+            <div className="mt-3 flex gap-4 text-xs">
+              <button className="underline" onClick={() => setHandled(m.id, !m.handled)}>
+                {m.handled ? "Mark as not answered" : "Mark as answered"}
+              </button>
+              <button className="text-crimson underline" onClick={() => remove(m.id)}>
+                Delete
+              </button>
+            </div>
           </li>
         ))}
       </ul>

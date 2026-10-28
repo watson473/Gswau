@@ -39,15 +39,14 @@ const resources = [
   { to: "/library", key: "footer.res.previews", Icon: BookOpen },
 ] as const;
 
-// Company pages. `to` is null until the page exists; those show as plain text.
-const companyLinks: { key: string; to: null }[] = [
-  { key: "footer.co.about", to: null },
-  { key: "footer.co.contact", to: null },
-  { key: "footer.co.faq", to: null },
-  { key: "footer.co.terms", to: null },
-  { key: "footer.co.privacy", to: null },
-  { key: "footer.co.refunds", to: null },
-];
+const companyLinks = [
+  { key: "footer.co.about", to: "/about" },
+  { key: "footer.co.contact", to: "/contact" },
+  { key: "footer.co.faq", to: "/faq" },
+  { key: "footer.co.terms", to: "/terms" },
+  { key: "footer.co.privacy", to: "/privacy" },
+  { key: "footer.co.refunds", to: "/refunds" },
+] as const;
 
 export function SiteFooter() {
   return (
@@ -226,7 +225,9 @@ function Footer() {
           <ul className="space-y-3">
             {companyLinks.map((l) => (
               <li key={l.key}>
-                <span className="text-primary-foreground/45">{t(l.key)}</span>
+                <Link to={l.to} className={link}>
+                  {t(l.key)}
+                </Link>
               </li>
             ))}
           </ul>

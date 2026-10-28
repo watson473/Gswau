@@ -9,6 +9,7 @@ const migrations = [
   "0000_gswau_schema.sql",
   "0001_subscribers_podcast_reviews.sql",
   "0002_phase1_membership.sql",
+  "0003_contact_messages.sql",
 ];
 
 // Minimal stand-ins for what Supabase provides: roles, auth.users, auth.uid() and storage.
