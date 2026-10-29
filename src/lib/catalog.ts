@@ -14,7 +14,7 @@ export const formatLabel: Record<string, string> = {
 export const money = (cents: number) => (cents === 0 ? "Free" : `$${(cents / 100).toFixed(2)}`);
 
 // Shown on the site; must match the prices set on the Gumroad membership product.
-export const membershipPrices = { monthly: 19.99, annual: 199 } as const;
+export const membershipPrices = { monthly: 19.99, annual: 199.99 } as const;
 
 export const formatMoney = (amount: number, locale = "en") =>
   new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(amount);
