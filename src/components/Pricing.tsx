@@ -5,20 +5,10 @@ import { settingsQuery } from "@/lib/catalog.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/i18n";
 
-// Gumroad selects the yearly recurrence when this parameter is present.
-// Confirmed on the public membership page: ?recurrence=yearly shows $199.99 a year.
-function withYearlyRecurrence(url: string) {
-  if (!url) return url;
-  try {
-    const next = new URL(url);
-    if (!next.searchParams.has("recurrence")) next.searchParams.set("recurrence", "yearly");
-    return next.toString();
-  } catch {
-    return url;
-  }
-}
+// Dedicated yearly Gumroad product. Monthly still uses the membership link from Admin > Settings.
+const ANNUAL_CHECKOUT_URL = "https://gswau.gumroad.com/l/fhqrks";
 
-// Monthly vs annual membership, annual highlighted. Checkout links come from Admin > Settings.
+// Monthly vs annual membership, annual highlighted. Monthly checkout comes from Admin > Settings.
 export function PricingPlans() {
   const { t, locale } = useT();
   const { data: settings } = useSuspenseQuery(settingsQuery);
@@ -33,7 +23,7 @@ export function PricingPlans() {
       note: t("pricing.annualNote", {
         monthly: formatMoney(membershipPrices.annual / 12, locale),
       }),
-      url: withYearlyRecurrence(settings.annualUrl),
+      url: ANNUAL_CHECKOUT_URL,
       featured: true,
     },
     {
