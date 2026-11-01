@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { getBookDownload, getBookPages } from "@/lib/book.functions";
 
 // Full-screen flip book: opens on the cover; turn pages by clicking or dragging a corner,
@@ -112,7 +113,8 @@ export function FlipBook({
   }
 
   const total = pages?.length ?? 0;
-  return (
+  // Rendered at the end of <body>, so page animations can't trap or shift the full-screen reader.
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -174,6 +176,7 @@ export function FlipBook({
       <p className="pb-3 text-center text-xs text-primary-foreground/50 sm:hidden">
         Swipe or tap the page edges to turn
       </p>
-    </div>
+    </div>,
+    document.body,
   );
 }
