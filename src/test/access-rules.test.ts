@@ -10,6 +10,7 @@ const migrations = [
   "0001_subscribers_podcast_reviews.sql",
   "0002_phase1_membership.sql",
   "0003_contact_messages.sql",
+  "0004_audiobook_rights.sql",
 ];
 
 // Minimal stand-ins for what Supabase provides: roles, auth.users, auth.uid() and storage.
@@ -177,5 +178,85 @@ describe("admins", () => {
   it("open everything", async () => {
     await as(ids["admin"]!);
     expect(await canOpen("premium-course")).toBe(true);
+  });
+});
+
+describe("audiobooks", () => {
+  async function rights(product: string) {
+    const { rows } = await db.query<{ can_listen: boolean; can_download: boolean }>(
+      "select * from public.audiobook_rights($1)",
+      [ids[product]],
+    );
+    return rows[0]!;
+  }
+  const future = () => new Date(Date.now() + 20 * 864e5).toISOString();
+
+  it("give visitors neither listening nor downloading", async () => {
+    await as(null);
+    expect(await rights("member-book")).toEqual({ can_listen: false, can_download: false });
+  });
+
+  it("let members listen but not download", async () => {
+    const uid = await signUp("listener@example.com");
+    await membership("listener@example.com", "active", future());
+    await as(uid);
+    expect(await rights("member-book")).toEqual({ can_listen: true, can_download: false });
+  });
+
+  it("let buyers listen and download, matched by email before they sign up", async () => {
+    await db.query(
+      "insert into public.entitlements (email, product_id, source) values ($1, $2, 'gumroad')",
+      ["owner2@example.com", ids["member-book"]],
+    );
+    const uid = await signUp("owner2@example.com");
+    await as(uid);
+    expect(await rights("member-book")).toEqual({ can_listen: true, can_download: true });
+  });
+
+  it("let bundle buyers download every book in the bundle", async () => {
+    const uid = await signUp("bundler@example.com");
+    await db.query("insert into public.entitlements (user_id, product_id) values ($1, $2)", [
+      uid,
+      ids["bundle"],
+    ]);
+    await as(uid);
+    expect(await rights("bundled-premium")).toEqual({ can_listen: true, can_download: true });
+  });
+
+  it("take both away after a refund", async () => {
+    const uid = await signUp("refunded@example.com");
+    await db.query(
+      "insert into public.entitlements (user_id, email, product_id, revoked_at) values ($1, $2, $3, now())",
+      [uid, "refunded@example.com", ids["member-book"]],
+    );
+    await as(uid);
+    expect(await rights("member-book")).toEqual({ can_listen: false, can_download: false });
+  });
+
+  it("stop signed-in browsers from opening audio files directly", async () => {
+    const audio = `${ids["member-book"]}/member-book.mp3`;
+    const pdf = `${ids["member-book"]}/member-book.pdf`;
+    await db.query("update public.products set audio_path = $1, file_path = $2 where id = $3", [
+      audio,
+      pdf,
+      ids["member-book"],
+    ]);
+    await db.query(
+      "insert into storage.objects (bucket_id, name) values ('product-files', $1), ('product-files', $2)",
+      [audio, pdf],
+    );
+    await db.exec(
+      "grant usage on schema storage to authenticated; grant select on storage.objects to authenticated;",
+    );
+    const buyer = (
+      await db.query<{ id: string }>("select id from auth.users where email = 'owner2@example.com'")
+    ).rows[0]!.id;
+    await as(buyer);
+    await db.exec("set role authenticated");
+    const { rows } = await db.query<{ name: string }>(
+      "select name from storage.objects order by name",
+    );
+    await db.exec("reset role");
+    expect(rows.map((r) => r.name)).toEqual([pdf]); // the PDF, never the audio
   });
 });

@@ -64,6 +64,7 @@ export function AudioPlayer({
   large,
   autoPlay,
   onFirstPlay,
+  onSourceError,
 }: {
   url: string;
   title: string;
@@ -72,6 +73,9 @@ export function AudioPlayer({
   large: boolean;
   autoPlay: boolean;
   onFirstPlay?: () => void;
+  // Called when the audio link stops working (e.g. it expired); the caller passes a fresh `url`
+  // and the player carries on from the same spot.
+  onSourceError?: () => void;
 }) {
   const { t } = useT();
   const audio = useRef<HTMLAudioElement>(null);
@@ -79,6 +83,7 @@ export function AudioPlayer({
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const tracked = useRef(false);
+  const resume = useRef<{ time: number; play: boolean } | null>(null);
 
   useEffect(() => {
     if (autoPlay) void audio.current?.play().catch(() => {});
@@ -145,6 +150,7 @@ export function AudioPlayer({
   return (
     <div
       className={`mt-4 rounded-xl bg-navy-deep p-4 text-primary-foreground ring-1 ring-gold/25 ${large ? "sm:p-5" : ""}`}
+      onContextMenu={(e) => e.preventDefault()}
     >
       <audio
         ref={audio}
@@ -154,7 +160,21 @@ export function AudioPlayer({
         onPause={() => setPlaying(false)}
         onEnded={() => setPlaying(false)}
         onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
-        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
+        onLoadedMetadata={(e) => {
+          const el = e.currentTarget;
+          setDuration(el.duration);
+          if (resume.current) {
+            el.currentTime = resume.current.time;
+            if (resume.current.play) void el.play().catch(() => {});
+            resume.current = null;
+          }
+        }}
+        onError={(e) => {
+          if (!onSourceError) return;
+          resume.current = { time: e.currentTarget.currentTime || time, play: playing };
+          onSourceError();
+        }}
+        controlsList="nodownload"
       />
       {large ? (
         <div className="grid items-center gap-5 sm:grid-cols-[180px_1fr]">

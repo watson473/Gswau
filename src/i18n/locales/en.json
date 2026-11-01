@@ -125,6 +125,8 @@
   "product.previewPages": "First {{count}} pages · PDF",
   "product.buy": "Buy for {{price}}",
   "product.join": "Start your membership",
+  "product.buyAudiobook": "Buy this audiobook · {{price}}",
+  "product.memberListen": "Become a member to listen",
   "product.includedNote": "Included with membership — or buy this book on its own.",
   "product.premiumNote": "Premium programme — not included in membership.",
   "product.openLibrary": "Open in my library",

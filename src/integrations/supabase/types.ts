@@ -666,6 +666,10 @@ export type Database = {
         }[];
       };
       has_access: { Args: { _product: string }; Returns: boolean };
+      audiobook_rights: {
+        Args: { _product: string };
+        Returns: { can_listen: boolean; can_download: boolean }[];
+      };
       has_membership: { Args: { _user?: string }; Returns: boolean };
       user_email: { Args: { _user: string }; Returns: string };
       has_role: {

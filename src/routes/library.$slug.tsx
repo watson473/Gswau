@@ -9,6 +9,7 @@ import { useT } from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BookAudio } from "@/components/BookAudio";
+import { getAudiobookRights } from "@/lib/audiobook.functions";
 import { Stars } from "@/components/Cards";
 
 export const Route = createFileRoute("/library/$slug")({
@@ -53,11 +54,19 @@ function ProductPage() {
   const [shown, setShown] = useState(0);
   const { data: hasAccess } = useQuery({
     queryKey: ["has-access", user?.id, data?.product.id],
-    enabled: !!user && !!data,
+    enabled:
+      !!user && !!data && !(data.product.type === "ebook" || data.product.type === "audiobook"),
     queryFn: async () => {
       const { data: ok } = await supabase.rpc("has_access", { _product: data!.product.id });
       return !!ok;
     },
+  });
+  const isAudiobook = data?.product.type === "ebook" || data?.product.type === "audiobook";
+  // Audiobooks: members may listen; buyers may listen and download (checked on the server).
+  const { data: rights } = useQuery({
+    queryKey: ["audiobook-rights", user?.id, data?.product.id],
+    enabled: !!user && !!data && isAudiobook,
+    queryFn: () => getAudiobookRights({ data: { productId: data!.product.id } }),
   });
   if (!data) return null;
   const { product: b, modules, outline, bundle, rating, reviews } = data;
@@ -108,30 +117,59 @@ function ProductPage() {
           </div>
           {b.access_tier === "free" ? (
             <FreeForm source={b.slug} buyUrl={b.buy_url} />
-          ) : hasAccess ? (
-            b.type !== "course" && b.audio_path ? (
+          ) : isAudiobook && rights?.canListen ? (
+            b.audio_path ? (
               <div className="mt-4">
                 <BookAudio
+                  productId={b.id}
                   slug={b.slug}
                   title={b.title}
                   cover={b.cover_image_url}
-                  audioPath={b.audio_path}
                   durationLabel={b.length_label}
+                  canDownload={rights.canDownload}
                 />
               </div>
             ) : (
-              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                {b.type === "course" ? (
-                  <Link to="/learn/$slug" params={{ slug: b.slug }} className="btn-gold">
-                    {t("product.goToCourse")}
-                  </Link>
-                ) : (
-                  <Link to="/account" className="btn-gold">
-                    {t("product.openLibrary")}
+              <p className="mt-4 text-sm text-muted-foreground">{t("library.audioSoon")}</p>
+            )
+          ) : !isAudiobook && hasAccess ? (
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              {b.type === "course" ? (
+                <Link to="/learn/$slug" params={{ slug: b.slug }} className="btn-gold">
+                  {t("product.goToCourse")}
+                </Link>
+              ) : (
+                <Link to="/account" className="btn-gold">
+                  {t("product.openLibrary")}
+                </Link>
+              )}
+            </div>
+          ) : isAudiobook ? (
+            <>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                {b.buy_url && (
+                  <a href={b.buy_url} rel="noopener" className="btn-gold">
+                    {t("product.buyAudiobook", {
+                      price: formatMoney(b.price_cents / 100, locale),
+                    })}
+                  </a>
+                )}
+                {b.access_tier === "members" && (
+                  <Link to="/pricing" className="btn-ghost">
+                    {t("product.memberListen")}
                   </Link>
                 )}
               </div>
-            )
+              {!user && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {t("product.bought")}{" "}
+                  <Link to="/auth" className="underline">
+                    {t("product.signInLink")}
+                  </Link>{" "}
+                  {t("product.signInNote")}
+                </p>
+              )}
+            </>
           ) : (
             <>
               <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

@@ -246,10 +246,11 @@ function Account() {
                   <div className="mt-3">
                     {p.audio_path ? (
                       <BookAudio
+                        productId={p.id}
                         slug={p.slug}
                         title={p.title}
                         cover={p.cover_image_url}
-                        audioPath={p.audio_path}
+                        canDownload={why !== "member"}
                         compact
                       />
                     ) : p.file_path ? (
