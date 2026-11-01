@@ -159,3 +159,11 @@
   .lift:hover .lift-shadow { box-shadow: 0 22px 40px -14px oklch(0.15 0.05 262 / 45%); }
   .btn-gold:hover, .btn-ghost:hover { transform: translate3d(0, -2px, 0); box-shadow: 0 12px 24px -12px oklch(0.15 0.05 262 / 40%); }
 }
+
+/* Flip book: sized so the pages fit the screen (one page on phones, an open spread on wider screens). */
+.flipbook-stage { width: min(calc(100vw - 24px), calc((100dvh - 150px) * 0.667)); }
+@media (min-width: 768px) {
+  .flipbook-stage { width: min(calc(100vw - 140px), calc((100dvh - 120px) * 1.333)); }
+}
+.flip-page { background: #fff; overflow: hidden; }
+.flip-page img { width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-select: none; pointer-events: none; -webkit-touch-callout: none; }

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney, membershipPrices } from "@/lib/catalog";
 import { Eyebrow } from "@/components/SiteChrome";
+import { settingsQuery } from "@/lib/catalog.functions";
 import { BookAudio } from "@/components/BookAudio";
 import { TwoStepSettings } from "@/components/TwoStepSettings";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
@@ -170,6 +171,8 @@ function MembershipCard({ m, isMember }: { m: Membership | null; isMember: boole
 function Account() {
   const { t } = useT();
   const mfaRequired = Route.useSearch().mfa === "required";
+  const { data: settings } = useQuery(settingsQuery);
+  const flipbooks = settings?.flipbooks ?? {};
   const { data, isLoading } = useLibrary();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -259,6 +262,16 @@ function Account() {
                   </Link>
                 ) : p.type !== "bundle" ? (
                   <div className="mt-3">
+                    {flipbooks[p.id] && (
+                      <Link
+                        to="/library/$slug"
+                        params={{ slug: p.slug }}
+                        search={{ read: 1 }}
+                        className="btn-gold mb-2 w-full"
+                      >
+                        {t("library.read")}
+                      </Link>
+                    )}
                     {p.audio_path ? (
                       <BookAudio
                         productId={p.id}

@@ -1,4 +1,5 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { author, formatMoney } from "@/lib/catalog";
@@ -9,10 +10,13 @@ import { useT } from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BookAudio } from "@/components/BookAudio";
+import { FlipBook } from "@/components/FlipBook";
 import { getAudiobookRights } from "@/lib/audiobook.functions";
 import { Stars } from "@/components/Cards";
 
 export const Route = createFileRoute("/library/$slug")({
+  // ?read=1 opens the flip book straight away (from My library's "Read" button).
+  validateSearch: z.object({ read: z.union([z.literal(1), z.literal("1")]).optional() }),
   loader: async ({ context, params }) => {
     const [data] = await Promise.all([
       context.queryClient.ensureQueryData(productQuery(params.slug)),
@@ -49,6 +53,9 @@ function ProductPage() {
   const { slug } = Route.useParams();
   const { data } = useSuspenseQuery(productQuery(slug));
   const { data: settings } = useSuspenseQuery(settingsQuery);
+  const { read } = Route.useSearch();
+  const navigate = useNavigate({ from: "/library/$slug" });
+  const [reading, setReading] = useState(false);
   const { user } = useAuth();
   const { t, locale } = useT();
   const [shown, setShown] = useState(0);
@@ -68,6 +75,8 @@ function ProductPage() {
     enabled: !!user && !!data && isAudiobook,
     queryFn: () => getAudiobookRights({ data: { productId: data!.product.id } }),
   });
+  const canRead =
+    isAudiobook && !!rights?.canListen && !!data && !!settings.flipbooks[data.product.id];
   if (!data) return null;
   const { product: b, modules, outline, bundle, rating, reviews } = data;
   const images = b.gallery_urls.length
@@ -75,8 +84,19 @@ function ProductPage() {
     : b.cover_image_url
       ? [b.cover_image_url]
       : [];
+  const showReader = canRead && (reading || read !== undefined);
   return (
     <div className="mx-auto grid max-w-5xl gap-12 px-5 py-16 md:grid-cols-[360px_1fr]">
+      {showReader && (
+        <FlipBook
+          productId={b.id}
+          title={b.title}
+          onClose={() => {
+            setReading(false);
+            if (read !== undefined) void navigate({ search: {}, replace: true });
+          }}
+        />
+      )}
       <div>
         {images.length > 0 && (
           <img
@@ -118,8 +138,13 @@ function ProductPage() {
           {b.access_tier === "free" ? (
             <FreeForm source={b.slug} buyUrl={b.buy_url} />
           ) : isAudiobook && rights?.canListen ? (
-            b.audio_path ? (
-              <div className="mt-4">
+            <div className="mt-4 space-y-4">
+              {canRead && (
+                <button onClick={() => setReading(true)} className="btn-gold w-full sm:w-auto">
+                  {t("product.readBook")}
+                </button>
+              )}
+              {b.audio_path ? (
                 <BookAudio
                   productId={b.id}
                   slug={b.slug}
@@ -128,10 +153,10 @@ function ProductPage() {
                   durationLabel={b.length_label}
                   canDownload={rights.canDownload}
                 />
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-muted-foreground">{t("library.audioSoon")}</p>
-            )
+              ) : (
+                <p className="text-sm text-muted-foreground">{t("library.audioSoon")}</p>
+              )}
+            </div>
           ) : !isAudiobook && hasAccess ? (
             <div className="mt-4 flex flex-col gap-3 sm:flex-row">
               {b.type === "course" ? (
