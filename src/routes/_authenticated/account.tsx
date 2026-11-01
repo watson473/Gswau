@@ -4,6 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney, membershipPrices } from "@/lib/catalog";
 import { Eyebrow } from "@/components/SiteChrome";
+import { BookAudio } from "@/components/BookAudio";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
 
 const t0 = createTranslator(defaultLocale);
@@ -242,17 +243,21 @@ function Account() {
                     {t("library.startCourse")}
                   </Link>
                 ) : p.type !== "bundle" ? (
-                  <div className="mt-3 grid gap-2">
-                    <button onClick={() => download(p, p.file_path)} className="btn-gold w-full">
-                      {t("library.downloadPdf")}
-                    </button>
-                    {p.audio_path && (
-                      <button
-                        onClick={() => download(p, p.audio_path)}
-                        className="btn-ghost w-full"
-                      >
-                        {t("library.downloadAudio")}
+                  <div className="mt-3">
+                    {p.audio_path ? (
+                      <BookAudio
+                        slug={p.slug}
+                        title={p.title}
+                        cover={p.cover_image_url}
+                        audioPath={p.audio_path}
+                        compact
+                      />
+                    ) : p.file_path ? (
+                      <button onClick={() => download(p, p.file_path)} className="btn-gold w-full">
+                        {t("library.downloadPdf")}
                       </button>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">{t("library.audioSoon")}</p>
                     )}
                   </div>
                 ) : null}

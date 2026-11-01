@@ -41,6 +41,7 @@ export function EpisodePlayer({
       durationLabel={durationLabel ?? null}
       large={size === "large"}
       autoPlay={autoPlay}
+      onFirstPlay={() => track("podcast_play", { title })}
     />
   );
 }
@@ -54,13 +55,15 @@ function clock(seconds: number) {
   return h ? `${h}:${String(m).padStart(2, "0")}:${rest}` : `${m}:${rest}`;
 }
 
-function AudioPlayer({
+// The site's own navy and gold player (podcast episodes and audiobooks).
+export function AudioPlayer({
   url,
   title,
   image,
   durationLabel,
   large,
   autoPlay,
+  onFirstPlay,
 }: {
   url: string;
   title: string;
@@ -68,6 +71,7 @@ function AudioPlayer({
   durationLabel: string | null;
   large: boolean;
   autoPlay: boolean;
+  onFirstPlay?: () => void;
 }) {
   const { t } = useT();
   const audio = useRef<HTMLAudioElement>(null);
@@ -89,12 +93,12 @@ function AudioPlayer({
 
   function onPlay() {
     setPlaying(true);
-    // One episode at a time across the page.
+    // One recording at a time across the page.
     for (const other of document.querySelectorAll("audio"))
       if (other !== audio.current) other.pause();
     if (!tracked.current) {
       tracked.current = true;
-      track("podcast_play", { title });
+      onFirstPlay?.();
     }
   }
 

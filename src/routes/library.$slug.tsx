@@ -8,6 +8,7 @@ import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { useT } from "@/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { BookAudio } from "@/components/BookAudio";
 import { Stars } from "@/components/Cards";
 
 export const Route = createFileRoute("/library/$slug")({
@@ -108,17 +109,29 @@ function ProductPage() {
           {b.access_tier === "free" ? (
             <FreeForm source={b.slug} buyUrl={b.buy_url} />
           ) : hasAccess ? (
-            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-              {b.type === "course" ? (
-                <Link to="/learn/$slug" params={{ slug: b.slug }} className="btn-gold">
-                  {t("product.goToCourse")}
-                </Link>
-              ) : (
-                <Link to="/account" className="btn-gold">
-                  {t("product.openLibrary")}
-                </Link>
-              )}
-            </div>
+            b.type !== "course" && b.audio_path ? (
+              <div className="mt-4">
+                <BookAudio
+                  slug={b.slug}
+                  title={b.title}
+                  cover={b.cover_image_url}
+                  audioPath={b.audio_path}
+                  durationLabel={b.length_label}
+                />
+              </div>
+            ) : (
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                {b.type === "course" ? (
+                  <Link to="/learn/$slug" params={{ slug: b.slug }} className="btn-gold">
+                    {t("product.goToCourse")}
+                  </Link>
+                ) : (
+                  <Link to="/account" className="btn-gold">
+                    {t("product.openLibrary")}
+                  </Link>
+                )}
+              </div>
+            )
           ) : (
             <>
               <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">

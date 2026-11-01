@@ -5,7 +5,7 @@ import { publicClient } from "./public-client.server";
 import type { PodcastEpisode } from "./podcast";
 
 const PRODUCT_COLS =
-  "id,slug,type,title,subtitle,description,cover_image_url,gallery_urls,price_cents,is_free,is_featured,access_tier,preview_path,file_size_label,length_label,buy_url,position";
+  "id,slug,type,title,subtitle,description,cover_image_url,gallery_urls,price_cents,is_free,is_featured,access_tier,preview_path,file_size_label,length_label,buy_url,position,audio_path";
 
 const RATING_COLS = "product_id,review_count,average,stars_1,stars_2,stars_3,stars_4,stars_5";
 
