@@ -5,7 +5,10 @@ import { settingsQuery } from "@/lib/catalog.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/i18n";
 
-// Monthly vs annual membership, annual highlighted. Checkout links come from Admin > Settings.
+// Dedicated yearly Gumroad product. Monthly still uses the membership link from Admin > Settings.
+const ANNUAL_CHECKOUT_URL = "https://gswau.gumroad.com/l/fhqrks";
+
+// Monthly vs annual membership, annual highlighted. Monthly checkout comes from Admin > Settings.
 export function PricingPlans() {
   const { t, locale } = useT();
   const { data: settings } = useSuspenseQuery(settingsQuery);
@@ -20,7 +23,7 @@ export function PricingPlans() {
       note: t("pricing.annualNote", {
         monthly: formatMoney(membershipPrices.annual / 12, locale),
       }),
-      url: settings.annualUrl,
+      url: ANNUAL_CHECKOUT_URL,
       featured: true,
     },
     {
