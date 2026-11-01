@@ -25,6 +25,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedMfaRouteImport } from './routes/_authenticated/mfa'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
@@ -113,6 +114,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMfaRoute = AuthenticatedMfaRouteImport.update({
+  id: '/mfa',
+  path: '/mfa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/blog/',
   path: '/blog/',
@@ -171,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
+  '/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -196,6 +203,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
+  '/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/blog': typeof BlogIndexRoute
@@ -223,6 +231,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/account'
     | '/admin'
+    | '/mfa'
     | '/blog/$slug'
     | '/library/$slug'
     | '/blog/'
@@ -275,6 +285,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/account'
     | '/admin'
+    | '/mfa'
     | '/blog/$slug'
     | '/library/$slug'
     | '/blog'
@@ -301,6 +312,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/account'
     | '/_authenticated/admin'
+    | '/_authenticated/mfa'
     | '/blog/$slug'
     | '/library/$slug'
     | '/blog/'
@@ -448,6 +460,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mfa': {
+      id: '/_authenticated/mfa'
+      path: '/mfa'
+      fullPath: '/mfa'
+      preLoaderRoute: typeof AuthenticatedMfaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/blog/': {
       id: '/blog/'
       path: '/blog'
@@ -521,12 +540,14 @@ const AuthenticatedAccountRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRouteWithChildren
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedMfaRoute: typeof AuthenticatedMfaRoute
   AuthenticatedLearnSlugRoute: typeof AuthenticatedLearnSlugRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRouteWithChildren,
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedMfaRoute: AuthenticatedMfaRoute,
   AuthenticatedLearnSlugRoute: AuthenticatedLearnSlugRoute,
 }
 

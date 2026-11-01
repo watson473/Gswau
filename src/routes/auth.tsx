@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { getMfaState } from "@/lib/mfa";
 import { track } from "@/lib/analytics";
 
 const safe = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/account");
@@ -36,11 +37,17 @@ function AuthPage() {
   const target = safe(redirect);
 
   useEffect(() => {
+    // Accounts with two-step sign-in go to the code step before anything else.
+    const go = async () => {
+      const { needsCode } = await getMfaState();
+      if (needsCode) navigate({ to: "/mfa", search: { redirect: target } });
+      else navigate({ to: target });
+    };
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: target });
+      if (data.user) void go();
     });
     const { data: sub } = supabase.auth.onAuthStateChange((e, s) => {
-      if (e === "SIGNED_IN" && s) navigate({ to: target });
+      if (e === "SIGNED_IN" && s) void go();
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate, target]);

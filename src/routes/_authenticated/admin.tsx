@@ -11,6 +11,7 @@ import {
   replayGumroadNotification,
 } from "@/lib/admin-gumroad.functions";
 import { checkKit, sendToKit } from "@/lib/admin-kit.functions";
+import { resetTwoStep } from "@/lib/admin-mfa.functions";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -1146,6 +1147,51 @@ function Leads() {
   );
 }
 
+// A member lost their phone: turn off their two-step sign-in after confirming it's them.
+function ResetTwoStep() {
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  async function reset(e: React.FormEvent) {
+    e.preventDefault();
+    if (
+      !confirm(`Turn off two-step sign-in for ${email}? Only do this after confirming it's them.`)
+    )
+      return;
+    setBusy(true);
+    try {
+      setMsg((await resetTwoStep({ data: { email } })).result);
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : String(err));
+    }
+    setBusy(false);
+  }
+  return (
+    <form onSubmit={reset} className="mt-10 rounded-md border border-border bg-card p-5 text-sm">
+      <h3 className="text-xl font-semibold">Lost phone: reset two-step sign-in</h3>
+      <p className="mt-1 text-muted-foreground">
+        Removes all of their authenticator devices so they can sign in with just their password and
+        set it up again. Confirm it's really them first (for example, they email you from the
+        address on the account).
+      </p>
+      <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+        <input
+          required
+          type="email"
+          className={input}
+          placeholder="Their account email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <button className="btn-ghost shrink-0" disabled={busy}>
+          {busy ? "Resetting…" : "Reset"}
+        </button>
+      </div>
+      {msg && <p className="mt-3">{msg}</p>}
+    </form>
+  );
+}
+
 function Members() {
   const qc = useQueryClient();
   const [email, setEmail] = useState("");
@@ -1252,6 +1298,7 @@ function Members() {
           ))}
         </ul>
       </div>
+      <ResetTwoStep />
     </div>
   );
 }

@@ -11,6 +11,7 @@ const migrations = [
   "0002_phase1_membership.sql",
   "0003_contact_messages.sql",
   "0004_audiobook_rights.sql",
+  "0005_two_step_sign_in.sql",
 ];
 
 // Minimal stand-ins for what Supabase provides: roles, auth.users, auth.uid() and storage.
@@ -19,6 +20,8 @@ const supabaseStubs = `
   create schema auth;
   create table auth.users (id uuid primary key default gen_random_uuid(), email text, raw_user_meta_data jsonb default '{}');
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
+  create function auth.jwt() returns jsonb language sql stable as $$ select nullif(current_setting('test.jwt', true), '')::jsonb $$;
+  create table auth.mfa_factors (id uuid primary key default gen_random_uuid(), user_id uuid, status text);
   create schema storage;
   create table storage.buckets (id text primary key, name text, public boolean);
   create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
@@ -258,5 +261,90 @@ describe("audiobooks", () => {
     );
     await db.exec("reset role");
     expect(rows.map((r) => r.name)).toEqual([pdf]); // the PDF, never the audio
+  });
+});
+
+describe("two-step sign-in", () => {
+  async function jwt(claims: Record<string, string> | null) {
+    await db.query("select set_config('test.jwt', $1, false)", [
+      claims ? JSON.stringify(claims) : "",
+    ]);
+  }
+  async function isAdmin(uid: string) {
+    const { rows } = await db.query<{ ok: boolean }>("select public.has_role($1, 'admin') as ok", [
+      uid,
+    ]);
+    return rows[0]!.ok;
+  }
+  async function rights(product: string) {
+    const { rows } = await db.query<{ can_listen: boolean; can_download: boolean }>(
+      "select * from public.audiobook_rights($1)",
+      [ids[product]],
+    );
+    return rows[0]!;
+  }
+
+  it("keep admin powers off until the admin has entered their code", async () => {
+    const admin = ids["admin"]!;
+    await as(admin);
+    await jwt({ role: "authenticated", aal: "aal1" });
+    expect(await isAdmin(admin)).toBe(false);
+    expect(await canOpen("premium-course")).toBe(false);
+    await jwt({ role: "authenticated", aal: "aal2" });
+    expect(await isAdmin(admin)).toBe(true);
+    expect(await canOpen("premium-course")).toBe(true);
+    await jwt({ role: "service_role" });
+    expect(await isAdmin(admin)).toBe(true); // the server's own key is unaffected
+    await jwt(null);
+  });
+
+  it("leave members without two-step sign-in exactly as before", async () => {
+    const uid = await signUp("plain@example.com");
+    await membership(
+      "plain@example.com",
+      "active",
+      new Date(Date.now() + 20 * 864e5).toISOString(),
+    );
+    await as(uid);
+    await jwt({ role: "authenticated", aal: "aal1" });
+    expect(await rights("member-book")).toEqual({ can_listen: true, can_download: false });
+    await jwt(null);
+  });
+
+  it("make members who turned it on enter their code before reaching their books", async () => {
+    const uid = await signUp("careful@example.com");
+    await membership(
+      "careful@example.com",
+      "active",
+      new Date(Date.now() + 20 * 864e5).toISOString(),
+    );
+    await db.query("insert into public.entitlements (user_id, product_id) values ($1, $2)", [
+      uid,
+      ids["member-book"],
+    ]);
+    await db.query("insert into auth.mfa_factors (user_id, status) values ($1, 'verified')", [uid]);
+    await as(uid);
+    await jwt({ role: "authenticated", aal: "aal1" });
+    expect(await rights("member-book")).toEqual({ can_listen: false, can_download: false });
+    expect(await canOpen("free-chapter")).toBe(true); // free things stay free
+    await jwt({ role: "authenticated", aal: "aal2" });
+    expect(await rights("member-book")).toEqual({ can_listen: true, can_download: true });
+    await jwt(null);
+  });
+
+  it("ignore a half-finished setup", async () => {
+    const uid = await signUp("halfway@example.com");
+    await membership(
+      "halfway@example.com",
+      "active",
+      new Date(Date.now() + 20 * 864e5).toISOString(),
+    );
+    await db.query("insert into auth.mfa_factors (user_id, status) values ($1, 'unverified')", [
+      uid,
+    ]);
+    await as(uid);
+    await jwt({ role: "authenticated", aal: "aal1" });
+    expect(await rights("member-book")).toEqual({ can_listen: true, can_download: false });
+    await jwt(null);
   });
 });

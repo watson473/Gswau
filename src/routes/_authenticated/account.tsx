@@ -1,15 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney, membershipPrices } from "@/lib/catalog";
 import { Eyebrow } from "@/components/SiteChrome";
 import { BookAudio } from "@/components/BookAudio";
+import { TwoStepSettings } from "@/components/TwoStepSettings";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
 
 const t0 = createTranslator(defaultLocale);
 
 export const Route = createFileRoute("/_authenticated/account")({
+  // ?mfa=required: an admin was sent here to turn on two-step sign-in before using Admin.
+  validateSearch: z.object({ mfa: z.literal("required").optional() }),
   head: () => ({
     meta: [{ title: t0("library.meta.title") }, { name: "robots", content: "noindex" }],
   }),
@@ -160,6 +164,7 @@ function MembershipCard({ m, isMember }: { m: Membership | null; isMember: boole
 
 function Account() {
   const { t } = useT();
+  const mfaRequired = Route.useSearch().mfa === "required";
   const { data, isLoading } = useLibrary();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -209,6 +214,11 @@ function Account() {
         <p className="mt-10 text-muted-foreground">{t("library.loading")}</p>
       ) : (
         <>
+          {mfaRequired && (
+            <div className="mt-8">
+              <TwoStepSettings required />
+            </div>
+          )}
           <div className="mt-8">
             <MembershipCard m={data.membership} isMember={data.isMember} />
           </div>
@@ -268,6 +278,11 @@ function Account() {
           <p className="mt-10 rounded-md bg-secondary p-5 text-sm text-muted-foreground">
             {t("library.missing")}
           </p>
+          {!mfaRequired && (
+            <div className="mt-10">
+              <TwoStepSettings />
+            </div>
+          )}
         </>
       )}
     </div>
