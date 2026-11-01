@@ -126,6 +126,15 @@ export const listEpisodes = createServerFn({ method: "GET" }).handler(
   },
 );
 
+function parseFlipbooks(value: string | undefined): Record<string, number> {
+  try {
+    const parsed: unknown = JSON.parse(value ?? "{}");
+    return parsed && typeof parsed === "object" ? (parsed as Record<string, number>) : {};
+  } catch {
+    return {};
+  }
+}
+
 export const getSettings = createServerFn({ method: "GET" }).handler(async () => {
   const { data } = await publicClient().from("site_settings").select("key,value");
   const map = Object.fromEntries((data ?? []).map((r) => [r.key, r.value]));
@@ -133,6 +142,8 @@ export const getSettings = createServerFn({ method: "GET" }).handler(async () =>
     monthlyUrl: map["membership_monthly_url"] ?? "",
     annualUrl: map["membership_annual_url"] ?? "",
     previewPages: Number(map["preview_pages"] ?? 10) || 10,
+    // Product id -> page count, for books that can be read as a flip book.
+    flipbooks: parseFlipbooks(map["flipbooks"]),
   };
 });
 

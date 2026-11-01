@@ -262,6 +262,25 @@ describe("audiobooks", () => {
     await db.exec("reset role");
     expect(rows.map((r) => r.name)).toEqual([pdf]); // the PDF, never the audio
   });
+
+  it("keep flip book files private to the server, even for buyers", async () => {
+    const book = `${ids["member-book"]}/book/member-book.pdf`;
+    const page = `${ids["member-book"]}/book/pages/0001.webp`;
+    await db.query(
+      "insert into storage.objects (bucket_id, name) values ('product-files', $1), ('product-files', $2)",
+      [book, page],
+    );
+    const buyer = (
+      await db.query<{ id: string }>("select id from auth.users where email = 'owner2@example.com'")
+    ).rows[0]!.id;
+    await as(buyer);
+    await db.exec("set role authenticated");
+    const { rows } = await db.query<{ name: string }>(
+      "select name from storage.objects where name like '%/book/%'",
+    );
+    await db.exec("reset role");
+    expect(rows).toEqual([]);
+  });
 });
 
 describe("two-step sign-in", () => {
