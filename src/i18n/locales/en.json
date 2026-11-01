@@ -148,7 +148,7 @@
   "library.review": "Leave a review",
   "library.signOut": "Sign out",
   "library.loading": "Loading…",
-  "library.empty": "Your library has the free chapter. Become a member to unlock every book.",
+  "library.empty": "Become a member to unlock every book.",
   "library.downloadPdf": "Download PDF",
   "library.downloadAudio": "Download audio",
   "library.listen": "Listen",
@@ -191,6 +191,6 @@
   "freeForm.button": "Send it free",
   "freeForm.sending": "Sending…",
   "freeForm.done": "You're on the list.",
-  "freeForm.download": "Download your free chapter",
+  "freeForm.download": "Download it free",
   "freeForm.error": "Something went wrong — please try again."
 }

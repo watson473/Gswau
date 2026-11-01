@@ -20,7 +20,8 @@ export const Route = createFileRoute("/_authenticated/account")({
   component: Account,
 });
 
-const PRODUCT_COLS = "id,slug,title,type,access_tier,cover_image_url,file_path,audio_path";
+const PRODUCT_COLS =
+  "id,slug,title,type,access_tier,cover_image_url,file_path,audio_path,is_published";
 
 type Owned = {
   id: string;
@@ -31,6 +32,7 @@ type Owned = {
   cover_image_url: string | null;
   file_path: string | null;
   audio_path: string | null;
+  is_published: boolean;
 };
 type Why = "purchased" | "member" | "free";
 
@@ -56,7 +58,10 @@ function useLibrary() {
           supabase.from("profiles").select("full_name").eq("id", uid).maybeSingle(),
         ]);
       const owned = new Map<string, { p: Owned; why: Why }>();
-      const direct = (ents ?? []).map((e) => e.product).filter(Boolean) as Owned[];
+      // Books taken off the site stay in purchase records but don't show here.
+      const direct = ((ents ?? []).map((e) => e.product).filter(Boolean) as Owned[]).filter(
+        (p) => p.is_published,
+      );
       direct.forEach((p) => owned.set(p.id, { p, why: "purchased" }));
       const bundleIds = direct.filter((p) => p.type === "bundle").map((p) => p.id);
       if (bundleIds.length) {
@@ -66,7 +71,7 @@ function useLibrary() {
           .in("bundle_id", bundleIds);
         (items ?? []).forEach((i) => {
           const p = i.product as Owned | null;
-          if (p) owned.set(p.id, { p, why: "purchased" });
+          if (p?.is_published) owned.set(p.id, { p, why: "purchased" });
         });
       }
       const tiers = isMember ? ["free", "members"] : ["free"];

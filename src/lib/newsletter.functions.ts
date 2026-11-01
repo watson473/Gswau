@@ -3,7 +3,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { publicClient } from "./public-client.server";
 
-// Newsletter and free-chapter sign-ups: saved to the site's email list, then sent to Kit.
+// Newsletter and free-book sign-ups: saved to the site's email list, then sent to Kit.
 // A Kit problem never fails the sign-up; the site's list keeps every email either way.
 export const subscribeNewsletter = createServerFn({ method: "POST" })
   .inputValidator((d) =>

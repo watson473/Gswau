@@ -19,7 +19,7 @@ export const membershipPrices = { monthly: 19.99, annual: 199.99 } as const;
 export const formatMoney = (amount: number, locale = "en") =>
   new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(amount);
 
-// Paid audiobooks (excludes the free chapter, bundles and courses).
+// Paid audiobooks (excludes free books, bundles and courses).
 export function bookCount(products: { type: string; access_tier: string }[]) {
   return products.filter(
     (p) => (p.type === "ebook" || p.type === "audiobook") && p.access_tier !== "free",

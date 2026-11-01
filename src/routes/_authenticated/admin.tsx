@@ -312,7 +312,7 @@ function Products() {
           />
         </label>
         <label className="text-sm">
-          Gumroad link (buy button; download link for the free chapter)
+          Gumroad link (buy button)
           <input
             className={input}
             value={edit.buy_url ?? ""}
