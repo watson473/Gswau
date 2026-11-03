@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as CoachingRouteImport } from './routes/coaching'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -52,6 +53,11 @@ const AboutRoute = AboutRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalculatorRoute = CalculatorRouteImport.update({
+  id: '/calculator',
+  path: '/calculator',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoachingRoute = CoachingRouteImport.update({
@@ -165,6 +171,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/calculator': typeof CalculatorRoute
   '/coaching': typeof CoachingRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
@@ -191,6 +198,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/calculator': typeof CalculatorRoute
   '/coaching': typeof CoachingRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
@@ -219,6 +227,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
+  '/calculator': typeof CalculatorRoute
   '/coaching': typeof CoachingRoute
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
@@ -247,6 +256,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+    | '/calculator'
     | '/coaching'
     | '/contact'
     | '/faq'
@@ -273,6 +283,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/auth'
+    | '/calculator'
     | '/coaching'
     | '/contact'
     | '/faq'
@@ -300,6 +311,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/about'
     | '/auth'
+    | '/calculator'
     | '/coaching'
     | '/contact'
     | '/faq'
@@ -328,6 +340,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
+  CalculatorRoute: typeof CalculatorRoute
   CoachingRoute: typeof CoachingRoute
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
@@ -374,6 +387,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calculator': {
+      id: '/calculator'
+      path: '/calculator'
+      fullPath: '/calculator'
+      preLoaderRoute: typeof CalculatorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/coaching': {
@@ -559,6 +579,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
+  CalculatorRoute: CalculatorRoute,
   CoachingRoute: CoachingRoute,
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,

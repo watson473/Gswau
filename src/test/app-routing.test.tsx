@@ -14,4 +14,10 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
   });
+
+  it("matches the chair earnings calculator", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    const matches = router.matchRoutes("/calculator");
+    expect(matches.some((match) => match.routeId === "/calculator")).toBe(true);
+  });
 });

@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import logo from "@/assets/brand/logo.png";
 import { author } from "@/lib/catalog";
+import { calculatorConfig } from "@/lib/calculator.config";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/i18n";
 
@@ -20,13 +21,18 @@ export function Logo({ size = 40 }: { size?: number }) {
   );
 }
 
-const navItems = [
+const baseNavItems = [
   { to: "/library", key: "nav.library" },
   { to: "/courses", key: "nav.programs" },
   { to: "/podcast", key: "nav.podcast" },
   { to: "/pricing", key: "nav.pricing" },
   { to: "/blog", key: "nav.blog" },
 ] as const;
+
+// Off until the owner flips calculatorConfig.showInMainNav. The bar is unchanged meanwhile.
+const navItems = calculatorConfig.showInMainNav
+  ? [...baseNavItems, { to: "/calculator" as const, key: "nav.calculator" as const }]
+  : baseNavItems;
 
 export function Header() {
   const { user, isAdmin } = useAuth();
