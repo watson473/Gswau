@@ -16,6 +16,9 @@
   "nav.menu": "Menu",
   "nav.close": "Close menu",
   "nav.main": "Main",
+  "theme.toggle": "Color theme",
+  "theme.dark": "Switch to dark mode",
+  "theme.light": "Switch to light mode",
 
   "footer.copyright": "© {{year}} GSWAU. All rights reserved.",
   "footer.about": "GSWAU is the education platform for barbers and hairstylists worldwide, by {{author}}.",

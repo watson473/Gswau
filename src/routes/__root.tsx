@@ -9,7 +9,7 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Header } from "../components/SiteChrome";
@@ -17,6 +17,7 @@ import { SiteFooter } from "../components/SiteFooter";
 import { MotionEffects } from "../components/MotionEffects";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider, defaultLocale, textDirection } from "@/i18n";
+import { applyTheme, savedTheme, themeBootScript } from "@/lib/theme";
 
 function NotFoundComponent() {
   return (
@@ -112,8 +113,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang={defaultLocale} dir={textDirection(defaultLocale)}>
+    <html lang={defaultLocale} dir={textDirection(defaultLocale)} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
         <HeadContent />
       </head>
       <body className="font-sans antialiased">
@@ -122,6 +124,19 @@ function RootShell({ children }: { children: ReactNode }) {
       </body>
     </html>
   );
+}
+
+function ThemeSync() {
+  useLayoutEffect(() => {
+    applyTheme(savedTheme());
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => {
+      if (!savedTheme()) applyTheme(null);
+    };
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, []);
+  return null;
 }
 
 function RootComponent() {
@@ -138,6 +153,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider locale={defaultLocale}>
+        <ThemeSync />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Header />
         <main className="min-h-[60vh] font-sans">
