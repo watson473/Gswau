@@ -29,7 +29,7 @@ const baseNavItems = [
   { to: "/blog", key: "nav.blog" },
 ] as const;
 
-// Off until the owner flips calculatorConfig.showInMainNav. The bar is unchanged meanwhile.
+// The header shows Free Calculator while calculatorConfig.showInMainNav is on.
 const navItems = calculatorConfig.showInMainNav
   ? [...baseNavItems, { to: "/calculator" as const, key: "nav.calculator" as const }]
   : baseNavItems;

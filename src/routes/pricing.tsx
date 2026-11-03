@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { productsQuery, settingsQuery } from "@/lib/catalog.functions";
 import { bookCount } from "@/lib/catalog";
@@ -26,7 +26,17 @@ export const Route = createFileRoute("/pricing")({
   component: Pricing,
 });
 
-function List({ title, items, tone }: { title: string; items: string[]; tone: "gold" | "muted" }) {
+function List({
+  title,
+  items,
+  tone,
+  extra,
+}: {
+  title: string;
+  items: string[];
+  tone: "gold" | "muted";
+  extra?: React.ReactNode;
+}) {
   return (
     <div className="rounded-lg bg-card p-6 shadow-card">
       <h2 className="text-2xl font-semibold">{title}</h2>
@@ -40,6 +50,7 @@ function List({ title, items, tone }: { title: string; items: string[]; tone: "g
           </li>
         ))}
       </ul>
+      {extra}
     </div>
   );
 }
@@ -83,6 +94,15 @@ function Pricing() {
             t("pricing.free.podcast"),
             t("pricing.free.newsletter"),
           ]}
+          extra={
+            <Link
+              to="/calculator"
+              className="mt-5 block rounded-md border border-gold/40 p-4 transition hover:border-gold"
+            >
+              <div className="text-sm font-semibold">{t("home.cta.calculator")}</div>
+              <p className="mt-1 text-sm text-muted-foreground">{t("pricing.free.calculator")}</p>
+            </Link>
+          }
         />
         <List tone="muted" title={t("pricing.extra.title")} items={[t("pricing.extra.premium")]} />
       </div>

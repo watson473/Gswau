@@ -1,4 +1,5 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useT } from "@/i18n";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { postQuery } from "@/lib/catalog.functions";
 
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function Post() {
+  const { t } = useT();
   const { slug } = Route.useParams();
   const { data: p } = useSuspenseQuery(postQuery(slug));
   if (!p) return null;
@@ -43,6 +45,16 @@ function Post() {
         <img src={p.cover_image_url} alt="" className="mt-8 w-full rounded-md object-cover" />
       )}
       <PostBody body={p.body} />
+      {slug === "raise-your-prices-without-losing-clients" && (
+        <Link
+          to="/calculator"
+          className="mt-10 block rounded-lg border border-gold/40 bg-card p-5 shadow-card transition hover:border-gold"
+        >
+          <div className="eyebrow text-crimson">{t("calc.eyebrow")}</div>
+          <h2 className="mt-2 text-2xl font-semibold">{t("home.cta.calculator")}</h2>
+          <p className="mt-2 text-base text-muted-foreground">{t("blog.calc.line")}</p>
+        </Link>
+      )}
     </article>
   );
 }
