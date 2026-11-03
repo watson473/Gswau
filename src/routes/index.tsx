@@ -108,14 +108,29 @@ function Index() {
           <p className="mt-6 max-w-xl text-lg text-primary-foreground/80">
             {t("home.hero.subtitle", { count })}
           </p>
-          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link to="/pricing" className="btn-gold">
               {t("home.cta.membership")}
             </Link>
             <Link to="/podcast" className="btn-ghost">
               {t("home.cta.podcast")}
             </Link>
+            <Link to="/calculator" className="btn-ghost">
+              {t("home.cta.calculator")}
+            </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="border-b border-gold/30 bg-card">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-8 sm:flex-row sm:items-center sm:justify-between sm:py-10">
+          <div>
+            <h2 className="text-3xl font-semibold sm:text-4xl">{t("home.calc.title")}</h2>
+            <p className="mt-2 text-muted-foreground">{t("home.calc.line")}</p>
+          </div>
+          <Link to="/calculator" className="btn-ghost shrink-0 text-foreground">
+            {t("home.cta.calculator")}
+          </Link>
         </div>
       </section>
 

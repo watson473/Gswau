@@ -34,8 +34,8 @@ export const calculatorConfig = {
   resultCta,
 
   /**
-   * Main navigation link. Off until the owner decides. The header reads this flag.
-   * A /calc short link and a sitemap entry are not in this PR.
+   * Main navigation link. The header reads this flag.
+   * A /calc short link and a sitemap entry are still not added.
    */
-  showInMainNav: false,
+  showInMainNav: true,
 };
