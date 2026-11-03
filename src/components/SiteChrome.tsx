@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 import logo from "@/assets/brand/logo.png";
 import { author } from "@/lib/catalog";
 import { calculatorConfig } from "@/lib/calculator.config";
+import { THEME_KEY, applyTheme } from "@/lib/theme";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/i18n";
 
@@ -73,9 +75,11 @@ export function Header() {
               {t("nav.admin")}
             </Link>
           )}
+          <ThemeToggle />
           {account}
         </nav>
-        <div className="flex items-center gap-3 text-sm lg:hidden">
+        <div className="flex items-center gap-2 text-sm lg:hidden">
+          <ThemeToggle />
           {account}
           <button
             type="button"
@@ -124,6 +128,42 @@ export function Header() {
         </div>
       </div>
     </header>
+  );
+}
+
+function ThemeToggle() {
+  const { t } = useT();
+  const [label, setLabel] = useState(t("theme.toggle"));
+  useEffect(() => {
+    const sync = () =>
+      setLabel(
+        document.documentElement.classList.contains("dark") ? t("theme.light") : t("theme.dark"),
+      );
+    sync();
+    window.addEventListener("gswau-theme", sync);
+    return () => window.removeEventListener("gswau-theme", sync);
+  }, [t]);
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
+        try {
+          localStorage.setItem(THEME_KEY, next);
+        } catch {
+          // The theme still changes for this visit.
+        }
+        applyTheme(next);
+        setLabel(next === "dark" ? t("theme.light") : t("theme.dark"));
+        window.dispatchEvent(new Event("gswau-theme"));
+      }}
+      aria-label={label}
+      className="grid h-9 w-9 shrink-0 place-items-center rounded-sm border border-gold/40 text-gold transition hover:bg-gold/10"
+    >
+      <Sun className="hidden h-4 w-4 dark:block" aria-hidden="true" />
+      <Moon className="h-4 w-4 dark:hidden" aria-hidden="true" />
+    </button>
   );
 }
 
