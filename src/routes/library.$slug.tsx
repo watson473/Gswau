@@ -85,6 +85,8 @@ function ProductPage() {
       ? [b.cover_image_url]
       : [];
   const showReader = canRead && (reading || read !== undefined);
+  // Courses with no price of their own come with membership and aren't sold separately.
+  const membersOnly = b.access_tier === "members" && b.price_cents === 0;
   return (
     <div className="mx-auto grid max-w-5xl gap-12 px-5 py-16 md:grid-cols-[360px_1fr]">
       {showReader && (
@@ -133,7 +135,11 @@ function ProductPage() {
         )}
         <div className="mt-8 rounded-md border border-border bg-card p-6">
           <div className="font-display text-4xl font-semibold">
-            {b.price_cents === 0 ? t("price.free") : formatMoney(b.price_cents / 100, locale)}
+            {membersOnly
+              ? t("product.withMembership")
+              : b.price_cents === 0
+                ? t("price.free")
+                : formatMoney(b.price_cents / 100, locale)}
           </div>
           {b.access_tier === "free" ? (
             <FreeForm source={b.slug} buyUrl={b.buy_url} />
@@ -212,7 +218,7 @@ function ProductPage() {
                     {t("product.buy", { price: formatMoney(b.price_cents / 100, locale) })}
                   </a>
                 )}
-                {b.type === "course" && user && (
+                {b.type === "course" && user && outline.some((l) => l.is_preview) && (
                   <Link to="/learn/$slug" params={{ slug: b.slug }} className="btn-ghost">
                     {t("product.previewLessons")}
                   </Link>

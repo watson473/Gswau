@@ -80,6 +80,51 @@ beforeAll(async () => {
   ids["admin"] = await signUp("owner@gswau.com"); // first account becomes admin
 });
 
+describe("course lessons", () => {
+  // Reads the table the way a browser does: as the signed-in role, with row-level security on.
+  async function visibleLessons() {
+    await db.exec("set role authenticated");
+    const { rows } = await db.query("select id from public.lessons");
+    await db.exec("reset role");
+    return rows.length;
+  }
+
+  it("are only visible to members, and only until their paid period ends", async () => {
+    await as(null);
+    const { rows: course } = await db.query<{ id: string }>(
+      "insert into public.products (slug, title, type, access_tier) values ('member-course', 'c', 'course', 'members') returning id",
+    );
+    const { rows: mod } = await db.query<{ id: string }>(
+      "insert into public.modules (course_id, title) values ($1, 'm') returning id",
+      [course[0]!.id],
+    );
+    await db.query(
+      "insert into public.lessons (module_id, title, content_url) values ($1, 'l', 'x')",
+      [mod[0]!.id],
+    );
+
+    await as(await signUp("nomember@example.com"));
+    expect(await visibleLessons()).toBe(0);
+
+    await as(await signUp("expired@example.com"));
+    await membership(
+      "expired@example.com",
+      "cancelled",
+      new Date(Date.now() - 10 * 864e5).toISOString(),
+    );
+    expect(await visibleLessons()).toBe(0);
+
+    await as(await signUp("coursemember@example.com"));
+    await membership(
+      "coursemember@example.com",
+      "active",
+      new Date(Date.now() + 20 * 864e5).toISOString(),
+    );
+    expect(await visibleLessons()).toBe(1);
+    await as(null);
+  });
+});
+
 describe("visitors without an account", () => {
   it("open free products only", async () => {
     await as(null);
