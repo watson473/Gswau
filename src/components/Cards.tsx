@@ -45,7 +45,11 @@ export function BookCard({ b, eager = false }: { b: Product; eager?: boolean }) 
       <div className="mt-1 flex justify-between text-sm">
         <span className="text-muted-foreground">{t(`format.${b.type}`)}</span>
         <span className="font-semibold">
-          {b.price_cents === 0 ? t("price.free") : formatMoney(b.price_cents / 100, locale)}
+          {b.access_tier === "members" && b.price_cents === 0
+            ? t("card.members")
+            : b.price_cents === 0
+              ? t("price.free")
+              : formatMoney(b.price_cents / 100, locale)}
         </span>
       </div>
       {b.review_count > 0 && b.rating_average != null && (
