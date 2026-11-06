@@ -225,7 +225,11 @@ function ProductPage() {
                 )}
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                {b.access_tier === "premium" ? t("product.premiumNote") : t("product.includedNote")}
+                {membersOnly
+                  ? t("product.courseNote")
+                  : b.access_tier === "premium"
+                    ? t("product.premiumNote")
+                    : t("product.includedNote")}
               </p>
               {!user && (
                 <p className="mt-2 text-xs text-muted-foreground">
