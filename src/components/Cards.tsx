@@ -10,7 +10,7 @@ export function BookCard({ b, eager = false }: { b: Product; eager?: boolean }) 
       ? { text: t("card.free"), cls: "bg-crimson text-primary-foreground" }
       : b.access_tier === "premium"
         ? { text: t("card.premium"), cls: "bg-gold text-navy-deep" }
-        : b.type === "bundle" || b.type === "course"
+        : b.type === "bundle"
           ? { text: t(`format.${b.type}`), cls: "bg-gold text-navy-deep" }
           : null;
   return (
@@ -35,7 +35,7 @@ export function BookCard({ b, eager = false }: { b: Product; eager?: boolean }) 
             {badge.text}
           </span>
         )}
-        {b.access_tier === "members" && b.type !== "bundle" && (
+        {b.access_tier === "members" && b.type !== "bundle" && b.type !== "course" && (
           <span className="eyebrow absolute bottom-3 left-3 rounded-sm bg-navy-deep/90 px-2 py-1 text-gold">
             {t("card.members")}
           </span>
