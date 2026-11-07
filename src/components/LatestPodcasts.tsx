@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { EpisodePlayer } from "@/components/EpisodePlayer";
+import { GoldText } from "@/components/GoldText";
 import {
   formatEpisodeDate,
   podcastName,
@@ -20,16 +21,18 @@ export function LatestPodcasts({ episodes }: { episodes: PodcastEpisode[] }) {
     [formatEpisodeDate(e.publishedAt, locale), e.durationLabel].filter(Boolean).join(" · ");
 
   return (
-    <section className="bg-navy-gradient py-16 text-primary-foreground sm:py-24">
+    <section className="navy-glow bg-navy-deep py-14 text-primary-foreground sm:py-20">
       <div className="mx-auto max-w-6xl px-5">
         <div className="flex items-center gap-4">
           <span className="h-px w-10 bg-gold" />
           <span className="eyebrow text-gold">{podcastName}</span>
         </div>
-        <h2 className="mt-3 text-3xl font-semibold sm:text-5xl">{t("home.podcast.title")}</h2>
+        <h2 className="mt-3 text-4xl font-semibold sm:text-5xl">
+          <GoldText text={t("home.podcast.title")} />
+        </h2>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[3fr_2fr]">
-          <div className="rounded-lg bg-white/5 p-5 ring-1 ring-gold/25 sm:p-6">
+          <div className="glow-card flex flex-col justify-center rounded-xl p-5 sm:p-6">
             {current ? (
               <>
                 <div className="eyebrow text-gold">
@@ -68,7 +71,7 @@ export function LatestPodcasts({ episodes }: { episodes: PodcastEpisode[] }) {
                     <button
                       type="button"
                       onClick={() => setSelectedId(e.id)}
-                      className="group flex w-full items-center gap-4 py-4 text-left"
+                      className="group flex w-full items-center gap-4 rounded-md py-4 text-left transition hover:bg-gold/5"
                     >
                       {e.image ? (
                         <img
@@ -105,7 +108,7 @@ export function LatestPodcasts({ episodes }: { episodes: PodcastEpisode[] }) {
         </div>
 
         <div className="mt-12 text-center">
-          <Link to="/podcast" className="btn-gold">
+          <Link to="/podcast" className="btn-gold !rounded-full">
             {t("home.podcast.listenAll")}
           </Link>
         </div>

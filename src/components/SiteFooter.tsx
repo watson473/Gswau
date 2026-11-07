@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { BookOpen, GraduationCap, Headphones, Mail, Mic } from "lucide-react";
+import { GoldText } from "@/components/GoldText";
 import { Logo } from "@/components/SiteChrome";
 import { socialIconPaths } from "@/components/socialIcons";
 import { author } from "@/lib/catalog";
@@ -62,18 +63,15 @@ function NewsletterStrip() {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
   const field =
-    "w-full rounded-md border border-gold/30 bg-white/5 px-4 py-3 text-sm text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold focus:outline-none";
+    "w-full rounded-full border border-gold/30 bg-white/5 px-5 py-3 text-sm text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold focus:outline-none";
 
   return (
-    <section
-      id="newsletter"
-      className="border-t-2 border-gold bg-navy-gradient text-primary-foreground"
-    >
-      <div className="mx-auto grid max-w-6xl items-center gap-6 px-5 py-10 sm:py-12 lg:grid-cols-[1fr_1.3fr] lg:gap-10">
+    <section id="newsletter" className="bg-navy-deep px-4 py-10 text-primary-foreground sm:py-14">
+      <div className="glow-card navy-glow mx-auto grid max-w-6xl items-center gap-6 rounded-2xl px-6 py-9 sm:px-10 sm:py-11 lg:grid-cols-[1fr_1.3fr] lg:gap-10">
         <div>
           <div className="eyebrow text-gold">{t("footer.news.eyebrow")}</div>
-          <h2 className="mt-2 text-2xl font-semibold leading-tight sm:text-3xl">
-            {t("footer.news.title")}
+          <h2 className="mt-2 text-3xl font-semibold leading-tight sm:text-4xl">
+            <GoldText text={t("footer.news.title")} />
           </h2>
         </div>
         {state === "done" ? (
@@ -116,7 +114,7 @@ function NewsletterStrip() {
               aria-label={t("subscribe.placeholder")}
               className={field}
             />
-            <button className="btn-gold shrink-0" disabled={state === "sending"}>
+            <button className="btn-gold shrink-0 !rounded-full" disabled={state === "sending"}>
               {state === "sending" ? t("subscribe.sending") : t("footer.news.button")}
             </button>
           </form>
@@ -144,7 +142,8 @@ function Footer() {
   const { t } = useT();
   const link = "text-primary-foreground/70 transition hover:text-gold";
   return (
-    <footer className="bg-navy-deep text-sm text-primary-foreground/70">
+    <footer className="navy-glow bg-navy-deep text-sm text-primary-foreground/70">
+      <div className="glow-rule" />
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1.2fr_1fr]">
         <div>
           <Link to="/" className="flex items-center gap-3">
@@ -162,7 +161,7 @@ function Footer() {
                 </svg>
               );
               const cls =
-                "grid h-9 w-9 place-items-center rounded-full ring-1 ring-gold/40 text-gold transition";
+                "grid h-10 w-10 place-items-center rounded-full ring-1 ring-gold/40 text-gold transition duration-300";
               return (
                 <li key={s.name}>
                   {s.url ? (
@@ -171,7 +170,7 @@ function Footer() {
                       target="_blank"
                       rel="noopener"
                       aria-label={s.label}
-                      className={`${cls} hover:bg-gold hover:text-navy-deep`}
+                      className={`${cls} hover:bg-gold hover:text-navy-deep hover:shadow-[0_0_20px_-4px_var(--gold)]`}
                     >
                       {icon}
                     </a>

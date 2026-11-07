@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import useEmblaCarousel from "embla-carousel-react";
+import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useT } from "@/i18n";
+
+type Embla = NonNullable<UseEmblaCarouselType[1]>;
+
+// With too few slides to loop, the carousel stops at each end, so going on from there wraps around.
+const goForward = (embla: Embla) =>
+  embla.canScrollNext() ? embla.scrollNext() : embla.scrollTo(0);
+const goBack = (embla: Embla) =>
+  embla.canScrollPrev() ? embla.scrollPrev() : embla.scrollTo(embla.scrollSnapList().length - 1);
 
 // A sideways carousel: swipe or drag, glides on its own every few seconds, dots underneath.
 // It pauses while the pointer is over it, while it is being touched, while the page is hidden or
@@ -11,11 +20,13 @@ export function Slider({
   slideClass,
   label,
   intervalMs = 5000,
+  arrows = false,
 }: {
   children: ReactNode[];
   slideClass: string;
   label: string;
   intervalMs?: number;
+  arrows?: boolean;
 }) {
   const { t } = useT();
   const [viewport, embla] = useEmblaCarousel({
@@ -53,7 +64,7 @@ export function Slider({
     });
     if (root.current) io.observe(root.current);
     const id = window.setInterval(() => {
-      if (!paused.current && onScreen && document.visibilityState === "visible") embla.scrollNext();
+      if (!paused.current && onScreen && document.visibilityState === "visible") goForward(embla);
     }, intervalMs);
     // Touching or dragging pauses it until the pointer leaves.
     const hold = () => (paused.current = true);
@@ -99,7 +110,17 @@ export function Slider({
         </div>
       </div>
       {snaps.length > 1 && (
-        <div className="mt-6 flex justify-center gap-2">
+        <div className="mt-6 flex items-center justify-center gap-2">
+          {arrows && (
+            <button
+              type="button"
+              aria-label={t("slider.previous")}
+              onClick={() => embla && goBack(embla)}
+              className="mr-2 grid h-10 w-10 place-items-center rounded-full text-gold ring-1 ring-gold/40 transition hover:bg-gold/10"
+            >
+              <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+            </button>
+          )}
           {snaps.map((_, i) => (
             <button
               key={i}
@@ -116,6 +137,16 @@ export function Slider({
               />
             </button>
           ))}
+          {arrows && (
+            <button
+              type="button"
+              aria-label={t("slider.next")}
+              onClick={() => embla && goForward(embla)}
+              className="ml-2 grid h-10 w-10 place-items-center rounded-full text-gold ring-1 ring-gold/40 transition hover:bg-gold/10"
+            >
+              <ChevronRight className="h-5 w-5" aria-hidden="true" />
+            </button>
+          )}
         </div>
       )}
     </div>

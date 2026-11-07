@@ -42,8 +42,10 @@ export function PricingPlans() {
         {plans.map((p) => (
           <div
             key={p.id}
-            className={`lift lift-box relative rounded-lg p-7 shadow-card ${
-              p.featured ? "bg-navy-gradient text-primary-foreground ring-2 ring-gold" : "bg-card"
+            className={`lift lift-box relative rounded-lg p-7 ${
+              p.featured
+                ? "bg-navy-gradient text-primary-foreground ring-2 ring-gold"
+                : "bg-card shadow-card"
             }`}
           >
             {p.featured && (

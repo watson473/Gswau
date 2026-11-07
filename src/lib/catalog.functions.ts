@@ -5,7 +5,7 @@ import { publicClient } from "./public-client.server";
 import type { PodcastEpisode } from "./podcast";
 
 const PRODUCT_COLS =
-  "id,slug,type,title,subtitle,description,cover_image_url,gallery_urls,price_cents,is_free,is_featured,access_tier,preview_path,file_size_label,length_label,buy_url,position,audio_path";
+  "id,slug,type,title,subtitle,description,cover_image_url,gallery_urls,price_cents,is_free,is_featured,access_tier,preview_path,file_size_label,length_label,buy_url,position,audio_path,created_at";
 
 const RATING_COLS = "product_id,review_count,average,stars_1,stars_2,stars_3,stars_4,stars_5";
 
@@ -23,6 +23,21 @@ export const listProducts = createServerFn({ method: "GET" }).handler(async () =
     rating_average: byProduct.get(p.id)?.average ?? null,
     review_count: byProduct.get(p.id)?.review_count ?? 0,
   }));
+});
+
+// Lessons per published course, for the homepage numbers. Same public outline the course pages show.
+export const countCourseLessons = createServerFn({ method: "GET" }).handler(async () => {
+  const sb = publicClient();
+  const { data: courses, error } = await sb
+    .from("products")
+    .select("id")
+    .eq("is_published", true)
+    .eq("type", "course");
+  if (error) throw new Error(error.message);
+  const outlines = await Promise.all(
+    courses.map((c) => sb.rpc("course_outline", { _course: c.id })),
+  );
+  return outlines.reduce((sum, o) => sum + (o.data?.length ?? 0), 0);
 });
 
 export const getProduct = createServerFn({ method: "GET" })
@@ -150,6 +165,10 @@ export const getSettings = createServerFn({ method: "GET" }).handler(async () =>
 export const productsQuery = queryOptions({
   queryKey: ["products"],
   queryFn: () => listProducts(),
+});
+export const lessonCountQuery = queryOptions({
+  queryKey: ["lesson-count"],
+  queryFn: () => countCourseLessons(),
 });
 export const productQuery = (slug: string) =>
   queryOptions({ queryKey: ["product", slug], queryFn: () => getProduct({ data: { slug } }) });
