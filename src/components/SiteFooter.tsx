@@ -27,7 +27,7 @@ const socialLinks: { name: keyof typeof socialIconPaths; label: string; url: str
 
 const usefulLinks = [
   { to: "/library", key: "nav.library" },
-  { to: "/courses", key: "nav.programs" },
+  { to: "/programs", key: "nav.programs" },
   { to: "/pricing", key: "nav.pricing" },
   { to: "/blog", key: "nav.blog" },
 ] as const;

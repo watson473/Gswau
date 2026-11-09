@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
+import { formatPlanAmount, membershipPrices } from "@/lib/catalog";
 import { podcastName } from "@/lib/podcast";
 import { contact, pageMeta } from "@/lib/site";
 
@@ -21,8 +22,9 @@ function Faq() {
       <h2>What do I get with a membership?</h2>
       <p>
         Members can listen to every audiobook and take the courses included with membership. You can
-        choose to pay $19.99 a month or $199.99 a year. See <Link to="/pricing">Pricing</Link> for
-        details.
+        choose to pay {formatPlanAmount(membershipPrices.monthly)} a month or{" "}
+        {formatPlanAmount(membershipPrices.annual)} a year. See <Link to="/pricing">Pricing</Link>{" "}
+        for details.
       </p>
 
       <h2>How do I pay?</h2>

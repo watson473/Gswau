@@ -21,8 +21,10 @@ import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as PodcastRouteImport } from './routes/podcast'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProgramsRouteImport } from './routes/programs'
 import { Route as RefundsRouteImport } from './routes/refunds'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -95,6 +97,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgramsRoute = ProgramsRouteImport.update({
+  id: '/programs',
+  path: '/programs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RefundsRoute = RefundsRouteImport.update({
   id: '/refunds',
   path: '/refunds',
@@ -103,6 +110,11 @@ const RefundsRoute = RefundsRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -179,8 +191,10 @@ export interface FileRoutesByFullPath {
   '/podcast': typeof PodcastRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/programs': typeof ProgramsRoute
   '/refunds': typeof RefundsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
@@ -206,8 +220,10 @@ export interface FileRoutesByTo {
   '/podcast': typeof PodcastRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/programs': typeof ProgramsRoute
   '/refunds': typeof RefundsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/account': typeof AuthenticatedAccountRouteWithChildren
   '/admin': typeof AuthenticatedAdminRoute
@@ -235,8 +251,10 @@ export interface FileRoutesById {
   '/podcast': typeof PodcastRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/programs': typeof ProgramsRoute
   '/refunds': typeof RefundsRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_authenticated/account': typeof AuthenticatedAccountRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
@@ -264,8 +282,10 @@ export interface FileRouteTypes {
     | '/podcast'
     | '/pricing'
     | '/privacy'
+    | '/programs'
     | '/refunds'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/terms'
     | '/account'
     | '/admin'
@@ -291,8 +311,10 @@ export interface FileRouteTypes {
     | '/podcast'
     | '/pricing'
     | '/privacy'
+    | '/programs'
     | '/refunds'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/terms'
     | '/account'
     | '/admin'
@@ -319,8 +341,10 @@ export interface FileRouteTypes {
     | '/podcast'
     | '/pricing'
     | '/privacy'
+    | '/programs'
     | '/refunds'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/terms'
     | '/_authenticated/account'
     | '/_authenticated/admin'
@@ -348,8 +372,10 @@ export interface RootRouteChildren {
   PodcastRoute: typeof PodcastRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
+  ProgramsRoute: typeof ProgramsRoute
   RefundsRoute: typeof RefundsRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   LibrarySlugRoute: typeof LibrarySlugRoute
@@ -445,6 +471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/programs': {
+      id: '/programs'
+      path: '/programs'
+      fullPath: '/programs'
+      preLoaderRoute: typeof ProgramsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/refunds': {
       id: '/refunds'
       path: '/refunds'
@@ -457,6 +490,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -587,8 +627,10 @@ const rootRouteChildren: RootRouteChildren = {
   PodcastRoute: PodcastRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
+  ProgramsRoute: ProgramsRoute,
   RefundsRoute: RefundsRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
   LibrarySlugRoute: LibrarySlugRoute,

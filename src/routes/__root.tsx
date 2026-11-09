@@ -17,6 +17,7 @@ import { SiteFooter } from "../components/SiteFooter";
 import { MotionEffects } from "../components/MotionEffects";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider, defaultLocale, textDirection } from "@/i18n";
+import { requestOrigin } from "@/lib/site-origin";
 import { applyTheme, savedTheme, themeBootScript } from "@/lib/theme";
 
 function NotFoundComponent() {
@@ -80,31 +81,46 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GSW Augustin University" },
-      { name: "description", content: "Business education for barbers and stylists." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700&display=swap",
-      },
-      { rel: "icon", href: "/favicon.ico", sizes: "any" },
-      { rel: "icon", href: "/favicon-32.png", type: "image/png", sizes: "32x32" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
-    ],
-  }),
+  loader: async () => ({ origin: await requestOrigin() }),
+  head: ({ loaderData }) => {
+    const origin = loaderData?.origin ?? "https://gswau.com";
+    const image = `${origin}/og-image.png`;
+    const title = "GSW Augustin University";
+    const description = "Business education for barbers and stylists.";
+    return {
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: `${origin}/` },
+        { property: "og:image", content: image },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: "GSWAU gold logo" },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:image", content: image },
+      ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: appCss,
+        },
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700&display=swap",
+        },
+        { rel: "icon", href: "/favicon.ico", sizes: "any" },
+        { rel: "icon", href: "/favicon-32.png", type: "image/png", sizes: "32x32" },
+        { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

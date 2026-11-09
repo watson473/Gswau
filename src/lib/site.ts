@@ -7,6 +7,8 @@ export const contact = {
 
 export const businessName = "GSW Augustin University (GSWAU)";
 
+export const SITE_ORIGIN = "https://gswau.com";
+
 // Shown as "Last updated" on Terms of Use, Privacy Policy and Refund Policy.
 export const policiesUpdated = "October 28, 2026";
 

@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { formatMoney, membershipPrices } from "@/lib/catalog";
+import { formatMoney, formatPlanAmount, membershipPrices } from "@/lib/catalog";
 import { settingsQuery } from "@/lib/catalog.functions";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/i18n";
@@ -18,7 +18,7 @@ export function PricingPlans() {
     {
       id: "annual",
       name: t("pricing.annual"),
-      price: formatMoney(membershipPrices.annual, locale),
+      price: formatPlanAmount(membershipPrices.annual, locale),
       per: t("pricing.perYear"),
       note: t("pricing.annualNote", {
         monthly: formatMoney(membershipPrices.annual / 12, locale),
@@ -29,7 +29,7 @@ export function PricingPlans() {
     {
       id: "monthly",
       name: t("pricing.monthly"),
-      price: formatMoney(membershipPrices.monthly, locale),
+      price: formatPlanAmount(membershipPrices.monthly, locale),
       per: t("pricing.perMonth"),
       note: t("pricing.monthlyNote"),
       url: settings.monthlyUrl,
