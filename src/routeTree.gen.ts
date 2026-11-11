@@ -18,7 +18,6 @@ import { Route as CoachingRouteImport } from './routes/coaching'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as MembershipRouteImport } from './routes/membership'
-import { Route as PodcastRouteImport } from './routes/podcast'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RefundsRouteImport } from './routes/refunds'
@@ -32,6 +31,8 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as LibraryIndexRouteImport } from './routes/library.index'
 import { Route as LibrarySlugRouteImport } from './routes/library.$slug'
+import { Route as PodcastIndexRouteImport } from './routes/podcast.index'
+import { Route as PodcastSlugRouteImport } from './routes/podcast.$slug'
 import { Route as AuthenticatedAccountReviewRouteImport } from './routes/_authenticated/account.review'
 import { Route as AuthenticatedLearnSlugRouteImport } from './routes/_authenticated/learn.$slug'
 import { Route as ApiGumroadSecretRouteImport } from './routes/api/gumroad.$secret'
@@ -78,11 +79,6 @@ const FaqRoute = FaqRouteImport.update({
 const MembershipRoute = MembershipRouteImport.update({
   id: '/membership',
   path: '/membership',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PodcastRoute = PodcastRouteImport.update({
-  id: '/podcast',
-  path: '/podcast',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -150,6 +146,16 @@ const LibrarySlugRoute = LibrarySlugRouteImport.update({
   path: '/library/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PodcastIndexRoute = PodcastIndexRouteImport.update({
+  id: '/podcast/',
+  path: '/podcast/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PodcastSlugRoute = PodcastSlugRouteImport.update({
+  id: '/podcast/$slug',
+  path: '/podcast/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAccountReviewRoute =
   AuthenticatedAccountReviewRouteImport.update({
     id: '/review',
@@ -176,7 +182,6 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/membership': typeof MembershipRoute
-  '/podcast': typeof PodcastRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refunds': typeof RefundsRoute
@@ -187,9 +192,11 @@ export interface FileRoutesByFullPath {
   '/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
+  '/podcast/$slug': typeof PodcastSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/library/': typeof LibraryIndexRoute
+  '/podcast/': typeof PodcastIndexRoute
   '/account/review': typeof AuthenticatedAccountReviewRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
   '/api/gumroad/$secret': typeof ApiGumroadSecretRoute
@@ -203,7 +210,6 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/membership': typeof MembershipRoute
-  '/podcast': typeof PodcastRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refunds': typeof RefundsRoute
@@ -214,9 +220,11 @@ export interface FileRoutesByTo {
   '/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
+  '/podcast/$slug': typeof PodcastSlugRoute
   '/blog': typeof BlogIndexRoute
   '/courses': typeof CoursesIndexRoute
   '/library': typeof LibraryIndexRoute
+  '/podcast': typeof PodcastIndexRoute
   '/account/review': typeof AuthenticatedAccountReviewRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
   '/api/gumroad/$secret': typeof ApiGumroadSecretRoute
@@ -232,7 +240,6 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/faq': typeof FaqRoute
   '/membership': typeof MembershipRoute
-  '/podcast': typeof PodcastRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/refunds': typeof RefundsRoute
@@ -243,9 +250,11 @@ export interface FileRoutesById {
   '/_authenticated/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/library/$slug': typeof LibrarySlugRoute
+  '/podcast/$slug': typeof PodcastSlugRoute
   '/blog/': typeof BlogIndexRoute
   '/courses/': typeof CoursesIndexRoute
   '/library/': typeof LibraryIndexRoute
+  '/podcast/': typeof PodcastIndexRoute
   '/_authenticated/account/review': typeof AuthenticatedAccountReviewRoute
   '/_authenticated/learn/$slug': typeof AuthenticatedLearnSlugRoute
   '/api/gumroad/$secret': typeof ApiGumroadSecretRoute
@@ -261,7 +270,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/membership'
-    | '/podcast'
     | '/pricing'
     | '/privacy'
     | '/refunds'
@@ -272,9 +280,11 @@ export interface FileRouteTypes {
     | '/mfa'
     | '/blog/$slug'
     | '/library/$slug'
+    | '/podcast/$slug'
     | '/blog/'
     | '/courses/'
     | '/library/'
+    | '/podcast/'
     | '/account/review'
     | '/learn/$slug'
     | '/api/gumroad/$secret'
@@ -288,7 +298,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/membership'
-    | '/podcast'
     | '/pricing'
     | '/privacy'
     | '/refunds'
@@ -299,9 +308,11 @@ export interface FileRouteTypes {
     | '/mfa'
     | '/blog/$slug'
     | '/library/$slug'
+    | '/podcast/$slug'
     | '/blog'
     | '/courses'
     | '/library'
+    | '/podcast'
     | '/account/review'
     | '/learn/$slug'
     | '/api/gumroad/$secret'
@@ -316,7 +327,6 @@ export interface FileRouteTypes {
     | '/contact'
     | '/faq'
     | '/membership'
-    | '/podcast'
     | '/pricing'
     | '/privacy'
     | '/refunds'
@@ -327,9 +337,11 @@ export interface FileRouteTypes {
     | '/_authenticated/mfa'
     | '/blog/$slug'
     | '/library/$slug'
+    | '/podcast/$slug'
     | '/blog/'
     | '/courses/'
     | '/library/'
+    | '/podcast/'
     | '/_authenticated/account/review'
     | '/_authenticated/learn/$slug'
     | '/api/gumroad/$secret'
@@ -345,7 +357,6 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   FaqRoute: typeof FaqRoute
   MembershipRoute: typeof MembershipRoute
-  PodcastRoute: typeof PodcastRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   RefundsRoute: typeof RefundsRoute
@@ -353,9 +364,11 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   LibrarySlugRoute: typeof LibrarySlugRoute
+  PodcastSlugRoute: typeof PodcastSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
   CoursesIndexRoute: typeof CoursesIndexRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
+  PodcastIndexRoute: typeof PodcastIndexRoute
   ApiGumroadSecretRoute: typeof ApiGumroadSecretRoute
 }
 
@@ -422,13 +435,6 @@ declare module '@tanstack/react-router' {
       path: '/membership'
       fullPath: '/membership'
       preLoaderRoute: typeof MembershipRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/podcast': {
-      id: '/podcast'
-      path: '/podcast'
-      fullPath: '/podcast'
-      preLoaderRoute: typeof PodcastRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -522,6 +528,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibrarySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/podcast/': {
+      id: '/podcast/'
+      path: '/podcast'
+      fullPath: '/podcast/'
+      preLoaderRoute: typeof PodcastIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/podcast/$slug': {
+      id: '/podcast/$slug'
+      path: '/podcast/$slug'
+      fullPath: '/podcast/$slug'
+      preLoaderRoute: typeof PodcastSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/account/review': {
       id: '/_authenticated/account/review'
       path: '/review'
@@ -584,7 +604,6 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   FaqRoute: FaqRoute,
   MembershipRoute: MembershipRoute,
-  PodcastRoute: PodcastRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   RefundsRoute: RefundsRoute,
@@ -592,9 +611,11 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
   LibrarySlugRoute: LibrarySlugRoute,
+  PodcastSlugRoute: PodcastSlugRoute,
   BlogIndexRoute: BlogIndexRoute,
   CoursesIndexRoute: CoursesIndexRoute,
   LibraryIndexRoute: LibraryIndexRoute,
+  PodcastIndexRoute: PodcastIndexRoute,
   ApiGumroadSecretRoute: ApiGumroadSecretRoute,
 }
 export const routeTree = rootRouteImport
