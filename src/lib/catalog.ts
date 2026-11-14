@@ -13,11 +13,22 @@ export const formatLabel: Record<string, string> = {
 
 export const money = (cents: number) => (cents === 0 ? "Free" : `$${(cents / 100).toFixed(2)}`);
 
-// Shown on the site; must match the prices set on the Gumroad membership product.
-export const membershipPrices = { monthly: 19.99, annual: 199.99 } as const;
+// Prices written on the site. Gumroad checkout links are separate and are not built from these numbers.
+export const membershipPrices = { monthly: 19.99, annual: 199 } as const;
 
 export const formatMoney = (amount: number, locale = "en") =>
   new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(amount);
+
+// Whole-dollar amounts show without cents ($199). Amounts with cents keep them ($19.99).
+export function formatPlanAmount(amount: number, locale = "en") {
+  const whole = Math.round(amount * 100) % 100 === 0;
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: whole ? 0 : 2,
+    maximumFractionDigits: whole ? 0 : 2,
+  }).format(amount);
+}
 
 // Paid audiobooks (excludes free books, bundles and courses).
 export function bookCount(products: { type: string; access_tier: string }[]) {

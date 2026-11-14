@@ -20,4 +20,10 @@ describe("App routing", () => {
     const matches = router.matchRoutes("/calculator");
     expect(matches.some((match) => match.routeId === "/calculator")).toBe(true);
   });
+
+  it("matches the programs page", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+    const matches = router.matchRoutes("/programs");
+    expect(matches.some((match) => match.routeId === "/programs")).toBe(true);
+  });
 });
