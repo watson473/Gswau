@@ -25,6 +25,7 @@ import {
 } from "@/lib/catalog.functions";
 import { BookCard, Stars } from "@/components/Cards";
 import { GoldText } from "@/components/GoldText";
+import { HeroNewsletter } from "@/components/HeroNewsletter";
 import { LatestPodcasts } from "@/components/LatestPodcasts";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PricingPlans } from "@/components/Pricing";
@@ -198,6 +199,7 @@ function Hero({ book }: { book: Product | undefined }) {
               {t("home.cta.learnMore")}
             </Link>
           </div>
+          <HeroNewsletter />
         </div>
 
         {book && <PhoneMockup book={book} />}
