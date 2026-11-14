@@ -5,25 +5,11 @@ import { GoldText } from "@/components/GoldText";
 import { Logo } from "@/components/SiteChrome";
 import { socialIconPaths } from "@/components/socialIcons";
 import { author } from "@/lib/catalog";
+import { socialProfiles } from "@/lib/share";
 import { podcastName } from "@/lib/podcast";
 import { subscribeNewsletter } from "@/lib/newsletter.functions";
 import { track } from "@/lib/analytics";
 import { useT } from "@/i18n";
-
-// Social profiles, shown as icons in the footer.
-const socialLinks: { name: keyof typeof socialIconPaths; label: string; url: string }[] = [
-  { name: "instagram", label: "Instagram", url: "https://www.instagram.com/gswau_" },
-  {
-    name: "facebook",
-    label: "Facebook",
-    url: "https://www.facebook.com/profile.php?id=61580415614670",
-  },
-  { name: "youtube", label: "YouTube", url: "https://www.youtube.com/@gswau" },
-  { name: "tiktok", label: "TikTok", url: "https://www.tiktok.com/@gswau" },
-  { name: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/in/gswau-71b5ba384" },
-  { name: "threads", label: "Threads", url: "https://www.threads.com/@gswau_" },
-  { name: "x", label: "X", url: "https://x.com/gswau_" },
-];
 
 const usefulLinks = [
   { to: "/library", key: "nav.library" },
@@ -154,34 +140,21 @@ function Footer() {
             {t("footer.about", { author: author.name })}
           </p>
           <ul className="mt-6 flex flex-wrap gap-2">
-            {socialLinks.map((s) => {
-              const icon = (
-                <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
-                  <path d={socialIconPaths[s.name]} fill="currentColor" />
-                </svg>
-              );
-              const cls =
-                "grid h-10 w-10 place-items-center rounded-full ring-1 ring-gold/40 text-gold transition duration-300";
-              return (
-                <li key={s.name}>
-                  {s.url ? (
-                    <a
-                      href={s.url}
-                      target="_blank"
-                      rel="noopener"
-                      aria-label={s.label}
-                      className={`${cls} hover:bg-gold hover:text-navy-deep hover:shadow-[0_0_20px_-4px_var(--gold)]`}
-                    >
-                      {icon}
-                    </a>
-                  ) : (
-                    <span title={s.label} className={cls}>
-                      {icon}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
+            {socialProfiles.map((s) => (
+              <li key={s.name}>
+                <a
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={s.label}
+                  className="grid h-10 w-10 place-items-center rounded-full text-gold ring-1 ring-gold/40 transition duration-300 hover:bg-gold hover:text-navy-deep hover:shadow-[0_0_20px_-4px_var(--gold)]"
+                >
+                  <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+                    <path d={socialIconPaths[s.name]} fill="currentColor" />
+                  </svg>
+                </a>
+              </li>
+            ))}
           </ul>
         </div>
 

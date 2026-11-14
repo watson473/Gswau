@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
-import { businessName, contact, pageMeta, policiesUpdated } from "@/lib/site";
+import { pageMeta } from "@/lib/share";
+import { businessName, contact, policiesUpdated } from "@/lib/site";
 
 export const Route = createFileRoute("/terms")({
-  head: () => pageMeta("Terms of Use", "The terms for using the GSWAU website and services."),
+  head: () =>
+    pageMeta("Terms of Use", "The terms for using the GSWAU website and services.", "/terms"),
   component: Terms,
 });
 

@@ -3,25 +3,70 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { productsQuery } from "@/lib/catalog.functions";
 import { BookCard } from "@/components/Cards";
 import { Eyebrow } from "@/components/SiteChrome";
+import {
+  breadcrumbList,
+  canonicalUrl,
+  courseNode,
+  jsonLdGraph,
+  organizationId,
+  originFromMatches,
+  shareMeta,
+  websiteId,
+} from "@/lib/share";
+
+const coursesDescription =
+  "Video courses, the GSWAU Barber Success Bundle, Business Bootcamp and flagship guides by Gs. W. Augustin.";
+
+function coursesJsonLd(
+  products:
+    | readonly {
+        type: string;
+        slug: string;
+        title: string;
+        description: string;
+        cover_image_url: string | null;
+        access_tier: string;
+        price_cents: number;
+      }[]
+    | undefined,
+) {
+  const courses = (products ?? []).filter((product) => product.type === "course");
+  return jsonLdGraph(
+    breadcrumbList([
+      { name: "Home", path: "/" },
+      { name: "Courses", path: "/courses" },
+    ]),
+    {
+      "@type": "CollectionPage",
+      "@id": canonicalUrl("/courses"),
+      url: canonicalUrl("/courses"),
+      name: "Programs & Courses",
+      description: coursesDescription,
+      isPartOf: { "@id": websiteId },
+      about: { "@id": organizationId },
+    },
+    ...courses.map((product) =>
+      courseNode({
+        slug: product.slug,
+        title: product.title,
+        description: product.description,
+        coverImage: product.cover_image_url,
+        accessTier: product.access_tier,
+        priceCents: product.price_cents,
+      }),
+    ),
+  );
+}
 
 export const Route = createFileRoute("/courses/")({
-  head: () => ({
-    meta: [
-      { title: "Programs & Courses — GSWAU" },
-      {
-        name: "description",
-        content:
-          "Video courses, the GSWAU Barber Success Bundle, Business Bootcamp and flagship guides by Gs. W. Augustin.",
-      },
-      { property: "og:title", content: "Programs & Courses — GSWAU" },
-      {
-        property: "og:description",
-        content: "Flagship business programs for barbers and stylists.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: ({ loaderData, matches }) =>
+    shareMeta({
+      title: "Programs & Courses — GSWAU",
+      description: coursesDescription,
+      path: "/courses",
+      assetOrigin: originFromMatches(matches),
+      jsonLd: coursesJsonLd(loaderData),
+    }),
   loader: ({ context }) => context.queryClient.ensureQueryData(productsQuery),
   component: Programs,
 });

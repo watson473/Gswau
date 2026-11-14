@@ -1,10 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { EpisodeArticleView } from "@/components/EpisodeArticle";
-import {
-  episodeArticleBySlug,
-  episodeArticleJsonLd,
-  episodeArticleUrl,
-} from "@/lib/podcast-articles";
+import { episodeArticleBySlug, episodeArticleJsonLd } from "@/lib/podcast-articles";
+import { originFromMatches, shareMeta } from "@/lib/share";
 
 export const Route = createFileRoute("/podcast/$slug")({
   loader: ({ params }) => {
@@ -12,31 +9,25 @@ export const Route = createFileRoute("/podcast/$slug")({
     if (!article) throw notFound();
     return article;
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, matches }) => {
     if (!loaderData) {
       return {
         meta: [{ title: "Not found — GSWAU" }, { name: "robots", content: "noindex" }],
       };
     }
-    const url = episodeArticleUrl(loaderData);
-    return {
-      meta: [
-        { title: loaderData.documentTitle },
-        { name: "description", content: loaderData.description },
-        { property: "og:title", content: loaderData.socialTitle },
-        { property: "og:description", content: loaderData.description },
-        { property: "og:type", content: "article" },
-        { property: "og:url", content: url },
-        { property: "og:site_name", content: "GSWAU" },
+    return shareMeta({
+      title: loaderData.documentTitle,
+      socialTitle: loaderData.socialTitle,
+      description: loaderData.description,
+      path: `/podcast/${loaderData.slug}`,
+      type: "article",
+      assetOrigin: originFromMatches(matches),
+      extraMeta: [
         { property: "article:published_time", content: loaderData.published },
         { property: "article:section", content: "Clippers and Shears" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:title", content: loaderData.socialTitle },
-        { name: "twitter:description", content: loaderData.description },
-        { "script:ld+json": episodeArticleJsonLd(loaderData) },
       ],
-      links: [{ rel: "canonical", href: url }],
-    };
+      jsonLd: episodeArticleJsonLd(loaderData),
+    });
   },
   component: EpisodePage,
 });

@@ -1,10 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
-import { businessName, contact, pageMeta, policiesUpdated } from "@/lib/site";
+import { pageMeta } from "@/lib/share";
+import { businessName, contact, policiesUpdated } from "@/lib/site";
 
 export const Route = createFileRoute("/privacy")({
   head: () =>
-    pageMeta("Privacy Policy", "What information GSWAU collects, why, and the choices you have."),
+    pageMeta(
+      "Privacy Policy",
+      "What information GSWAU collects, why, and the choices you have.",
+      "/privacy",
+    ),
   component: Privacy,
 });
 

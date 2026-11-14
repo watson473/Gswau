@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
-import { contact, pageMeta, policiesUpdated } from "@/lib/site";
+import { pageMeta } from "@/lib/share";
+import { contact, policiesUpdated } from "@/lib/site";
 
 export const Route = createFileRoute("/refunds")({
-  head: () => pageMeta("Refund Policy", "GSWAU refund rules for audiobooks and membership."),
+  head: () =>
+    pageMeta("Refund Policy", "GSWAU refund rules for audiobooks and membership.", "/refunds"),
   component: Refunds,
 });
 

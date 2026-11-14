@@ -13,6 +13,7 @@ import { BookAudio } from "@/components/BookAudio";
 import { FlipBook } from "@/components/FlipBook";
 import { getAudiobookRights } from "@/lib/audiobook.functions";
 import { Stars } from "@/components/Cards";
+import { breadcrumbList, courseNode, jsonLdGraph, originFromMatches, shareMeta } from "@/lib/share";
 
 export const Route = createFileRoute("/library/$slug")({
   // ?read=1 opens the flip book straight away (from My library's "Read" button).
@@ -25,26 +26,47 @@ export const Route = createFileRoute("/library/$slug")({
     if (!data) throw notFound();
     return data;
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, matches }) => {
     if (!loaderData)
       return { meta: [{ title: "Not found — GSWAU" }, { name: "robots", content: "noindex" }] };
     const b = loaderData.product;
-    const d = b.description.slice(0, 155);
-    const meta = [
-      { title: `${b.title} — GSWAU` },
-      { name: "description", content: d },
-      { property: "og:title", content: b.title },
-      { property: "og:description", content: d },
-      { property: "og:type", content: "product" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ];
+    const description = b.description.replace(/\s+/g, " ").trim().slice(0, 155);
+    const path = `/library/${b.slug}`;
     const image = b.gallery_urls[0] ?? b.cover_image_url;
-    if (image)
-      meta.push(
-        { property: "og:image", content: image },
-        { name: "twitter:image", content: image },
-      );
-    return { meta };
+    return shareMeta({
+      title: `${b.title} — GSWAU`,
+      socialTitle: b.title,
+      description,
+      path,
+      type: "product",
+      image,
+      imageAlt: b.title,
+      assetOrigin: originFromMatches(matches),
+      jsonLd: jsonLdGraph(
+        breadcrumbList([
+          { name: "Home", path: "/" },
+          { name: "Library", path: "/library" },
+          { name: b.title, path },
+        ]),
+        ...(b.type === "course"
+          ? [
+              courseNode({
+                slug: b.slug,
+                title: b.title,
+                description: b.description,
+                coverImage: image,
+                accessTier: b.access_tier,
+                priceCents: b.price_cents,
+                modules: loaderData.modules,
+                lessons: loaderData.outline.map((lesson) => ({
+                  moduleId: lesson.module_id,
+                  title: lesson.title,
+                })),
+              }),
+            ]
+          : []),
+      ),
+    });
   },
   component: ProductPage,
 });

@@ -11,15 +11,3 @@ export const SITE_ORIGIN = "https://gswau.com";
 
 // Shown as "Last updated" on Terms of Use, Privacy Policy and Refund Policy.
 export const policiesUpdated = "October 28, 2026";
-
-// Page title and description tags for the Company pages.
-export function pageMeta(title: string, description: string) {
-  return {
-    meta: [
-      { title: `${title} — GSWAU` },
-      { name: "description", content: description },
-      { property: "og:title", content: `${title} — GSWAU` },
-      { property: "og:description", content: description },
-    ],
-  };
-}

@@ -2,6 +2,13 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useT } from "@/i18n";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { postQuery } from "@/lib/catalog.functions";
+import {
+  blogPostingNode,
+  breadcrumbList,
+  jsonLdGraph,
+  originFromMatches,
+  shareMeta,
+} from "@/lib/share";
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ context, params }) => {
@@ -9,23 +16,41 @@ export const Route = createFileRoute("/blog/$slug")({
     if (!post) throw notFound();
     return post;
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, matches }) => {
     if (!loaderData)
       return { meta: [{ title: "Not found — GSWAU" }, { name: "robots", content: "noindex" }] };
-    const meta = [
-      { title: `${loaderData.title} — GSWAU Blog` },
-      { name: "description", content: loaderData.excerpt },
-      { property: "og:title", content: loaderData.title },
-      { property: "og:description", content: loaderData.excerpt },
-      { property: "og:type", content: "article" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ];
-    if (loaderData.cover_image_url?.startsWith("https://"))
-      meta.push(
-        { property: "og:image", content: loaderData.cover_image_url },
-        { name: "twitter:image", content: loaderData.cover_image_url },
-      );
-    return { meta };
+    const description =
+      loaderData.excerpt.trim() ||
+      "Articles from Gs. W. Augustin on growing a barber or beauty business.";
+    const path = `/blog/${loaderData.slug}`;
+    return shareMeta({
+      title: `${loaderData.title} — GSWAU Blog`,
+      socialTitle: loaderData.title,
+      description,
+      path,
+      type: "article",
+      image: loaderData.cover_image_url,
+      imageAlt: loaderData.title,
+      assetOrigin: originFromMatches(matches),
+      extraMeta: loaderData.published_at
+        ? [{ property: "article:published_time", content: loaderData.published_at }]
+        : undefined,
+      jsonLd: jsonLdGraph(
+        breadcrumbList([
+          { name: "Home", path: "/" },
+          { name: "Blog", path: "/blog" },
+          { name: loaderData.title, path },
+        ]),
+        blogPostingNode({
+          slug: loaderData.slug,
+          title: loaderData.title,
+          excerpt: description,
+          publishedAt: loaderData.published_at,
+          updatedAt: loaderData.updated_at,
+          image: loaderData.cover_image_url,
+        }),
+      ),
+    });
   },
   component: Post,
 });
