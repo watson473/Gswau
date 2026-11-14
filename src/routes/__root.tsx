@@ -18,6 +18,7 @@ import { MotionEffects } from "../components/MotionEffects";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider, defaultLocale, textDirection } from "@/i18n";
 import { requestOrigin } from "@/lib/site-origin";
+import { shareMeta, siteJsonLd } from "@/lib/share";
 import { applyTheme, savedTheme, themeBootScript } from "@/lib/theme";
 
 function NotFoundComponent() {
@@ -84,25 +85,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   loader: async () => ({ origin: await requestOrigin() }),
   head: ({ loaderData }) => {
     const origin = loaderData?.origin ?? "https://gswau.com";
-    const image = `${origin}/og-image.png`;
-    const title = "GSW Augustin University";
-    const description = "Business education for barbers and stylists.";
+    // Dimensions and the canonical link live on each page. Keeping them off the root
+    // stops a book cover or blog image from inheriting the homepage 1200×630 logo.
+    const share = shareMeta({
+      title: "GSW Augustin University",
+      description: "Business education for barbers and stylists.",
+      path: "/",
+      assetOrigin: origin,
+      dimensions: false,
+      canonical: false,
+      jsonLd: siteJsonLd(),
+    });
     return {
       meta: [
         { charSet: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
-        { title },
-        { name: "description", content: description },
-        { property: "og:title", content: title },
-        { property: "og:description", content: description },
-        { property: "og:url", content: `${origin}/` },
-        { property: "og:image", content: image },
-        { property: "og:image:width", content: "1200" },
-        { property: "og:image:height", content: "630" },
-        { property: "og:image:alt", content: "GSWAU gold logo" },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-        { name: "twitter:image", content: image },
+        ...share.meta,
       ],
       links: [
         {

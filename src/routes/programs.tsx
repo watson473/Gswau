@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Eyebrow } from "@/components/SiteChrome";
 import { formatPlanAmount, membershipPrices } from "@/lib/catalog";
 import { podcastName } from "@/lib/podcast";
-import { pageMeta } from "@/lib/site";
+import { pageMeta } from "@/lib/share";
 
 const monthly = formatPlanAmount(membershipPrices.monthly);
 const yearly = formatPlanAmount(membershipPrices.annual);
@@ -12,6 +12,7 @@ export const Route = createFileRoute("/programs")({
     pageMeta(
       "Programs",
       `GSWAU programs: membership at ${monthly} a month or ${yearly} a year, the free earnings calculator, and the ${podcastName} podcast.`,
+      "/programs",
     ),
   component: ProgramsPage,
 });

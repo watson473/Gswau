@@ -1,10 +1,11 @@
 import { spotifyEpisodeId } from "@/lib/podcast";
+import { SITE_ORIGIN } from "@/lib/site";
 
 // Episode article pages. Copy is the approved Episode 1 draft. Timestamps are from the
 // start of each clip file, not the full episode clock. Internal transcript paths stay off the page.
+// The visible "gswau.com/podcast" link keeps this www address. Canonical and JSON-LD use SITE_ORIGIN.
 export const podcastPageUrl = "https://www.gswau.com/podcast";
 export const kitNewsletterUrl = "https://gs-w-augustin-university.kit.com/34a8ef6dee";
-export const siteOrigin = "https://www.gswau.com";
 
 const spotifyEpisodeUrl =
   "https://open.spotify.com/episode/4mNNq4uXFtCN1LhQ6DTZvs?si=dbbc7b576652437e";
@@ -160,7 +161,7 @@ export function episodeArticleBySlug(slug: string) {
 }
 
 export function episodeArticleUrl(article: EpisodeArticle) {
-  return `${siteOrigin}/podcast/${article.slug}`;
+  return `${SITE_ORIGIN}/podcast/${article.slug}`;
 }
 
 export function articleForEpisode(episode: { title: string; audioUrl: string }) {
@@ -198,6 +199,7 @@ export function episodeArticlePlainText(article: EpisodeArticle) {
 
 export function episodeArticleJsonLd(article: EpisodeArticle) {
   const url = episodeArticleUrl(article);
+  const seriesUrl = `${SITE_ORIGIN}/podcast`;
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -213,11 +215,18 @@ export function episodeArticleJsonLd(article: EpisodeArticle) {
         author: { "@type": "Person", name: "Gs. W. Augustin" },
         publisher: {
           "@type": "Organization",
+          "@id": `${SITE_ORIGIN}/#organization`,
           name: "GSW Augustin University",
-          url: `${siteOrigin}/`,
+          url: `${SITE_ORIGIN}/`,
+          logo: {
+            "@type": "ImageObject",
+            url: `${SITE_ORIGIN}/icon-512.png`,
+            width: 512,
+            height: 512,
+          },
         },
         mainEntityOfPage: { "@type": "WebPage", "@id": url },
-        isPartOf: { "@type": "WebSite", name: "GSWAU", url: `${siteOrigin}/` },
+        isPartOf: { "@type": "WebSite", name: "GSWAU", url: `${SITE_ORIGIN}/` },
         isBasedOn: {
           "@type": "PodcastEpisode",
           name: article.title,
@@ -225,10 +234,28 @@ export function episodeArticleJsonLd(article: EpisodeArticle) {
           datePublished: article.episodePublished,
           partOfSeries: {
             "@type": "PodcastSeries",
+            "@id": `${seriesUrl}#series`,
             name: "Clippers and Shears",
-            url: podcastPageUrl,
+            url: seriesUrl,
           },
         },
+      },
+      {
+        "@type": "PodcastEpisode",
+        "@id": `${url}#episode`,
+        name: article.title,
+        description: article.description,
+        datePublished: article.episodePublished,
+        url,
+        inLanguage: "en",
+        author: { "@type": "Person", name: "Gs. W. Augustin" },
+        partOfSeries: {
+          "@type": "PodcastSeries",
+          "@id": `${seriesUrl}#series`,
+          name: "Clippers and Shears",
+          url: seriesUrl,
+        },
+        sameAs: article.spotifyUrl,
       },
       {
         "@type": "FAQPage",
@@ -242,8 +269,8 @@ export function episodeArticleJsonLd(article: EpisodeArticle) {
       {
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: `${siteOrigin}/` },
-          { "@type": "ListItem", position: 2, name: "Podcast", item: podcastPageUrl },
+          { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_ORIGIN}/` },
+          { "@type": "ListItem", position: 2, name: "Podcast", item: seriesUrl },
           { "@type": "ListItem", position: 3, name: article.title, item: url },
         ],
       },

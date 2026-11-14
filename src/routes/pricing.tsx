@@ -5,19 +5,19 @@ import { bookCount } from "@/lib/catalog";
 import { Eyebrow } from "@/components/SiteChrome";
 import { PricingPlans } from "@/components/Pricing";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
+import { originFromMatches, pricingJsonLd, shareMeta } from "@/lib/share";
 
 const t0 = createTranslator(defaultLocale);
 
 export const Route = createFileRoute("/pricing")({
-  head: () => ({
-    meta: [
-      { title: t0("pricing.meta.title") },
-      { name: "description", content: t0("pricing.meta.description") },
-      { property: "og:title", content: t0("pricing.meta.title") },
-      { property: "og:description", content: t0("pricing.meta.description") },
-      { property: "og:type", content: "website" },
-    ],
-  }),
+  head: ({ matches }) =>
+    shareMeta({
+      title: t0("pricing.meta.title"),
+      description: t0("pricing.meta.description"),
+      path: "/pricing",
+      assetOrigin: originFromMatches(matches),
+      jsonLd: pricingJsonLd(),
+    }),
   loader: ({ context }) =>
     Promise.all([
       context.queryClient.ensureQueryData(productsQuery),

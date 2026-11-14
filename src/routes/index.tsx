@@ -31,6 +31,7 @@ import { LatestPosts } from "@/components/LatestPosts";
 import { PricingPlans } from "@/components/Pricing";
 import { Slider } from "@/components/Slider";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
+import { originFromMatches, shareMeta } from "@/lib/share";
 
 const t0 = createTranslator(defaultLocale);
 
@@ -39,20 +40,16 @@ const t0 = createTranslator(defaultLocale);
 const memberPhotos: string[] = [];
 
 export const Route = createFileRoute("/")({
-  head: ({ loaderData }) => {
+  head: ({ loaderData, matches }) => {
     const description = t0("home.meta.description", {
       count: loaderData ? bookCount(loaderData[0]) : 23,
     });
-    return {
-      meta: [
-        { title: t0("home.meta.title") },
-        { name: "description", content: description },
-        { property: "og:title", content: t0("home.meta.title") },
-        { property: "og:description", content: description },
-        { property: "og:type", content: "website" },
-        { name: "twitter:card", content: "summary_large_image" },
-      ],
-    };
+    return shareMeta({
+      title: t0("home.meta.title"),
+      description,
+      path: "/",
+      assetOrigin: originFromMatches(matches),
+    });
   },
   loader: ({ context }) =>
     Promise.all([

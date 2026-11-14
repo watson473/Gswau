@@ -2,21 +2,24 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { postsQuery } from "@/lib/catalog.functions";
 import { Eyebrow } from "@/components/SiteChrome";
+import { blogIndexNode, breadcrumbList, jsonLdGraph, shareMeta } from "@/lib/share";
 
 export const Route = createFileRoute("/blog/")({
-  head: () => ({
-    meta: [
-      { title: "Blog — GSWAU" },
-      {
-        name: "description",
-        content: "Articles from Gs. W. Augustin on growing a barber or beauty business.",
-      },
-      { property: "og:title", content: "The GSWAU Blog" },
-      { property: "og:description", content: "Business advice for barbers and stylists." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
+  head: () => {
+    const description = "Articles from Gs. W. Augustin on growing a barber or beauty business.";
+    return shareMeta({
+      title: "Blog — GSWAU",
+      description,
+      path: "/blog",
+      jsonLd: jsonLdGraph(
+        breadcrumbList([
+          { name: "Home", path: "/" },
+          { name: "Blog", path: "/blog" },
+        ]),
+        blogIndexNode(),
+      ),
+    });
+  },
   loader: ({ context }) => context.queryClient.ensureQueryData(postsQuery),
   component: Blog,
 });

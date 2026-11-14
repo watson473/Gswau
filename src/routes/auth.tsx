@@ -4,24 +4,18 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { getMfaState } from "@/lib/mfa";
 import { track } from "@/lib/analytics";
+import { shareMeta } from "@/lib/share";
 
 const safe = (p?: string) => (p && p.startsWith("/") && !p.startsWith("//") ? p : "/account");
 
 export const Route = createFileRoute("/auth")({
   validateSearch: z.object({ redirect: z.string().optional() }),
-  head: () => ({
-    meta: [
-      { title: "Sign in — GSWAU" },
-      {
-        name: "description",
-        content: "Sign in to GSWAU to read your books and take your courses.",
-      },
-      { property: "og:title", content: "Sign in — GSWAU" },
-      { property: "og:description", content: "Access your GSWAU library." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  head: () =>
+    shareMeta({
+      title: "Sign in — GSWAU",
+      description: "Sign in to GSWAU to read your books and take your courses.",
+      path: "/auth",
+    }),
   component: AuthPage,
 });
 

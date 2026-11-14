@@ -2,10 +2,25 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
 import { sendContactMessage } from "@/lib/contact.functions";
-import { contact, pageMeta } from "@/lib/site";
+import { contact } from "@/lib/site";
+import { breadcrumbList, contactPageNode, jsonLdGraph, shareMeta } from "@/lib/share";
 
 export const Route = createFileRoute("/contact")({
-  head: () => pageMeta("Contact Us", "Call, email or send GSWAU a message. We read every message."),
+  head: () => {
+    const description = "Call, email or send GSWAU a message. We read every message.";
+    return shareMeta({
+      title: "Contact Us — GSWAU",
+      description,
+      path: "/contact",
+      jsonLd: jsonLdGraph(
+        breadcrumbList([
+          { name: "Home", path: "/" },
+          { name: "Contact Us", path: "/contact" },
+        ]),
+        contactPageNode(),
+      ),
+    });
+  },
   component: Contact,
 });
 

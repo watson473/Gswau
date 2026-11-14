@@ -1,15 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { InfoPage } from "@/components/InfoPage";
-import { pageMeta } from "@/lib/site";
+import { aboutPageNode, breadcrumbList, jsonLdGraph, shareMeta } from "@/lib/share";
 import { author } from "@/lib/catalog";
 import { podcastName } from "@/lib/podcast";
 
 export const Route = createFileRoute("/about")({
-  head: () =>
-    pageMeta(
-      "About Us",
-      "GSWAU is the education platform for barbers and hairstylists worldwide, created by Gs. W. Augustin.",
-    ),
+  head: () => {
+    const description =
+      "GSWAU is the education platform for barbers and hairstylists worldwide, created by Gs. W. Augustin.";
+    return shareMeta({
+      title: "About Us — GSWAU",
+      description,
+      path: "/about",
+      jsonLd: jsonLdGraph(
+        breadcrumbList([
+          { name: "Home", path: "/" },
+          { name: "About Us", path: "/about" },
+        ]),
+        aboutPageNode(),
+      ),
+    });
+  },
   component: About,
 });
 

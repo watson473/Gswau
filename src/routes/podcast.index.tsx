@@ -12,20 +12,17 @@ import { articleForEpisode, raiseYourPricesArticle } from "@/lib/podcast-article
 import { useT } from "@/i18n";
 import { Eyebrow } from "@/components/SiteChrome";
 import { EpisodePlayer } from "@/components/EpisodePlayer";
+import { originFromMatches, podcastIndexJsonLd, shareMeta } from "@/lib/share";
 
 export const Route = createFileRoute("/podcast/")({
-  head: () => ({
-    meta: [
-      { title: `${podcastName} Podcast — GSWAU` },
-      {
-        name: "description",
-        content: `Listen free: ${podcastName}, the podcast for barbers and hairstylists from Gs. W. Augustin.`,
-      },
-      { property: "og:title", content: `${podcastName} Podcast` },
-      { property: "og:description", content: "Free episodes for barbers and hairstylists." },
-      { property: "og:type", content: "website" },
-    ],
-  }),
+  head: ({ loaderData, matches }) =>
+    shareMeta({
+      title: `${podcastName} Podcast — GSWAU`,
+      description: `Listen free: ${podcastName}, the podcast for barbers and hairstylists from Gs. W. Augustin.`,
+      path: "/podcast",
+      assetOrigin: originFromMatches(matches),
+      jsonLd: podcastIndexJsonLd(loaderData ?? []),
+    }),
   loader: ({ context }) => context.queryClient.ensureQueryData(episodesQuery),
   component: Podcast,
 });

@@ -41,7 +41,7 @@ describe("Episode 1 article", () => {
     expect(text).toContain("From clip-10, at 0:24");
     expect(text).toContain("(clip-07, 0:06–0:31)");
     expect(text).not.toMatch(/\/workspace\//);
-    expect(episodeArticleUrl(raiseYourPricesArticle)).toBe(`https://www.gswau.com${articlePath}`);
+    expect(episodeArticleUrl(raiseYourPricesArticle)).toBe(`https://gswau.com${articlePath}`);
   });
 
   it("uses the pricing search phrases once, without a sales pitch", () => {
@@ -70,7 +70,14 @@ describe("Episode 1 article", () => {
 
   it("publishes Article structured data and matches the RSS episode title", () => {
     const graph = episodeArticleJsonLd(raiseYourPricesArticle)["@graph"];
-    expect(graph.map((node) => node["@type"])).toEqual(["Article", "FAQPage", "BreadcrumbList"]);
+    expect(graph.map((node) => node["@type"])).toEqual([
+      "Article",
+      "PodcastEpisode",
+      "FAQPage",
+      "BreadcrumbList",
+    ]);
+    expect(JSON.stringify(graph)).toContain("https://gswau.com/podcast");
+    expect(JSON.stringify(graph)).not.toContain("www.gswau.com");
     const article = graph[0]!;
     expect(article.headline).toBe(raiseYourPricesArticle.title);
     expect(article.datePublished).toBe("2026-11-11");
