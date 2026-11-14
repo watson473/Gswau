@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { BookOpen, GraduationCap, Headphones, Mail, Mic } from "lucide-react";
 import { GoldText } from "@/components/GoldText";
 import { Logo } from "@/components/SiteChrome";
@@ -35,9 +35,12 @@ const companyLinks = [
 ] as const;
 
 export function SiteFooter() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // The homepage signup sits in the hero. Other pages keep this strip.
+  const showStrip = pathname !== "/";
   return (
     <>
-      <NewsletterStrip />
+      {showStrip && <NewsletterStrip />}
       <Footer />
     </>
   );
