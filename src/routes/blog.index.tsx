@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { author } from "@/lib/catalog";
 import { postsQuery } from "@/lib/catalog.functions";
+import { formatPostDate, imageSrc } from "@/lib/display";
 import { Eyebrow } from "@/components/SiteChrome";
 import { blogIndexNode, breadcrumbList, jsonLdGraph, shareMeta } from "@/lib/share";
 
@@ -43,14 +45,18 @@ function Blog() {
             >
               {p.cover_image_url && (
                 <img
-                  src={p.cover_image_url}
-                  alt=""
+                  src={imageSrc(p.cover_image_url, 640)}
+                  alt={p.title}
+                  width={160}
+                  height={112}
+                  loading="lazy"
+                  decoding="async"
                   className="h-28 w-40 shrink-0 rounded-md object-cover"
                 />
               )}
               <div>
                 <div className="eyebrow text-muted-foreground">
-                  {p.published_at ? new Date(p.published_at).toLocaleDateString() : ""}
+                  {[formatPostDate(p.published_at), author.name].filter(Boolean).join(" · ")}
                 </div>
                 <h2 className="mt-1 text-2xl font-semibold group-hover:text-primary">{p.title}</h2>
                 <p className="mt-2 text-sm text-muted-foreground">{p.excerpt}</p>

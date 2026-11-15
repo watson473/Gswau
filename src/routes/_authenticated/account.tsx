@@ -4,6 +4,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { formatMoney, membershipPrices } from "@/lib/catalog";
+import { imageSrc } from "@/lib/display";
 import { Eyebrow } from "@/components/SiteChrome";
 import { settingsQuery } from "@/lib/catalog.functions";
 import { BookAudio } from "@/components/BookAudio";
@@ -240,11 +241,12 @@ function Account() {
               <div key={p.id}>
                 {p.cover_image_url && (
                   <img
-                    src={p.cover_image_url}
-                    alt=""
+                    src={imageSrc(p.cover_image_url, 480)}
+                    alt={p.title}
                     width={300}
                     height={300}
                     loading="lazy"
+                    decoding="async"
                     className="aspect-square w-full rounded-md object-cover shadow-card"
                   />
                 )}

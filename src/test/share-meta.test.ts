@@ -278,7 +278,7 @@ describe("Structured data facts", () => {
       "Yes. Sign up with the email address you used on Gumroad and your earlier purchases will be in My library.",
       "Use the “Manage membership” link in your Gumroad receipt email, or the link in My library. You keep access until the end of the period you have already paid for.",
       "Please see our Refund Policy.",
-      "Yes. Many audiobooks have a free preview, and the podcast and newsletter are free for everyone.",
+      "The podcast and the weekly newsletter are free. Membership is how you listen to the audiobooks and take the video courses.",
       "No. Your account and purchases are for your own personal use. Please do not share, resell or upload the audiobooks or courses anywhere else.",
       "Use “Forgot password?” on the sign-in page and we will email you a link to set a new one.",
       "Every newsletter email has an unsubscribe link at the bottom.",

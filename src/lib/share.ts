@@ -22,17 +22,21 @@ export const websiteId = `${SITE_ORIGIN}/#website`;
 
 // Footer profiles. sameAs is built from this list so it cannot drift from the icons.
 export const socialProfiles = [
-  { name: "instagram", label: "Instagram", url: "https://www.instagram.com/gswau_" },
+  { name: "instagram", label: "GSWAU on Instagram", url: "https://www.instagram.com/gswau_" },
   {
     name: "facebook",
-    label: "Facebook",
+    label: "GSWAU on Facebook",
     url: "https://www.facebook.com/profile.php?id=61580415614670",
   },
-  { name: "youtube", label: "YouTube", url: "https://www.youtube.com/@gswau" },
-  { name: "tiktok", label: "TikTok", url: "https://www.tiktok.com/@gswau" },
-  { name: "linkedin", label: "LinkedIn", url: "https://www.linkedin.com/in/gswau-71b5ba384" },
-  { name: "threads", label: "Threads", url: "https://www.threads.com/@gswau_" },
-  { name: "x", label: "X", url: "https://x.com/gswau_" },
+  { name: "youtube", label: "GSWAU on YouTube", url: "https://www.youtube.com/@gswau" },
+  { name: "tiktok", label: "GSWAU on TikTok", url: "https://www.tiktok.com/@gswau" },
+  {
+    name: "linkedin",
+    label: "GSWAU on LinkedIn",
+    url: "https://www.linkedin.com/in/gswau-71b5ba384",
+  },
+  { name: "threads", label: "GSWAU on Threads", url: "https://www.threads.com/@gswau_" },
+  { name: "x", label: "GSWAU on X", url: "https://x.com/gswau_" },
 ] as const;
 
 export const twitterSite = "@gswau_";

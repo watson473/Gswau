@@ -4,6 +4,7 @@ import {
   episodesFromRss,
   formatEpisodeDate,
   spotifyEpisodeId,
+  tidyEpisodeDescription,
   tidyEpisodeTitle,
 } from "@/lib/podcast";
 
@@ -55,7 +56,7 @@ describe("episodes from the RSS feed", () => {
     expect(eps.map((e) => e.id)).toEqual(["ep-3-2", "ep-1"]);
     expect(eps[0]).toEqual({
       id: "ep-3-2",
-      title: "Episode 3, Part 2: The Science of Hair Understanding Hair Types and Textures",
+      title: "Episode 3, Part 2: The Science of Hair: Understanding Hair Types and Textures",
       description: "Part two.",
       publishedAt: "2025-07-07T05:22:40.000Z",
       durationLabel: "24 min",
@@ -76,6 +77,20 @@ describe("episodes from the RSS feed", () => {
 
   it("tidy titles but leave others alone", () => {
     expect(tidyEpisodeTitle("Bonus: Q&A")).toBe("Bonus: Q&A");
+    expect(
+      tidyEpisodeTitle(
+        "Podcast Episode 3 : Part 2-The Science of Hair Understanding Hair Types and Textures",
+      ),
+    ).toBe("Episode 3, Part 2: The Science of Hair: Understanding Hair Types and Textures");
+  });
+
+  it("corrects the show-note typos", () => {
+    expect(
+      tidyEpisodeDescription("In continuing from part on we are discussing the science."),
+    ).toBe("In continuing from part one we are discussing the science.");
+    expect(tidyEpisodeDescription("But in this episode i made it my business.")).toBe(
+      "But in this episode I made it my business.",
+    );
   });
 
   it("show a release date as Spotify's calendar day in any time zone", () => {

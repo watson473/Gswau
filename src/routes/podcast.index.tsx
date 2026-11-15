@@ -70,7 +70,11 @@ function Podcast() {
                 {ep.image && !spotifyEpisodeId(ep.audioUrl) && (
                   <img
                     src={ep.image}
-                    alt=""
+                    alt={ep.title}
+                    width={112}
+                    height={112}
+                    loading="lazy"
+                    decoding="async"
                     className="hidden h-28 w-28 shrink-0 rounded-md object-cover sm:block"
                   />
                 )}

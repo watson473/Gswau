@@ -13,7 +13,6 @@ export const publicPaths = [
   "/about",
   "/faq",
   "/contact",
-  "/auth",
   "/privacy",
   "/terms",
   "/refunds",

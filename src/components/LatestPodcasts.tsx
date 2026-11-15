@@ -76,8 +76,11 @@ export function LatestPodcasts({ episodes }: { episodes: PodcastEpisode[] }) {
                       {e.image ? (
                         <img
                           src={e.image}
-                          alt=""
+                          alt={e.title}
+                          width={64}
+                          height={64}
                           loading="lazy"
+                          decoding="async"
                           className="h-16 w-16 shrink-0 rounded-md object-cover ring-1 ring-gold/20"
                         />
                       ) : (

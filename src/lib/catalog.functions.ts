@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
+import { bundleBookSlugs, bundleSlug, displayTitle } from "./display";
 import { publicClient } from "./public-client.server";
 import type { PodcastEpisode } from "./podcast";
 
@@ -20,6 +21,7 @@ export const listProducts = createServerFn({ method: "GET" }).handler(async () =
   const byProduct = new Map((ratings ?? []).map((r) => [r.product_id, r]));
   return data.map((p) => ({
     ...p,
+    title: displayTitle(p.slug, p.title),
     rating_average: byProduct.get(p.id)?.average ?? null,
     review_count: byProduct.get(p.id)?.review_count ?? 0,
   }));
@@ -63,7 +65,9 @@ export const getProduct = createServerFn({ method: "GET" })
       sb.rpc("course_outline", { _course: product.id }),
       sb
         .from("bundle_items")
-        .select("product:products!bundle_items_product_id_fkey(slug,title,cover_image_url)")
+        .select(
+          "product:products!bundle_items_product_id_fkey(slug,title,cover_image_url,price_cents)",
+        )
         .eq("bundle_id", product.id),
       sb.from("product_ratings").select(RATING_COLS).eq("product_id", product.id).maybeSingle(),
       sb
@@ -73,15 +77,48 @@ export const getProduct = createServerFn({ method: "GET" })
         .eq("is_published", true)
         .order("created_at", { ascending: false }),
     ]);
+    let books = (bundle ?? []).map((row) => bundleBook(row.product)).filter((row) => row !== null);
+    // The join table is empty for this bundle. The five titles are the ones named on its Gumroad page.
+    if (books.length === 0 && product.slug === bundleSlug) {
+      const { data: named } = await sb
+        .from("products")
+        .select("slug,title,cover_image_url,price_cents")
+        .in("slug", [...bundleBookSlugs])
+        .eq("is_published", true);
+      const bySlug = new Map((named ?? []).map((row) => [row.slug, row]));
+      books = bundleBookSlugs
+        .map((slug) => bySlug.get(slug))
+        .filter((row) => row !== undefined)
+        .map((row) => bundleBook(row))
+        .filter((row) => row !== null);
+    }
     return {
-      product,
+      product: { ...product, title: displayTitle(product.slug, product.title) },
       modules: modules ?? [],
       outline: outline ?? [],
-      bundle: (bundle ?? []).map((b) => b.product).filter(Boolean),
+      bundle: books,
       rating,
       reviews: reviews ?? [],
     };
   });
+
+function bundleBook(value: unknown) {
+  const row = Array.isArray(value) ? value[0] : value;
+  if (!row || typeof row !== "object") return null;
+  const book = row as {
+    slug?: string;
+    title?: string;
+    cover_image_url?: string | null;
+    price_cents?: number | null;
+  };
+  if (!book.slug || !book.title) return null;
+  return {
+    slug: book.slug,
+    title: displayTitle(book.slug, book.title),
+    cover_image_url: book.cover_image_url ?? null,
+    price_cents: book.price_cents ?? 0,
+  };
+}
 
 export const listTestimonials = createServerFn({ method: "GET" }).handler(async () => {
   const { data } = await publicClient()

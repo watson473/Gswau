@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import type { Post } from "@/lib/catalog.functions";
 import { GoldText } from "@/components/GoldText";
+import { imageSrc } from "@/lib/display";
 import { Slider } from "@/components/Slider";
 import { useT } from "@/i18n";
 
@@ -47,8 +48,8 @@ function PostCard({ post }: { post: Post }) {
       <div className="aspect-[4/3] overflow-hidden bg-white/5">
         {post.cover_image_url && (
           <img
-            src={post.cover_image_url}
-            alt=""
+            src={imageSrc(post.cover_image_url, 800)}
+            alt={post.title}
             loading="lazy"
             decoding="async"
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"

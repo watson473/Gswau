@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { BookOpen, GraduationCap, Headphones, Mail, Mic } from "lucide-react";
+import { GraduationCap, Headphones, Mail, Mic } from "lucide-react";
 import { GoldText } from "@/components/GoldText";
 import { Logo } from "@/components/SiteChrome";
 import { socialIconPaths } from "@/components/socialIcons";
@@ -22,7 +22,6 @@ const resources = [
   { to: "/library", key: "footer.res.audiobooks", Icon: Headphones },
   { to: "/courses", key: "footer.res.courses", Icon: GraduationCap },
   { to: "/podcast", key: "footer.res.podcast", Icon: Mic },
-  { to: "/library", key: "footer.res.previews", Icon: BookOpen },
 ] as const;
 
 const companyLinks = [

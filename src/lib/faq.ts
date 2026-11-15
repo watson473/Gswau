@@ -84,7 +84,7 @@ export const faqEntries: FaqEntry[] = [
     parts: [
       {
         kind: "text",
-        text: "Yes. Many audiobooks have a free preview, and the podcast and newsletter are free for everyone.",
+        text: "The podcast and the weekly newsletter are free. Membership is how you listen to the audiobooks and take the video courses.",
       },
     ],
   },

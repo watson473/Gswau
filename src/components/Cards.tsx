@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { formatMoney } from "@/lib/catalog";
 import type { Product } from "@/lib/catalog.functions";
+import { formatKey, imageSrc } from "@/lib/display";
 import { useT } from "@/i18n";
 
 export function BookCard({ b, eager = false }: { b: Product; eager?: boolean }) {
@@ -21,8 +22,8 @@ export function BookCard({ b, eager = false }: { b: Product; eager?: boolean }) 
       >
         {b.cover_image_url && (
           <img
-            src={b.cover_image_url}
-            alt=""
+            src={imageSrc(b.cover_image_url, 640)}
+            alt={b.title}
             width={400}
             height={400}
             loading={eager ? "eager" : "lazy"}
@@ -43,7 +44,7 @@ export function BookCard({ b, eager = false }: { b: Product; eager?: boolean }) 
       </div>
       <div className="mt-3 font-display text-lg leading-tight">{b.title}</div>
       <div className="mt-1 flex justify-between text-sm">
-        <span className="text-muted-foreground">{t(`format.${b.type}`)}</span>
+        <span className="text-muted-foreground">{t(formatKey(b))}</span>
         <span className="font-semibold">
           {b.access_tier === "members" && b.price_cents === 0
             ? t("card.members")

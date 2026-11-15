@@ -16,7 +16,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import logo from "@/assets/brand/logo.png";
+import logo from "@/assets/brand/logo.webp";
 import { SiteSearch } from "@/components/SiteSearch";
 import { calculatorConfig } from "@/lib/calculator.config";
 import { podcastName } from "@/lib/podcast";
@@ -24,7 +24,8 @@ import { THEME_KEY, applyTheme } from "@/lib/theme";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/i18n";
 
-// The one place the logo is drawn. To swap it, replace src/assets/brand/logo.png and run `npm run brand`.
+// Header mark. Replace src/assets/brand/logo.png and run `npm run brand` for the favicons.
+// The header itself uses logo.webp, a small copy of that file.
 export function Logo({ size = 40 }: { size?: number }) {
   const { t } = useT();
   return (

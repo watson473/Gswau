@@ -181,7 +181,11 @@ export function AudioPlayer({
           {image && (
             <img
               src={image}
-              alt=""
+              alt={title}
+              width={220}
+              height={220}
+              loading="lazy"
+              decoding="async"
               className="aspect-square w-full max-w-[220px] rounded-lg object-cover ring-1 ring-gold/30"
             />
           )}

@@ -74,13 +74,12 @@ function Pricing() {
       <div className="mx-auto mt-10 max-w-3xl">
         <PricingPlans />
       </div>
-      <div className="mt-14 grid gap-6 md:grid-cols-3">
+      <div className="mt-14 grid gap-6 md:grid-cols-2">
         <List
           tone="gold"
           title={t("pricing.included.title")}
           items={[
             t("pricing.included.books", { count }),
-            t("pricing.included.audio"),
             t("pricing.included.courses"),
             t("pricing.included.devices"),
           ]}
@@ -90,7 +89,6 @@ function Pricing() {
           title={t("pricing.free.title")}
           items={[
             t("pricing.free.browse"),
-            t("pricing.free.preview"),
             t("pricing.free.podcast"),
             t("pricing.free.newsletter"),
           ]}
@@ -104,7 +102,6 @@ function Pricing() {
             </Link>
           }
         />
-        <List tone="muted" title={t("pricing.extra.title")} items={[t("pricing.extra.premium")]} />
       </div>
       <section className="mx-auto mt-16 max-w-3xl">
         <h2 className="text-3xl font-semibold">{t("pricing.faq.title")}</h2>
