@@ -15,6 +15,7 @@ export const Route = createFileRoute("/auth")({
       title: "Sign in — GSWAU",
       description: "Sign in to GSWAU to read your books and take your courses.",
       path: "/auth",
+      extraMeta: [{ name: "robots", content: "noindex" }],
     }),
   component: AuthPage,
 });

@@ -4,7 +4,7 @@
 /**
  * Where the button under the unlocked result points.
  * PLACEHOLDER: the owner has not chosen a course, membership pricing, or a free resource.
- * Default is the programmes page.
+ * Default is the programs page.
  */
 const resultCta = {
   placeholder: true,

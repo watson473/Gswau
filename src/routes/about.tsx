@@ -44,7 +44,7 @@ function About() {
           running a shop.
         </li>
         <li>
-          <strong>Courses</strong> that turn the lessons into practical steps.
+          <strong>Video courses</strong> with lessons you can watch.
         </li>
         <li>
           <strong>The {podcastName} Podcast</strong>, free for everyone.
@@ -56,8 +56,8 @@ function About() {
 
       <h2>Membership</h2>
       <p>
-        Anyone can browse the site, read free previews and listen to the podcast. Members get every
-        audiobook and the courses for one monthly or yearly price.
+        Anyone can browse the site and listen to the podcast. Members get every audiobook and the
+        video courses for one monthly or yearly price.
       </p>
 
       <div className="mt-10 flex flex-wrap gap-3">

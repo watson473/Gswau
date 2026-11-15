@@ -1,7 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useT } from "@/i18n";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { postQuery } from "@/lib/catalog.functions";
+import { author } from "@/lib/catalog";
+import { postQuery, productsQuery } from "@/lib/catalog.functions";
+import { formatPostDate, imageSrc, productLinkPhrases, splitByPhrases } from "@/lib/display";
 import {
   blogPostingNode,
   breadcrumbList,
@@ -12,7 +14,10 @@ import {
 
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ context, params }) => {
-    const post = await context.queryClient.ensureQueryData(postQuery(params.slug));
+    const [post] = await Promise.all([
+      context.queryClient.ensureQueryData(postQuery(params.slug)),
+      context.queryClient.ensureQueryData(productsQuery),
+    ]);
     if (!post) throw notFound();
     return post;
   },
@@ -59,17 +64,22 @@ function Post() {
   const { t } = useT();
   const { slug } = Route.useParams();
   const { data: p } = useSuspenseQuery(postQuery(slug));
+  const { data: products } = useSuspenseQuery(productsQuery);
   if (!p) return null;
+  const phrases = productLinkPhrases(products);
   return (
     <article className="mx-auto max-w-3xl px-5 py-16">
-      <div className="eyebrow text-crimson">
-        {p.published_at ? new Date(p.published_at).toLocaleDateString() : ""}
-      </div>
+      <div className="eyebrow text-crimson">{formatPostDate(p.published_at)}</div>
       <h1 className="mt-3 text-5xl font-semibold leading-tight">{p.title}</h1>
+      <p className="mt-3 text-base text-muted-foreground">By {author.name}</p>
       {p.cover_image_url && (
-        <img src={p.cover_image_url} alt="" className="mt-8 w-full rounded-md object-cover" />
+        <img
+          src={imageSrc(p.cover_image_url, 1200)}
+          alt={p.title}
+          className="mt-8 w-full rounded-md object-cover"
+        />
       )}
-      <PostBody body={p.body} />
+      <PostBody body={p.body} phrases={phrases} />
       {slug === "raise-your-prices-without-losing-clients" && (
         <Link
           to="/calculator"
@@ -86,7 +96,31 @@ function Post() {
 
 // Plain text with blank lines between paragraphs; a paragraph starting "## " is a subheading,
 // and one whose lines all start "- " is a bullet list.
-function PostBody({ body }: { body: string }) {
+function LinkedText({
+  text,
+  phrases,
+}: {
+  text: string;
+  phrases: ReturnType<typeof productLinkPhrases>;
+}) {
+  return splitByPhrases(text, phrases).map((part, index) =>
+    part.slug ? (
+      <Link key={index} to="/library/$slug" params={{ slug: part.slug }} className="underline">
+        {part.text}
+      </Link>
+    ) : (
+      <span key={index}>{part.text}</span>
+    ),
+  );
+}
+
+function PostBody({
+  body,
+  phrases,
+}: {
+  body: string;
+  phrases: ReturnType<typeof productLinkPhrases>;
+}) {
   const blocks = body
     .split(/\n\s*\n/)
     .map((b) => b.trim())
@@ -97,7 +131,7 @@ function PostBody({ body }: { body: string }) {
         if (b.startsWith("## "))
           return (
             <h2 key={i} className="pt-4 text-3xl font-semibold">
-              {b.slice(3)}
+              <LinkedText text={b.slice(3)} phrases={phrases} />
             </h2>
           );
         const lines = b.split("\n");
@@ -105,13 +139,15 @@ function PostBody({ body }: { body: string }) {
           return (
             <ul key={i} className="list-disc space-y-2 pl-6">
               {lines.map((l, j) => (
-                <li key={j}>{l.slice(2)}</li>
+                <li key={j}>
+                  <LinkedText text={l.slice(2)} phrases={phrases} />
+                </li>
               ))}
             </ul>
           );
         return (
           <p key={i} className="whitespace-pre-line">
-            {b}
+            <LinkedText text={b} phrases={phrases} />
           </p>
         );
       })}

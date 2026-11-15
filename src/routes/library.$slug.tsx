@@ -3,6 +3,7 @@ import { z } from "zod";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { author, formatMoney } from "@/lib/catalog";
+import { formatKey, imageSrc, metaDescription } from "@/lib/display";
 import { productQuery, settingsQuery } from "@/lib/catalog.functions";
 import { track } from "@/lib/analytics";
 import { subscribeNewsletter } from "@/lib/newsletter.functions";
@@ -30,7 +31,7 @@ export const Route = createFileRoute("/library/$slug")({
     if (!loaderData)
       return { meta: [{ title: "Not found — GSWAU" }, { name: "robots", content: "noindex" }] };
     const b = loaderData.product;
-    const description = b.description.replace(/\s+/g, " ").trim().slice(0, 155);
+    const description = metaDescription(b.description);
     const path = `/library/${b.slug}`;
     const image = b.gallery_urls[0] ?? b.cover_image_url;
     return shareMeta({
@@ -101,6 +102,7 @@ function ProductPage() {
     isAudiobook && !!rights?.canListen && !!data && !!settings.flipbooks[data.product.id];
   if (!data) return null;
   const { product: b, modules, outline, bundle, rating, reviews } = data;
+  const separateCents = bundle.reduce((sum, book) => sum + (book?.price_cents ?? 0), 0);
   const images = b.gallery_urls.length
     ? b.gallery_urls
     : b.cover_image_url
@@ -124,7 +126,7 @@ function ProductPage() {
       <div>
         {images.length > 0 && (
           <img
-            src={images[shown] ?? images[0]}
+            src={imageSrc(images[shown] ?? images[0] ?? "", 800)}
             alt={b.title}
             width={360}
             height={540}
@@ -141,7 +143,7 @@ function ProductPage() {
                 className={`h-16 w-16 overflow-hidden rounded-sm border-2 ${i === shown ? "border-gold" : "border-transparent"}`}
                 aria-label={`Show image ${i + 1}`}
               >
-                <img src={src} alt="" className="h-full w-full object-cover" />
+                <img src={imageSrc(src, 160)} alt="" className="h-full w-full object-cover" />
               </button>
             ))}
           </div>
@@ -149,7 +151,7 @@ function ProductPage() {
       </div>
       <div>
         <div className="eyebrow text-crimson">
-          {t("product.by", { format: t(`format.${b.type}`), author: author.name })}
+          {t("product.by", { format: t(formatKey(b)), author: author.name })}
         </div>
         <h1 className="mt-3 text-4xl font-semibold leading-tight sm:text-5xl">{b.title}</h1>
         {b.subtitle && (
@@ -247,12 +249,21 @@ function ProductPage() {
                 )}
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                {membersOnly
-                  ? t("product.courseNote")
-                  : b.access_tier === "premium"
-                    ? t("product.premiumNote")
-                    : t("product.includedNote")}
+                {b.type === "bundle"
+                  ? t("product.bundleNote")
+                  : membersOnly
+                    ? t("product.courseNote")
+                    : b.access_tier === "premium"
+                      ? t("product.premiumNote")
+                      : t("product.includedNote")}
               </p>
+              {b.type === "bundle" && separateCents > b.price_cents && (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {t("product.bundleValue", {
+                    price: formatMoney(separateCents / 100, locale),
+                  })}
+                </p>
+              )}
               {!user && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   {t("product.bought")}{" "}

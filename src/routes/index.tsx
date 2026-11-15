@@ -2,7 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   ArrowRight,
-  BookOpen,
   ChevronRight,
   GraduationCap,
   Headphones,
@@ -12,7 +11,8 @@ import {
   SkipBack,
   SkipForward,
 } from "lucide-react";
-import logo from "@/assets/brand/logo.png";
+import logo from "@/assets/brand/logo.webp";
+import { imageSrc } from "@/lib/display";
 import { author, bookCount } from "@/lib/catalog";
 import {
   episodesQuery,
@@ -297,7 +297,7 @@ function PhoneMockup({ book }: { book: Product }) {
             </div>
             {book.cover_image_url && (
               <img
-                src={book.cover_image_url}
+                src={imageSrc(book.cover_image_url, 480)}
                 alt=""
                 width={400}
                 height={400}
@@ -381,7 +381,6 @@ function ResourcesAndNewest({ newest }: { newest: Product[] }) {
     { to: "/courses", key: "home.resources.courses", Icon: GraduationCap },
     { to: "/podcast", key: "home.resources.podcast", Icon: Mic },
     { to: "/blog", key: "home.resources.blog", Icon: Newspaper },
-    { to: "/library", key: "home.resources.previews", Icon: BookOpen },
   ] as const;
   return (
     <section className="navy-glow bg-navy-deep py-14 sm:py-20">

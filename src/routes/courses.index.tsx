@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { productsQuery } from "@/lib/catalog.functions";
 import { BookCard } from "@/components/Cards";
@@ -15,7 +15,7 @@ import {
 } from "@/lib/share";
 
 const coursesDescription =
-  "Video courses, the GSWAU Barber Success Bundle, Business Bootcamp and flagship guides by Gs. W. Augustin.";
+  "Video courses included with a GSWAU membership, plus flagship guides by Gs. W. Augustin.";
 
 function coursesJsonLd(
   products:
@@ -40,7 +40,7 @@ function coursesJsonLd(
       "@type": "CollectionPage",
       "@id": canonicalUrl("/courses"),
       url: canonicalUrl("/courses"),
-      name: "Programs & Courses",
+      name: "Courses",
       description: coursesDescription,
       isPartOf: { "@id": websiteId },
       about: { "@id": organizationId },
@@ -61,7 +61,7 @@ function coursesJsonLd(
 export const Route = createFileRoute("/courses/")({
   head: ({ loaderData, matches }) =>
     shareMeta({
-      title: "Programs & Courses — GSWAU",
+      title: "Courses — GSWAU",
       description: coursesDescription,
       path: "/courses",
       assetOrigin: originFromMatches(matches),
@@ -77,8 +77,15 @@ function Programs() {
   const featured = data.filter((p) => p.is_featured && p.type !== "course");
   return (
     <div className="mx-auto max-w-6xl px-5 py-16">
-      <Eyebrow>Flagship</Eyebrow>
-      <h1 className="mt-3 text-5xl font-semibold">Programs</h1>
+      <Eyebrow>Watch</Eyebrow>
+      <h1 className="mt-3 text-5xl font-semibold">Courses</h1>
+      <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
+        Video courses included with membership. Every audiobook is in the{" "}
+        <Link to="/library" className="underline">
+          library
+        </Link>
+        .
+      </p>
       {courses.length > 0 && (
         <>
           <h2 className="mt-12 text-3xl font-semibold">Video courses</h2>

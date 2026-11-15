@@ -7,9 +7,9 @@ import { getCertificate, getCourseFiles, getLessonFiles } from "@/lib/course.fun
 export const Route = createFileRoute("/_authenticated/learn/$slug")({
   head: () => ({
     meta: [
-      { title: "Course — GSWAU" },
+      { title: "Your course — GSWAU" },
       { name: "description", content: "Your GSWAU course." },
-      { property: "og:title", content: "Course — GSWAU" },
+      { property: "og:title", content: "Your course — GSWAU" },
       { property: "og:description", content: "Your GSWAU course." },
       { name: "robots", content: "noindex" },
     ],

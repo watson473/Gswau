@@ -72,7 +72,16 @@ export function tidyEpisodeTitle(title: string) {
     .trim()
     .replace(/^Podcast\s+Episode\s+(\d+)\s*:\s*Part\s+(\d+)\s*[-:–]\s*/i, "Episode $1, Part $2: ")
     .replace(/^Podcast\s+Episode\s+(\d+)\s*:\s*/i, "Episode $1: ")
-    .replace(/\.$/, "");
+    .replace(/\.$/, "")
+    .replace(
+      "The Science of Hair Understanding Hair Types",
+      "The Science of Hair: Understanding Hair Types",
+    );
+}
+
+// Show notes from the RSS feed. These are the typos in the published episode text.
+export function tidyEpisodeDescription(text: string) {
+  return text.replace(/\bpart on\b/g, "part one").replace(/(^|\s)i(?=\s)/g, "$1I");
 }
 
 // "00:24:14" or "1454" (seconds) -> "24 min"
@@ -99,7 +108,7 @@ export function episodesFromRss(xml: string): PodcastEpisode[] {
     episodes.push({
       id: tagText(item!, "guid") || audioUrl,
       title: tidyEpisodeTitle(tagText(item!, "title")),
-      description: htmlToText(tagText(item!, "description")),
+      description: tidyEpisodeDescription(htmlToText(tagText(item!, "description"))),
       publishedAt: date && !Number.isNaN(date.getTime()) ? date.toISOString() : null,
       durationLabel: durationLabel(tagText(item!, "itunes:duration")),
       audioUrl,

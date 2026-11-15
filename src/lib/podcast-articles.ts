@@ -116,7 +116,7 @@ export const raiseYourPricesArticle: EpisodeArticle = {
       id: "s5",
       heading: "5. How to tell clients the price is going up",
       caption: "From clip-08, at 0:21–0:52.",
-      body: "The host’s first attempt started with an apology. The correction in the episode is blunt: you are not begging for more money. You are informing clients about a business decision. Groceries do not apologise when eggs go up. The three steps: give two to four weeks’ notice, be clear and do not ramble, and thank them for their loyalty — warm, not cold — then stop talking.",
+      body: "The host’s first attempt started with an apology. The correction in the episode is blunt: you are not begging for more money. You are informing clients about a business decision. Groceries do not apologize when eggs go up. The three steps: give two to four weeks’ notice, be clear and do not ramble, and thank them for their loyalty — warm, not cold — then stop talking.",
       quote:
         "“Listen, you are not begging for more money. You’re informing your clients about a business decision.”",
       quoteCite: "From clip-08, at 0:21",
