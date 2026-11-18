@@ -262,7 +262,7 @@ describe("Structured data facts", () => {
     };
     expect(product.offers.map((offer) => [offer.name, offer.price, offer.priceCurrency])).toEqual([
       ["Monthly", 19.99, "USD"],
-      ["Annual", 199, "USD"],
+      ["Annual", 199.99, "USD"],
     ]);
     expect(JSON.stringify(product)).not.toContain("gumroad");
   });
@@ -272,7 +272,7 @@ describe("Structured data facts", () => {
     expect(answers.map((entry) => entry.question)).toContain("What is GSWAU?");
     expect(answers.map((entry) => entry.answer)).toEqual([
       "GSWAU is an education platform for barbers and hairstylists. It offers audiobooks, courses, the Clippers and Shears Podcast, and a weekly newsletter.",
-      "Members can listen to every audiobook and take the courses included with membership. You can choose to pay $19.99 a month or $199 a year. See Pricing for details.",
+      "Members can listen to every audiobook and take the courses included with membership. You can choose to pay $19.99 a month or $199.99 a year. See Pricing for details.",
       "Purchases and memberships are paid securely through Gumroad, our payment provider. GSWAU never sees or stores your card details.",
       "Create an account on this site with the same email address you used at checkout. Your purchases and membership then appear in My library. If you already have an account, sign in with that email.",
       "Yes. Sign up with the email address you used on Gumroad and your earlier purchases will be in My library.",

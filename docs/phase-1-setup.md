@@ -41,7 +41,7 @@ Every branch gets its own preview address on Vercel, so payments can be tested b
 
 ## 3. Gumroad
 
-1. Create one **Membership** product with two prices: Monthly $19.99 and Yearly $199
+1. Create one **Membership** product with two prices: Monthly $19.99 and Yearly $199.99
    (done: `gswau.gumroad.com/l/membership`). Publish it before the first test purchase.
 2. Admin → Settings:
    - Monthly and annual checkout links: `https://gswau.gumroad.com/l/membership`

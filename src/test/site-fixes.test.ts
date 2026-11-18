@@ -5,13 +5,13 @@ import { annualCheckoutUrl } from "@/components/Pricing";
 import { publicPaths, sitemapXml } from "@/lib/sitemap";
 
 describe("Displayed yearly membership price", () => {
-  it("shows $199 a year and keeps the monthly price", () => {
-    expect(membershipPrices.annual).toBe(199);
-    expect(formatPlanAmount(membershipPrices.annual)).toBe("$199");
+  it("shows $199.99 a year and keeps the monthly price", () => {
+    expect(membershipPrices.annual).toBe(199.99);
+    expect(formatPlanAmount(membershipPrices.annual)).toBe("$199.99");
     expect(formatPlanAmount(membershipPrices.monthly)).toBe("$19.99");
-    expect(formatPlanAmount(membershipPrices.annual).includes(".")).toBe(false);
-    // $199 / 12 is $16.58. Gumroad's yearly charge is a separate product and is not in this repo.
-    expect(formatMoney(membershipPrices.annual / 12)).toBe("$16.58");
+    expect(formatPlanAmount(membershipPrices.annual)).toMatch(/\.99$/);
+    // $199.99 / 12 is $16.67. Gumroad's yearly charge is a separate product and is not in this repo.
+    expect(formatMoney(membershipPrices.annual / 12)).toBe("$16.67");
   });
 
   it("sends Join Annual to the yearly Gumroad product, not the monthly page", () => {
