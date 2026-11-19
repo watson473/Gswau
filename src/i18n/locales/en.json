@@ -113,6 +113,7 @@
   "product.previewPages": "First {{count}} pages · PDF",
   "product.buy": "Buy for {{price}}",
   "product.join": "Start your membership",
+  "product.priceShiftCourseBuy": "Buy the course: $97 — $47 for the first 25 with code FOUNDING47",
   "product.buyAudiobook": "Buy this audiobook · {{price}}",
   "product.memberListen": "Become a member to listen",
   "product.readBook": "Read the book",

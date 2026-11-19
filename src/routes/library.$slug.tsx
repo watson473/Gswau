@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { z } from "zod";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { author, formatMoney } from "@/lib/catalog";
+import { author, courseOffers, formatMoney } from "@/lib/catalog";
 import { formatKey, imageSrc, metaDescription } from "@/lib/display";
 import { productQuery, settingsQuery } from "@/lib/catalog.functions";
 import { track } from "@/lib/analytics";
@@ -111,6 +111,7 @@ function ProductPage() {
   const showReader = canRead && (reading || read !== undefined);
   // Courses with no price of their own come with membership and aren't sold separately.
   const membersOnly = b.access_tier === "members" && b.price_cents === 0;
+  const courseOffer = b.type === "course" ? courseOffers[b.slug] : undefined;
   return (
     <div className="mx-auto grid max-w-5xl gap-12 px-5 py-16 md:grid-cols-[360px_1fr]">
       {showReader && (
@@ -233,14 +234,20 @@ function ProductPage() {
                     {t("product.join")}
                   </Link>
                 )}
-                {b.buy_url && (
-                  <a
-                    href={b.buy_url}
-                    rel="noopener"
-                    className={b.access_tier === "premium" ? "btn-gold" : "btn-ghost"}
-                  >
-                    {t("product.buy", { price: formatMoney(b.price_cents / 100, locale) })}
+                {courseOffer ? (
+                  <a href={courseOffer.url} rel="noopener" className="btn-ghost">
+                    {t(courseOffer.labelKey)}
                   </a>
+                ) : (
+                  b.buy_url && (
+                    <a
+                      href={b.buy_url}
+                      rel="noopener"
+                      className={b.access_tier === "premium" ? "btn-gold" : "btn-ghost"}
+                    >
+                      {t("product.buy", { price: formatMoney(b.price_cents / 100, locale) })}
+                    </a>
+                  )
                 )}
                 {b.type === "course" && user && outline.some((l) => l.is_preview) && (
                   <Link to="/learn/$slug" params={{ slug: b.slug }} className="btn-ghost">

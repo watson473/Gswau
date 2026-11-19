@@ -22,6 +22,13 @@ const sale = (extra: Record<string, string> = {}) =>
   );
 
 describe("interpreting Gumroad notifications", () => {
+  it("treats a Price Shift course sale as a one-off purchase of vlepqs, not a membership", () => {
+    const info = interpretGumroad("sale", sale({ permalink: "vlepqs", product_id: "C1" }));
+    expect(info.event).toEqual({ kind: "purchase", saleId: "S1" });
+    expect(info.permalink).toBe("vlepqs");
+    expect(info.subscriptionId).toBeNull();
+  });
+
   it("treats a one-off sale as a purchase", () => {
     const info = interpretGumroad("sale", sale());
     expect(info.event).toEqual({ kind: "purchase", saleId: "S1" });

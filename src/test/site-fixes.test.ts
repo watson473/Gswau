@@ -1,8 +1,25 @@
 import { describe, expect, it } from "vitest";
 
-import { formatMoney, formatPlanAmount, membershipPrices } from "@/lib/catalog";
+import { courseOffers, formatMoney, formatPlanAmount, membershipPrices } from "@/lib/catalog";
 import { annualCheckoutUrl } from "@/components/Pricing";
 import { publicPaths, sitemapXml } from "@/lib/sitemap";
+import en from "@/i18n/locales/en.json";
+
+describe("The Price Shift course offer", () => {
+  it("sells the course on its own Gumroad product, not the audiobook's", () => {
+    const offer = courseOffers["the-price-shift-course"]!;
+    expect(offer.url).toBe("https://gswau.gumroad.com/l/vlepqs");
+    expect(offer.url.endsWith(`/l/${offer.gumroadPermalink}`)).toBe(true);
+    expect(offer.url).not.toContain("ogijmt"); // the $23.99 audiobook
+    expect(en[offer.labelKey]).toBe(
+      "Buy the course: $97 — $47 for the first 25 with code FOUNDING47",
+    );
+  });
+
+  it("leaves the audiobook page without a course offer", () => {
+    expect(courseOffers["the-price-shift"]).toBeUndefined();
+  });
+});
 
 describe("Displayed yearly membership price", () => {
   it("shows $199.99 a year and keeps the monthly price", () => {

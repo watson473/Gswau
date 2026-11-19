@@ -16,6 +16,20 @@ export const money = (cents: number) => (cents === 0 ? "Free" : `$${(cents / 100
 // Prices written on the site. Gumroad checkout links are separate and are not built from these numbers.
 export const membershipPrices = { monthly: 19.99, annual: 199.99 } as const;
 
+// Courses that come with membership but can also be bought on their own on Gumroad, keyed by
+// course slug. The purchase unlocks only that course: the Gumroad notification is matched to the
+// course by `gumroadPermalink`, which must also be set as the course's Gumroad permalink in Admin.
+export const courseOffers: Record<
+  string,
+  { gumroadPermalink: string; url: string; labelKey: "product.priceShiftCourseBuy" }
+> = {
+  "the-price-shift-course": {
+    gumroadPermalink: "vlepqs",
+    url: "https://gswau.gumroad.com/l/vlepqs",
+    labelKey: "product.priceShiftCourseBuy",
+  },
+};
+
 export const formatMoney = (amount: number, locale = "en") =>
   new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(amount);
 

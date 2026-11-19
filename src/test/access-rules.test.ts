@@ -211,6 +211,49 @@ describe("individual purchases", () => {
     expect(await canOpen("premium-course")).toBe(false);
   });
 
+  it("of a members course open that course only, and members still get it", async () => {
+    await as(null);
+    const { rows: course } = await db.query<{ id: string }>(
+      "insert into public.products (slug, title, type, access_tier) values ('bought-course', 'c', 'course', 'members') returning id",
+    );
+    ids["bought-course"] = course[0]!.id;
+    const { rows: mod } = await db.query<{ id: string }>(
+      "insert into public.modules (course_id, title) values ($1, 'm') returning id",
+      [course[0]!.id],
+    );
+    await db.query(
+      "insert into public.lessons (module_id, title, content_url) values ($1, 'l', 'y')",
+      [mod[0]!.id],
+    );
+    // Gumroad records the sale by email before the buyer has an account.
+    await db.query(
+      "insert into public.entitlements (email, product_id, source) values ($1, $2, 'gumroad')",
+      ["coursebuyer@example.com", ids["bought-course"]],
+    );
+
+    await as(await signUp("coursebuyer@example.com"));
+    expect(await canOpen("bought-course")).toBe(true);
+    expect(await canOpen("member-book")).toBe(false);
+    expect(await canOpen("bundle")).toBe(false);
+    expect(await canOpen("premium-course")).toBe(false);
+    await db.exec("set role authenticated");
+    const { rows: lessons } = await db.query<{ content_url: string }>(
+      "select content_url from public.lessons",
+    );
+    await db.exec("reset role");
+    expect(lessons.map((l) => l.content_url)).toEqual(["y"]); // this course's lesson, no other
+
+    await as(await signUp("allaccess@example.com"));
+    await membership(
+      "allaccess@example.com",
+      "active",
+      new Date(Date.now() + 20 * 864e5).toISOString(),
+    );
+    expect(await canOpen("bought-course")).toBe(true);
+    expect(await canOpen("member-book")).toBe(true);
+    await as(null);
+  });
+
   it("include every book in a purchased bundle", async () => {
     const uid = await signUp("bundle@example.com");
     await db.query("insert into public.entitlements (user_id, product_id) values ($1, $2)", [
