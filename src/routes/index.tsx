@@ -347,9 +347,12 @@ function TrustStrip({ stats }: { stats: { key: string; count: number }[] }) {
           {stats.slice(0, middle).map(stat)}
         </div>
         <div className="order-1 col-span-2 flex justify-center lg:order-none">
-          <div className="inline-flex items-center gap-3 rounded-full bg-gold-gradient px-6 py-3 text-center text-sm font-bold text-navy-deep shadow-[0_0_34px_-8px_var(--gold)]">
+          <Link
+            to="/calculator"
+            className="group inline-flex min-h-11 max-w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-gold-gradient px-6 py-3 text-center text-sm font-bold leading-snug text-navy-deep shadow-[0_0_34px_-8px_var(--gold)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_0_44px_-4px_var(--gold)] hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deep active:translate-y-0"
+          >
             {memberPhotos.length > 0 && (
-              <span className="flex -space-x-2">
+              <span className="hidden shrink-0 -space-x-2 sm:flex">
                 {memberPhotos.map((src) => (
                   <img
                     key={src}
@@ -363,8 +366,12 @@ function TrustStrip({ stats }: { stats: { key: string; count: number }[] }) {
                 ))}
               </span>
             )}
-            {t("home.trust.pill")}
-          </div>
+            <span className="text-balance">{t("home.trust.pill")}</span>
+            <ArrowRight
+              className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-1"
+              aria-hidden="true"
+            />
+          </Link>
         </div>
         <div className="order-3 col-span-2 grid grid-cols-2 gap-6 lg:order-none lg:flex lg:gap-12">
           {stats.slice(middle).map(stat)}
