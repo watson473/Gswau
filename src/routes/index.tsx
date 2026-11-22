@@ -1,18 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import {
-  ArrowRight,
-  ChevronRight,
-  GraduationCap,
-  Headphones,
-  Mic,
-  Newspaper,
-  Pause,
-  SkipBack,
-  SkipForward,
-} from "lucide-react";
-import logo from "@/assets/brand/logo.webp";
-import { imageSrc } from "@/lib/display";
+import { ArrowRight, ChevronRight, GraduationCap, Headphones, Mic, Newspaper } from "lucide-react";
 import { author, bookCount } from "@/lib/catalog";
 import {
   episodesQuery,
@@ -23,9 +11,11 @@ import {
   testimonialsQuery,
   type Product,
 } from "@/lib/catalog.functions";
+import type { PodcastEpisode } from "@/lib/podcast";
 import { BookCard, Stars } from "@/components/Cards";
 import { GoldText } from "@/components/GoldText";
 import { HeroNewsletter } from "@/components/HeroNewsletter";
+import { HeroShowcase } from "@/components/HeroShowcase";
 import { LatestPodcasts } from "@/components/LatestPodcasts";
 import { LatestPosts } from "@/components/LatestPosts";
 import { PricingPlans } from "@/components/Pricing";
@@ -87,7 +77,7 @@ function Index() {
   // The whole homepage is navy and gold whichever theme is saved: the .dark tokens apply inside.
   return (
     <div className="dark bg-navy-deep text-foreground">
-      <Hero book={phoneBook} />
+      <Hero book={phoneBook} courses={courses} episodes={episodes} />
       <TrustStrip stats={stats} />
       <ResourcesAndNewest newest={newest} />
       <PremiumCourses courses={courses} />
@@ -174,7 +164,15 @@ function SectionHead({
   );
 }
 
-function Hero({ book }: { book: Product | undefined }) {
+function Hero({
+  book,
+  courses,
+  episodes,
+}: {
+  book: Product | undefined;
+  courses: Product[];
+  episodes: PodcastEpisode[];
+}) {
   const { t } = useT();
   return (
     <section className="relative overflow-hidden bg-navy-gradient">
@@ -199,7 +197,7 @@ function Hero({ book }: { book: Product | undefined }) {
           <HeroNewsletter />
         </div>
 
-        {book && <PhoneMockup book={book} />}
+        <HeroShowcase book={book} courses={courses} episodes={episodes} />
 
         <div data-no-reveal className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
           <Link to="/courses" className="glow-card group block rounded-xl p-6">
@@ -269,63 +267,6 @@ function HeroLines() {
         <path key={d} d={d} stroke="url(#hero-line-gold)" strokeWidth="1" />
       ))}
     </svg>
-  );
-}
-
-// A drawing of the site's audiobook player on a phone, using a real book from the library.
-function PhoneMockup({ book }: { book: Product }) {
-  const { t } = useT();
-  return (
-    <figure data-no-reveal className="mx-auto w-[236px] sm:w-[250px] lg:w-[236px]">
-      <div
-        role="img"
-        aria-label={t("home.hero.phoneAlt", { title: book.title })}
-        className="rounded-[2.4rem] bg-gradient-to-b from-gold/70 via-gold/25 to-gold/50 p-[2px] shadow-[0_0_60px_-14px_var(--gold)]"
-      >
-        <div className="rounded-[2.3rem] bg-navy-deep p-2">
-          <div className="relative overflow-hidden rounded-[1.85rem] bg-navy-gradient px-4 pb-5 pt-7">
-            <span className="absolute left-1/2 top-2 h-1.5 w-14 -translate-x-1/2 rounded-full bg-white/15" />
-            <div className="flex items-center gap-2">
-              <img
-                src={logo}
-                alt=""
-                width={22}
-                height={22}
-                className="h-[22px] w-[22px] rounded-full"
-              />
-              <span className="font-display text-sm font-semibold">{t("brand.name")}</span>
-            </div>
-            {book.cover_image_url && (
-              <img
-                src={imageSrc(book.cover_image_url, 480)}
-                alt=""
-                width={400}
-                height={400}
-                decoding="async"
-                className="mt-3 aspect-square w-full rounded-lg object-cover ring-1 ring-gold/30"
-              />
-            )}
-            <div className="eyebrow mt-3 text-[0.55rem] text-gold">{t("home.hero.phoneNow")}</div>
-            <div className="mt-1 line-clamp-2 font-display text-base font-semibold leading-snug">
-              {book.title}
-            </div>
-            <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/15">
-              <span className="block h-full w-2/5 rounded-full bg-gold-gradient" />
-            </div>
-            <div className="mt-3 flex items-center justify-center gap-5 text-primary-foreground/85">
-              <SkipBack className="h-4 w-4" aria-hidden="true" />
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-gold-gradient text-navy-deep">
-                <Pause className="h-4 w-4 fill-current" aria-hidden="true" />
-              </span>
-              <SkipForward className="h-4 w-4" aria-hidden="true" />
-            </div>
-          </div>
-        </div>
-      </div>
-      <figcaption className="mt-4 text-center font-display text-base font-semibold text-gold">
-        {t("home.hero.phoneCaption")}
-      </figcaption>
-    </figure>
   );
 }
 

@@ -368,3 +368,101 @@
   pointer-events: none;
   -webkit-touch-callout: none;
 }
+
+/* Homepage hero phone: four slides that take turns (HeroShowcase). */
+.hero-showcase .sc-slide {
+  opacity: 0;
+  visibility: hidden;
+}
+.hero-showcase .sc-slide[data-active] {
+  opacity: 1;
+  visibility: visible;
+}
+.hero-showcase .sc-link {
+  display: block;
+  border-radius: 0.6rem;
+  outline-offset: 4px;
+}
+.hero-showcase .sc-link:focus-visible {
+  outline: 2px solid var(--gold);
+}
+.hero-showcase .sc-timer {
+  scale: 1 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-showcase .sc-slide {
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear 0.5s;
+  }
+  .hero-showcase .sc-slide[data-active] {
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s;
+  }
+  .hero-showcase .sc-slide[data-active] .sc-cover {
+    animation: sc-cover 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .hero-showcase .sc-slide[data-active] .sc-up {
+    animation: sc-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(180ms + var(--i, 0) * 90ms);
+  }
+  .hero-showcase .sc-slide[data-active] .sc-play {
+    animation: sc-play 3.6s cubic-bezier(0.33, 0, 0.2, 1) 0.4s both;
+  }
+  .hero-showcase .sc-slide[data-active] .sc-wave {
+    animation: sc-wave 0.9s ease-in-out calc(var(--i, 0) * -130ms) infinite alternate;
+  }
+  .hero-showcase .sc-timer {
+    animation: sc-timer var(--sc-ms, 4000ms) linear both;
+  }
+  .hero-showcase:hover .sc-link .sc-cover {
+    box-shadow: 0 0 30px -8px var(--gold);
+  }
+  @keyframes sc-cover {
+    from {
+      opacity: 0;
+      translate: 28px 0;
+      scale: 0.94;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+      scale: 1;
+    }
+  }
+  @keyframes sc-up {
+    from {
+      opacity: 0;
+      translate: 0 12px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+  @keyframes sc-play {
+    from {
+      scale: 0 1;
+    }
+    to {
+      scale: 1 1;
+    }
+  }
+  @keyframes sc-wave {
+    from {
+      scale: 1 0.35;
+    }
+    to {
+      scale: 1 1;
+    }
+  }
+  @keyframes sc-timer {
+    from {
+      scale: 0 1;
+    }
+    to {
+      scale: 1 1;
+    }
+  }
+}

@@ -78,7 +78,8 @@ const SUPABASE_OBJECT = "/storage/v1/object/public/";
 const SUPABASE_RENDER = "/storage/v1/render/image/public/";
 
 // Supabase image transforms, or a smaller Unsplash URL. Other hosts are unchanged.
-export function imageSrc(url: string, width: number) {
+// Pass a height too for a cropped box: with a width alone Supabase keeps the full height.
+export function imageSrc(url: string, width: number, height?: number) {
   if (url.includes("images.unsplash.com")) {
     const parsed = new URL(url);
     parsed.searchParams.set("auto", "format");
@@ -94,6 +95,7 @@ export function imageSrc(url: string, width: number) {
   const rendered = base.replace(SUPABASE_OBJECT, SUPABASE_RENDER);
   const params = new URLSearchParams();
   params.set("width", String(width));
+  if (height) params.set("height", String(height));
   params.set("quality", "60");
   params.set("resize", "cover");
   return `${rendered}?${params.toString()}`;

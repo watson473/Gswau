@@ -1,7 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 
 // Browser-side events. Purchases and membership changes are recorded by the server from Gumroad.
-export type ClientEvent = "signup" | "preview_read" | "podcast_play" | "newsletter_signup";
+export type ClientEvent =
+  "signup" | "preview_read" | "podcast_play" | "newsletter_signup" | "hero_slide_tap";
 
 function anonId() {
   try {

@@ -1475,12 +1475,19 @@ function AnalyticsAdmin() {
         (
           await supabase
             .from("analytics_events")
-            .select("name")
+            .select("name, props")
             .gte("created_at", since)
             .limit(10000)
         ).data ?? [];
+      // Homepage phone taps are counted per slide: "hero slide tap: calculator", and so on.
+      const label = (r: (typeof rows)[number]) => {
+        const props = r.props as Record<string, unknown> | null;
+        return r.name === "hero_slide_tap" && typeof props?.["slide"] === "string"
+          ? `hero_slide_tap: ${props["slide"]}`
+          : r.name;
+      };
       const counts = new Map<string, number>();
-      rows.forEach((r) => counts.set(r.name, (counts.get(r.name) ?? 0) + 1));
+      rows.forEach((r) => counts.set(label(r), (counts.get(label(r)) ?? 0) + 1));
       return [...counts.entries()].sort((a, b) => b[1] - a[1]);
     },
   });

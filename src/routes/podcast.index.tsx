@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { episodesQuery } from "@/lib/catalog.functions";
 import {
+  episodeAnchor,
   formatEpisodeDate,
   podcastName,
   spotifyEpisodeId,
@@ -66,7 +67,7 @@ function Podcast() {
           {data.map((ep) => {
             const article = articleForEpisode(ep);
             return (
-              <article key={ep.id} className="flex gap-6 py-8">
+              <article key={ep.id} id={episodeAnchor(ep)} className="flex scroll-mt-24 gap-6 py-8">
                 {ep.image && !spotifyEpisodeId(ep.audioUrl) && (
                   <img
                     src={ep.image}

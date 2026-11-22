@@ -131,3 +131,8 @@ export function formatEpisodeDate(publishedAt: string | null, locale?: string) {
     timeZone: "UTC",
   });
 }
+
+// The id of an episode's row on /podcast, so a link can jump straight to it.
+export function episodeAnchor(episode: { id: string }) {
+  return `episode-${episode.id.replace(/[^A-Za-z0-9_-]/g, "")}`;
+}
