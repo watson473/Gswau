@@ -1,3 +1,4 @@
+import { addCodePostPaths } from "@/lib/blog-posts";
 import { publicClient } from "@/lib/public-client.server";
 import { isPublicSlug } from "@/lib/sitemap";
 
@@ -16,9 +17,9 @@ export async function publishedContentPaths(): Promise<string[]> {
     for (const row of posts.data ?? []) {
       if (row.slug && isPublicSlug(row.slug)) paths.push(`/blog/${row.slug}`);
     }
-    return paths;
+    return addCodePostPaths(paths);
   } catch (err) {
     console.error("[sitemap]", err);
-    return [];
+    return addCodePostPaths([]);
   }
 }

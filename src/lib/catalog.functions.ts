@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
+import { codePostBySlug, type BlogFaq } from "./blog-posts";
 import { bundleBookSlugs, bundleSlug, displayTitle } from "./display";
 import { publicClient } from "./public-client.server";
 import type { PodcastEpisode } from "./podcast";
@@ -148,7 +149,9 @@ export const getPost = createServerFn({ method: "GET" })
       .eq("slug", data.slug)
       .eq("is_published", true)
       .maybeSingle();
-    return post;
+    // A published database row wins, so these files cannot replace a live post.
+    if (post) return { ...post, faqs: [] as BlogFaq[] };
+    return codePostBySlug(data.slug);
   });
 
 // Newest first: from the show's RSS feed, or Admin > Podcast if the feed can't be read.

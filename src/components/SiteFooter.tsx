@@ -7,8 +7,8 @@ import { socialIconPaths } from "@/components/socialIcons";
 import { author } from "@/lib/catalog";
 import { socialProfiles } from "@/lib/share";
 import { podcastName } from "@/lib/podcast";
-import { subscribeNewsletter } from "@/lib/newsletter.functions";
-import { track } from "@/lib/analytics";
+import { useKitNewsletter } from "@/components/useKitNewsletter";
+import { KIT_FORM_ACTION } from "@/lib/kit-form";
 import { useT } from "@/i18n";
 
 const usefulLinks = [
@@ -49,7 +49,7 @@ function NewsletterStrip() {
   const { t } = useT();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
+  const { state, guardUrl, errorMessage, submit } = useKitNewsletter("footer");
   const field =
     "w-full rounded-full border border-gold/30 bg-white/5 px-5 py-3 text-sm text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold focus:outline-none";
 
@@ -64,25 +64,32 @@ function NewsletterStrip() {
         </div>
         {state === "done" ? (
           <p role="status" className="text-lg font-semibold text-gold">
-            {t("subscribe.done")}
+            {t("subscribe.confirm")}
           </p>
+        ) : state === "check" && guardUrl ? (
+          <div>
+            <p role="status" className="text-sm font-semibold text-gold">
+              {t("subscribe.check")}
+            </p>
+            <iframe
+              title="Security check"
+              src={guardUrl}
+              className="mt-3 h-[520px] w-full max-w-md rounded-md border border-gold/30 bg-white"
+            />
+          </div>
         ) : (
           <form
+            action={KIT_FORM_ACTION}
+            method="post"
             className="flex flex-col gap-3 sm:flex-row"
             onSubmit={async (e) => {
               e.preventDefault();
-              setState("sending");
-              try {
-                await subscribeNewsletter({ data: { email, name, source: "footer" } });
-                track("newsletter_signup", { source: "footer" });
-                setState("done");
-              } catch {
-                setState("error");
-              }
+              await submit(email, name);
             }}
           >
             <input
               type="text"
+              name="fields[first_name]"
               autoComplete="given-name"
               maxLength={100}
               value={name}
@@ -94,6 +101,7 @@ function NewsletterStrip() {
             <input
               required
               type="email"
+              name="email_address"
               autoComplete="email"
               maxLength={255}
               value={email}
@@ -109,7 +117,7 @@ function NewsletterStrip() {
         )}
         {state === "error" && (
           <p role="alert" className="text-sm text-gold lg:col-start-2">
-            {t("subscribe.error")}
+            {errorMessage ?? t("subscribe.error")}
           </p>
         )}
       </div>
