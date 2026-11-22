@@ -178,6 +178,8 @@
   "subscribe.button": "Subscribe",
   "subscribe.sending": "Subscribing…",
   "subscribe.done": "You're subscribed — thank you!",
+  "subscribe.confirm": "Success! Now check your email to confirm your subscription.",
+  "subscribe.check": "One more step. Complete the security check to finish subscribing.",
   "subscribe.error": "Something went wrong — please try again.",
   "freeForm.button": "Send it free",
   "freeForm.sending": "Sending…",

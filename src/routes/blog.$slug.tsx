@@ -1,12 +1,14 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useT } from "@/i18n";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { BlogMarkdown } from "@/components/BlogMarkdown";
 import { author } from "@/lib/catalog";
 import { postQuery, productsQuery } from "@/lib/catalog.functions";
 import { formatPostDate, imageSrc, productLinkPhrases, splitByPhrases } from "@/lib/display";
 import {
   blogPostingNode,
   breadcrumbList,
+  faqPage,
   jsonLdGraph,
   originFromMatches,
   shareMeta,
@@ -28,6 +30,8 @@ export const Route = createFileRoute("/blog/$slug")({
       loaderData.excerpt.trim() ||
       "Articles from Gs. W. Augustin on growing a barber or beauty business.";
     const path = `/blog/${loaderData.slug}`;
+    const faqs =
+      loaderData && "faqs" in loaderData && Array.isArray(loaderData.faqs) ? loaderData.faqs : [];
     return shareMeta({
       title: `${loaderData.title} — GSWAU Blog`,
       socialTitle: loaderData.title,
@@ -54,6 +58,7 @@ export const Route = createFileRoute("/blog/$slug")({
           updatedAt: loaderData.updated_at,
           image: loaderData.cover_image_url,
         }),
+        ...(faqs.length ? [faqPage(faqs, path)] : []),
       ),
     });
   },
@@ -79,7 +84,11 @@ function Post() {
           className="mt-8 w-full rounded-md object-cover"
         />
       )}
-      <PostBody body={p.body} phrases={phrases} />
+      {"body_format" in p && p.body_format === "markdown" ? (
+        <BlogMarkdown body={p.body} />
+      ) : (
+        <PostBody body={p.body} phrases={phrases} />
+      )}
       {slug === "raise-your-prices-without-losing-clients" && (
         <Link
           to="/calculator"
