@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { z } from "zod";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { author, courseOffers, formatMoney } from "@/lib/catalog";
+import { author, courseOfferNow, formatMoney } from "@/lib/catalog";
 import { formatKey, imageSrc, metaDescription } from "@/lib/display";
 import { productQuery, settingsQuery } from "@/lib/catalog.functions";
 import { track } from "@/lib/analytics";
@@ -111,7 +111,7 @@ function ProductPage() {
   const showReader = canRead && (reading || read !== undefined);
   // Courses with no price of their own come with membership and aren't sold separately.
   const membersOnly = b.access_tier === "members" && b.price_cents === 0;
-  const courseOffer = b.type === "course" ? courseOffers[b.slug] : undefined;
+  const courseOffer = b.type === "course" ? courseOfferNow(b.slug) : undefined;
   return (
     <div className="mx-auto grid max-w-5xl gap-12 px-5 py-16 md:grid-cols-[360px_1fr]">
       {showReader && (
@@ -204,7 +204,12 @@ function ProductPage() {
             <>
               <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 {b.buy_url && (
-                  <a href={b.buy_url} rel="noopener" className="btn-gold">
+                  <a
+                    href={b.buy_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-gold"
+                  >
                     {t("product.buyAudiobook", {
                       price: formatMoney(b.price_cents / 100, locale),
                     })}
@@ -235,14 +240,20 @@ function ProductPage() {
                   </Link>
                 )}
                 {courseOffer ? (
-                  <a href={courseOffer.url} rel="noopener" className="btn-ghost">
+                  <a
+                    href={courseOffer.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-ghost"
+                  >
                     {t(courseOffer.labelKey)}
                   </a>
                 ) : (
                   b.buy_url && (
                     <a
                       href={b.buy_url}
-                      rel="noopener"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className={b.access_tier === "premium" ? "btn-gold" : "btn-ghost"}
                     >
                       {t("product.buy", { price: formatMoney(b.price_cents / 100, locale) })}

@@ -1,3 +1,6 @@
+import { gumroadLink } from "@/lib/gumroad-store";
+import { showcaseConfig } from "@/lib/showcase.config";
+
 export const author = {
   name: "Gs. W. Augustin",
   bio: "Practical books made for barbers and hairstylists who want to improve their skills and make more money. Learn advanced techniques, client retention, branding, and how to run a better business.",
@@ -19,16 +22,35 @@ export const membershipPrices = { monthly: 19.99, annual: 199.99 } as const;
 // Courses that come with membership but can also be bought on their own on Gumroad, keyed by
 // course slug. The purchase unlocks only that course: the Gumroad notification is matched to the
 // course by `gumroadPermalink`, which must also be set as the course's Gumroad permalink in Admin.
-export const courseOffers: Record<
-  string,
-  { gumroadPermalink: string; url: string; labelKey: "product.priceShiftCourseBuy" }
-> = {
+// Until `foundingEndsAt` the button carries the founding discount code; after it, the plain link.
+export type CourseOffer = {
+  gumroadPermalink: string;
+  foundingCode: string;
+  foundingEndsAt: string;
+  foundingLabelKey: "product.priceShiftCourseBuy";
+  labelKey: "product.priceShiftCourseBuyRegular";
+};
+
+export const courseOffers: Record<string, CourseOffer> = {
   "the-price-shift-course": {
     gumroadPermalink: "vlepqs",
-    url: "https://gswau.gumroad.com/l/vlepqs",
-    labelKey: "product.priceShiftCourseBuy",
+    foundingCode: "FOUNDING47",
+    // Same end as the homepage founding-price slide: end of Nov 26, Nassau time.
+    foundingEndsAt: showcaseConfig.priceShiftEndsAt,
+    foundingLabelKey: "product.priceShiftCourseBuy",
+    labelKey: "product.priceShiftCourseBuyRegular",
   },
 };
+
+/** The course's buy link and button text right now, or undefined if it isn't sold on its own. */
+export function courseOfferNow(slug: string, now = Date.now()) {
+  const offer = courseOffers[slug];
+  if (!offer) return undefined;
+  const base = gumroadLink(offer.gumroadPermalink);
+  return now < new Date(offer.foundingEndsAt).getTime()
+    ? { url: `${base}/${offer.foundingCode}`, labelKey: offer.foundingLabelKey }
+    : { url: base, labelKey: offer.labelKey };
+}
 
 export const formatMoney = (amount: number, locale = "en") =>
   new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(amount);

@@ -8,7 +8,7 @@ const titleBySlug: Record<string, string> = {
   "the-barbers-toolkit": "The Barber's Toolkit",
 };
 
-// The five books named on the Gumroad bundle page (gswau.gumroad.com/l/tvmee).
+// The five books named on the Gumroad bundle page (Gumroad code tvmee).
 // Used only when the bundle has no rows in bundle_items.
 export const bundleBookSlugs = [
   "booked-and-busy",

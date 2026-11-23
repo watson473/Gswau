@@ -2,12 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatMoney, formatPlanAmount, membershipPrices } from "@/lib/catalog";
 import { settingsQuery } from "@/lib/catalog.functions";
+import { gumroadLink } from "@/lib/gumroad-store";
 import { useAuth } from "@/hooks/useAuth";
 import { useT } from "@/i18n";
 
 // Dedicated yearly Gumroad product (defaults to yearly). Confirmed against Gumroad on 15 Nov 2026.
 // Monthly still uses the membership link from Admin > Settings.
-export const annualCheckoutUrl = "https://gswau.gumroad.com/l/fhqrks";
+export const annualCheckoutUrl = gumroadLink("fhqrks");
 
 // Monthly vs annual membership, annual highlighted. Monthly checkout comes from Admin > Settings.
 export function PricingPlans() {
@@ -71,7 +72,12 @@ export function PricingPlans() {
                 {t("pricing.openLibrary")}
               </Link>
             ) : p.url ? (
-              <a href={p.url} className="btn-gold mt-6 w-full" rel="noopener">
+              <a
+                href={p.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-gold mt-6 w-full"
+              >
                 {t("pricing.join", { plan: p.name })}
               </a>
             ) : (

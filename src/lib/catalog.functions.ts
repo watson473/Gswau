@@ -3,6 +3,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { codePostBySlug, type BlogFaq } from "./blog-posts";
 import { bundleBookSlugs, bundleSlug, displayTitle } from "./display";
+import { onStore } from "./gumroad-store";
 import { publicClient } from "./public-client.server";
 import type { PodcastEpisode } from "./podcast";
 
@@ -23,6 +24,7 @@ export const listProducts = createServerFn({ method: "GET" }).handler(async () =
   return data.map((p) => ({
     ...p,
     title: displayTitle(p.slug, p.title),
+    buy_url: onStore(p.buy_url),
     rating_average: byProduct.get(p.id)?.average ?? null,
     review_count: byProduct.get(p.id)?.review_count ?? 0,
   }));
@@ -94,7 +96,11 @@ export const getProduct = createServerFn({ method: "GET" })
         .filter((row) => row !== null);
     }
     return {
-      product: { ...product, title: displayTitle(product.slug, product.title) },
+      product: {
+        ...product,
+        title: displayTitle(product.slug, product.title),
+        buy_url: onStore(product.buy_url),
+      },
       modules: modules ?? [],
       outline: outline ?? [],
       bundle: books,
@@ -194,8 +200,8 @@ export const getSettings = createServerFn({ method: "GET" }).handler(async () =>
   const { data } = await publicClient().from("site_settings").select("key,value");
   const map = Object.fromEntries((data ?? []).map((r) => [r.key, r.value]));
   return {
-    monthlyUrl: map["membership_monthly_url"] ?? "",
-    annualUrl: map["membership_annual_url"] ?? "",
+    monthlyUrl: onStore(map["membership_monthly_url"] ?? ""),
+    annualUrl: onStore(map["membership_annual_url"] ?? ""),
     previewPages: Number(map["preview_pages"] ?? 10) || 10,
     // Product id -> page count, for books that can be read as a flip book.
     flipbooks: parseFlipbooks(map["flipbooks"]),

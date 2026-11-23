@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
 import {
+  gumroadCode,
   interpretGumroad,
   isMembershipProduct,
   parseGumroadBody,
@@ -27,6 +28,23 @@ describe("interpreting Gumroad notifications", () => {
     expect(info.event).toEqual({ kind: "purchase", saleId: "S1" });
     expect(info.permalink).toBe("vlepqs");
     expect(info.subscriptionId).toBeNull();
+  });
+
+  it("matches a sale from the new store address on its unchanged code", () => {
+    const fromNew = interpretGumroad(
+      "sale",
+      sale({
+        permalink: "",
+        product_permalink: "https://mawgroupofcompanies.gumroad.com/l/vlepqs",
+      }),
+    );
+    expect(fromNew.permalink).toBe("vlepqs");
+    expect(gumroadCode("https://gswau.gumroad.com/l/hapsir")).toBe("hapsir");
+    expect(gumroadCode("https://mawgroupofcompanies.gumroad.com/l/vlepqs/FOUNDING47")).toBe(
+      "vlepqs",
+    );
+    expect(gumroadCode("qegay")).toBe("qegay");
+    expect(gumroadCode("")).toBeNull();
   });
 
   it("treats a one-off sale as a purchase", () => {

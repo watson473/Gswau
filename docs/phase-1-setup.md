@@ -5,7 +5,7 @@
 Run `drizzle/migrations/0002_phase1_membership.sql` once in Supabase → SQL Editor.
 
 It converts every product to an access tier (the free chapter becomes **Free**, everything else
-**Members**), switches buy links to `gswau.gumroad.com`, and adds memberships, purchase-by-email,
+**Members**), switches buy links to the Gumroad store (its address now lives in `src/lib/gumroad-store.ts`), and adds memberships, purchase-by-email,
 the Gumroad notification log, settings, analytics and the public `previews` bucket.
 
 ## 2. Hosting (Vercel)
@@ -42,9 +42,9 @@ Every branch gets its own preview address on Vercel, so payments can be tested b
 ## 3. Gumroad
 
 1. Create one **Membership** product with two prices: Monthly $19.99 and Yearly $199.99
-   (done: `gswau.gumroad.com/l/membership`). Publish it before the first test purchase.
+   (done: `mawgroupofcompanies.gumroad.com/l/membership`). Publish it before the first test purchase.
 2. Admin → Settings:
-   - Monthly and annual checkout links: `https://gswau.gumroad.com/l/membership`
+   - Monthly and annual checkout links: `https://mawgroupofcompanies.gumroad.com/l/membership`
      (buyers choose Monthly or Yearly on Gumroad's page)
    - Membership short link: `membership`
 3. Admin → Gumroad: check all three server settings show ✓, then click

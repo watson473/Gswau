@@ -28,6 +28,18 @@ export type GumroadEventInfo = {
 
 const truthy = (v: string | undefined) => v === "true" || v === "1";
 
+/**
+ * A product's short Gumroad code ("vlepqs") from either the code itself or its full link on any
+ * store address ("https://….gumroad.com/l/vlepqs"). Sales are matched on the code, so they keep
+ * unlocking when the store address changes.
+ */
+export function gumroadCode(value: string | null | undefined): string | null {
+  const v = (value ?? "").trim();
+  if (!v) return null;
+  const m = v.match(/\/l\/([^/?#]+)/);
+  return m ? m[1]! : v;
+}
+
 export function parseGumroadBody(body: string): GumroadFields {
   const out: GumroadFields = {};
   new URLSearchParams(body).forEach((value, key) => {
@@ -41,7 +53,7 @@ export function interpretGumroad(resource: string, f: GumroadFields): GumroadEve
   const subscriptionId = f["subscription_id"] || null;
   const email =
     (f["email"] || f["user_email"] || f["purchaser_email"] || "").trim().toLowerCase() || null;
-  const permalink = f["permalink"] || f["product_permalink"] || null;
+  const permalink = gumroadCode(f["permalink"]) ?? gumroadCode(f["product_permalink"]);
   const timestamp =
     f["ended_at"] ||
     f["cancelled_at"] ||

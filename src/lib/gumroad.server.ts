@@ -3,6 +3,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import type { Json } from "@/integrations/supabase/types";
 import {
+  gumroadCode,
   interpretGumroad,
   isMembershipProduct,
   membershipList,
@@ -121,7 +122,7 @@ async function record(
 
 async function grantPurchase(sale: Sale, source: "gumroad" | "import") {
   const email = (sale.email ?? sale.purchase_email ?? "").toLowerCase();
-  const permalink = sale.product_permalink ?? sale.permalink ?? null;
+  const permalink = gumroadCode(sale.permalink) ?? gumroadCode(sale.product_permalink);
   const product = await findProduct(sale.product_id ?? null, permalink);
   if (!email) return "no email on sale";
   if (!product) return `no product matches Gumroad ${sale.product_id ?? permalink}`;
