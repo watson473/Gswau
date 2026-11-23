@@ -143,7 +143,10 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
     .select("id,slug,title,excerpt,cover_image_url,published_at")
     .eq("is_published", true)
     .order("published_at", { ascending: false });
-  return data ?? [];
+  return (data ?? []).map((post) => {
+    const upgrade = upgradedLiveBySlug(post.slug);
+    return upgrade ? { ...post, cover_image_url: upgrade.cover_image_url } : post;
+  });
 });
 
 export const getPost = createServerFn({ method: "GET" })
@@ -164,6 +167,7 @@ export const getPost = createServerFn({ method: "GET" })
         excerpt: upgrade.excerpt,
         body: upgrade.body,
         body_format: upgrade.body_format,
+        cover_image_url: upgrade.cover_image_url,
         updated_at: upgrade.updated_at,
         faqs: upgrade.faqs,
       };
@@ -178,7 +182,7 @@ export const getPost = createServerFn({ method: "GET" })
       title: upgrade.title,
       excerpt: upgrade.excerpt,
       body: upgrade.body,
-      cover_image_url: null,
+      cover_image_url: upgrade.cover_image_url,
       is_published: true as const,
       published_at: "2026-10-28T01:34:26.616Z",
       created_at: "2026-10-28T01:34:26.616Z",

@@ -106,12 +106,18 @@ export function codePostBySlug(slug: string) {
 export const UPGRADED_LIVE_SLUG = "booth-rent-or-commission";
 export const upgradedLiveUpdatedAt = "2026-11-23T00:00:00.000Z";
 
+// Unsplash photo of a barber shaping a fade, long sleeves, no visible tattoos.
+// License: https://unsplash.com/license
+export const upgradedLiveCover =
+  "https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?w=1200&q=80&auto=format&fit=crop";
+
 export const upgradedLivePost = {
   slug: UPGRADED_LIVE_SLUG,
   title: "Booth Rent or Commission: Which Pays You More?",
   excerpt:
     "Ten years of published U.S. barber wages, a 2026 booth-rent snapshot, and a labeled example of commission versus chair rent.",
   body: boothRentBody.trim(),
+  cover_image_url: upgradedLiveCover,
   body_format: "markdown" as const,
   updated_at: upgradedLiveUpdatedAt,
   faqs: faqsFromMarkdown(boothRentBody),
@@ -137,7 +143,12 @@ export type MergedPost = ListedPost & { kicker?: string };
 function withLiveUpgrade(post: ListedPost): MergedPost {
   const upgrade = upgradedLiveBySlug(post.slug);
   if (!upgrade) return post;
-  return { ...post, title: upgrade.title, excerpt: upgrade.excerpt };
+  return {
+    ...post,
+    title: upgrade.title,
+    excerpt: upgrade.excerpt,
+    cover_image_url: upgrade.cover_image_url,
+  };
 }
 
 // Lead post first, then newest published_at. Database rows are kept, except the
@@ -154,7 +165,7 @@ export function mergePublishedPosts(dbPosts: ListedPost[]): MergedPost[] {
             slug: UPGRADED_LIVE_SLUG,
             title: upgradedLivePost.title,
             excerpt: upgradedLivePost.excerpt,
-            cover_image_url: null,
+            cover_image_url: upgradedLivePost.cover_image_url,
             published_at: "2026-10-28T01:34:26.616Z",
           },
         ]),

@@ -283,7 +283,8 @@ Wage and employment figures are the national OEWS estimates for barbers, SOC 39-
 - What the survey counts, including commissions, tips, and who is left out: [OEWS technical note, May 2025](https://www.bls.gov/news.release/ocwage.tn.htm)
 - Booth-rent asking prices: [Salon Renter, barber booth rent, listings pulled 2 November 2026](https://salonrenter.com/barber-booth-rent/)
 $t$,
-'https://images.unsplash.com/photo-1759134198561-e2041049419c?w=1200&q=80&auto=format&fit=crop',
+-- Cover: Unsplash photo-1593702275687-f8b402bf1fb5. A barber shaping a fade in a white long-sleeve shirt. No tattoos are visible. Unsplash License, https://unsplash.com/license
+'https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?w=1200&q=80&auto=format&fit=crop',
 true, now() - interval '5 minutes'
 ),
 (

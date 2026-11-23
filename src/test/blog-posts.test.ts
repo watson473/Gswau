@@ -166,7 +166,22 @@ describe("booth rent explainer", () => {
       "2026-10-28T01:34:26.616Z",
     );
     expect(merged.find((post) => post.slug === UPGRADED_LIVE_SLUG)?.cover_image_url).toBe(
-      "https://example.com/cover.jpg",
+      upgradedLivePost.cover_image_url,
+    );
+    expect(upgradedLivePost.cover_image_url).toContain("photo-1593702275687-f8b402bf1fb5");
+    expect(upgradedLivePost.cover_image_url).not.toContain("1759134198561");
+    const kept = mergePublishedPosts([
+      {
+        id: "other",
+        slug: "rebook-at-the-chair",
+        title: "Rebooking",
+        excerpt: "old",
+        cover_image_url: "https://example.com/other.jpg",
+        published_at: "2026-10-28T01:30:00.000Z",
+      },
+    ]);
+    expect(kept.find((post) => post.slug === "rebook-at-the-chair")?.cover_image_url).toBe(
+      "https://example.com/other.jpg",
     );
   });
 
