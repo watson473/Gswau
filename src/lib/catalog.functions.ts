@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
-import { codePostBySlug, type BlogFaq } from "./blog-posts";
+import { codePostBySlug, upgradedLiveBySlug, type BlogFaq } from "./blog-posts";
 import { bundleBookSlugs, bundleSlug, displayTitle } from "./display";
 import { onStore } from "./gumroad-store";
 import { publicClient } from "./public-client.server";
@@ -143,7 +143,10 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
     .select("id,slug,title,excerpt,cover_image_url,published_at")
     .eq("is_published", true)
     .order("published_at", { ascending: false });
-  return data ?? [];
+  return (data ?? []).map((post) => {
+    const upgrade = upgradedLiveBySlug(post.slug);
+    return upgrade ? { ...post, cover_image_url: upgrade.cover_image_url } : post;
+  });
 });
 
 export const getPost = createServerFn({ method: "GET" })
@@ -155,9 +158,38 @@ export const getPost = createServerFn({ method: "GET" })
       .eq("slug", data.slug)
       .eq("is_published", true)
       .maybeSingle();
-    // A published database row wins, so these files cannot replace a live post.
+    // A published database row wins, except the booth-rent post upgraded in this repo.
+    const upgrade = upgradedLiveBySlug(data.slug);
+    if (post && upgrade) {
+      return {
+        ...post,
+        title: upgrade.title,
+        excerpt: upgrade.excerpt,
+        body: upgrade.body,
+        body_format: upgrade.body_format,
+        cover_image_url: upgrade.cover_image_url,
+        updated_at: upgrade.updated_at,
+        faqs: upgrade.faqs,
+      };
+    }
     if (post) return { ...post, faqs: [] as BlogFaq[] };
-    return codePostBySlug(data.slug);
+    const code = codePostBySlug(data.slug);
+    if (code) return code;
+    if (!upgrade) return null;
+    return {
+      id: `code-${upgrade.slug}`,
+      slug: upgrade.slug,
+      title: upgrade.title,
+      excerpt: upgrade.excerpt,
+      body: upgrade.body,
+      cover_image_url: upgrade.cover_image_url,
+      is_published: true as const,
+      published_at: "2026-10-28T01:34:26.616Z",
+      created_at: "2026-10-28T01:34:26.616Z",
+      updated_at: upgrade.updated_at,
+      body_format: upgrade.body_format,
+      faqs: upgrade.faqs,
+    };
   });
 
 // Newest first: from the show's RSS feed, or Admin > Podcast if the feed can't be read.
