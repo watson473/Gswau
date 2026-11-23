@@ -1,3 +1,4 @@
+import boothRentBody from "@/content/blog/booth-rent-or-commission.md?raw";
 import episodeBody from "@/content/blog/clippers-and-shears-ep-1-your-price-is-a-message.md?raw";
 import priceBody from "@/content/blog/how-to-price-a-haircut.md?raw";
 import consultBody from "@/content/blog/how-to-talk-to-barber-clients.md?raw";
@@ -100,6 +101,26 @@ export function codePostBySlug(slug: string) {
   return bySlug.get(slug) ?? null;
 }
 
+// The live booth-rent post keeps its slug. This copy replaces the public body and
+// description. The original published date stays on the database row.
+export const UPGRADED_LIVE_SLUG = "booth-rent-or-commission";
+export const upgradedLiveUpdatedAt = "2026-11-23T00:00:00.000Z";
+
+export const upgradedLivePost = {
+  slug: UPGRADED_LIVE_SLUG,
+  title: "Booth Rent or Commission: Which Pays You More?",
+  excerpt:
+    "Ten years of published U.S. barber wages, a 2026 booth-rent snapshot, and a labeled example of commission versus chair rent.",
+  body: boothRentBody.trim(),
+  body_format: "markdown" as const,
+  updated_at: upgradedLiveUpdatedAt,
+  faqs: faqsFromMarkdown(boothRentBody),
+};
+
+export function upgradedLiveBySlug(slug: string) {
+  return slug === upgradedLivePost.slug ? upgradedLivePost : null;
+}
+
 export const codeBlogSlugs = codeBlogPosts.map((post) => post.slug);
 
 type ListedPost = {
@@ -113,11 +134,30 @@ type ListedPost = {
 
 export type MergedPost = ListedPost & { kicker?: string };
 
-// Lead post first, then newest published_at. Database rows are never replaced.
+function withLiveUpgrade(post: ListedPost): MergedPost {
+  const upgrade = upgradedLiveBySlug(post.slug);
+  if (!upgrade) return post;
+  return { ...post, title: upgrade.title, excerpt: upgrade.excerpt };
+}
+
+// Lead post first, then newest published_at. Database rows are kept, except the
+// booth-rent post, whose title and description come from the upgraded copy.
 export function mergePublishedPosts(dbPosts: ListedPost[]): MergedPost[] {
   const seen = new Set(dbPosts.map((post) => post.slug));
   const merged: MergedPost[] = [
-    ...dbPosts,
+    ...dbPosts.map(withLiveUpgrade),
+    ...(seen.has(UPGRADED_LIVE_SLUG)
+      ? []
+      : [
+          {
+            id: `code-${UPGRADED_LIVE_SLUG}`,
+            slug: UPGRADED_LIVE_SLUG,
+            title: upgradedLivePost.title,
+            excerpt: upgradedLivePost.excerpt,
+            cover_image_url: null,
+            published_at: "2026-10-28T01:34:26.616Z",
+          },
+        ]),
     ...codeBlogPosts
       .filter((post) => !seen.has(post.slug))
       .map((post) => ({
