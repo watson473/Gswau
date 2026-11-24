@@ -1,6 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { ArrowRight, ChevronRight, GraduationCap, Headphones, Mic, Newspaper } from "lucide-react";
+import {
+  ArrowRight,
+  ChevronRight,
+  GraduationCap,
+  Headphones,
+  Mic,
+  Newspaper,
+  Video,
+} from "lucide-react";
 import { author, bookCount } from "@/lib/catalog";
 import {
   episodesQuery,
@@ -18,10 +26,13 @@ import { HeroNewsletter } from "@/components/HeroNewsletter";
 import { HeroShowcase } from "@/components/HeroShowcase";
 import { LatestPodcasts } from "@/components/LatestPodcasts";
 import { LatestPosts } from "@/components/LatestPosts";
+import { NewRibbon } from "@/components/NewRibbon";
 import { PricingPlans } from "@/components/Pricing";
 import { Slider } from "@/components/Slider";
 import { createTranslator, defaultLocale, useT } from "@/i18n";
+import { isNewlyPublished, NEW_WINDOW_DAYS } from "@/lib/new-drop";
 import { originFromMatches, shareMeta } from "@/lib/share";
+import { VIDEOS_TAB_LAUNCHED_AT } from "@/lib/videos";
 
 const t0 = createTranslator(defaultLocale);
 
@@ -324,10 +335,14 @@ function TrustStrip({ stats }: { stats: { key: string; count: number }[] }) {
 
 function ResourcesAndNewest({ newest }: { newest: Product[] }) {
   const { t } = useT();
+  const { data: episodes } = useSuspenseQuery(episodesQuery);
+  const podcastIsNew = isNewlyPublished(episodes[0]?.publishedAt);
+  const videosTabIsNew = isNewlyPublished(VIDEOS_TAB_LAUNCHED_AT);
   const resources = [
     { to: "/library", key: "home.resources.audiobooks", Icon: Headphones },
     { to: "/courses", key: "home.resources.courses", Icon: GraduationCap },
     { to: "/podcast", key: "home.resources.podcast", Icon: Mic },
+    { to: "/videos", key: "home.resources.videos", Icon: Video },
     { to: "/blog", key: "home.resources.blog", Icon: Newspaper },
   ] as const;
   return (
@@ -347,7 +362,13 @@ function ResourcesAndNewest({ newest }: { newest: Product[] }) {
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-gold ring-1 ring-gold/40 transition group-hover:bg-gold group-hover:text-navy-deep">
                     <Icon className="h-[18px] w-[18px]" aria-hidden="true" />
                   </span>
-                  <span className="flex-1">{t(key)}</span>
+                  <span className="flex min-w-0 flex-1 flex-col items-start gap-1">
+                    {to === "/videos" && videosTabIsNew && (
+                      <NewRibbon hint={t("badge.new.tab", { days: NEW_WINDOW_DAYS })} />
+                    )}
+                    {to === "/podcast" && podcastIsNew && <NewRibbon />}
+                    <span className="whitespace-nowrap">{t(key)}</span>
+                  </span>
                   <ChevronRight
                     className="h-4 w-4 text-gold/70 transition-transform group-hover:translate-x-1"
                     aria-hidden="true"
