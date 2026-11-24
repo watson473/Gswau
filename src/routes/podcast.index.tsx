@@ -13,6 +13,8 @@ import { articleForEpisode, raiseYourPricesArticle } from "@/lib/podcast-article
 import { useT } from "@/i18n";
 import { Eyebrow } from "@/components/SiteChrome";
 import { EpisodePlayer } from "@/components/EpisodePlayer";
+import { NewBadge } from "@/components/NewBadge";
+import { isNewlyPublished } from "@/lib/new-drop";
 import { originFromMatches, podcastIndexJsonLd, shareMeta } from "@/lib/share";
 
 export const Route = createFileRoute("/podcast/")({
@@ -85,7 +87,7 @@ function Podcast() {
                       .filter(Boolean)
                       .join(" · ")}
                   </div>
-                  <h2 className="mt-1 text-2xl font-semibold">
+                  <h2 className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-2xl font-semibold">
                     {article ? (
                       <Link
                         to="/podcast/$slug"
@@ -95,8 +97,9 @@ function Podcast() {
                         {ep.title}
                       </Link>
                     ) : (
-                      ep.title
+                      <span>{ep.title}</span>
                     )}
+                    {isNewlyPublished(ep.publishedAt) && <NewBadge />}
                   </h2>
                   {ep.description && (
                     <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">

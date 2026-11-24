@@ -35,6 +35,7 @@ import { Route as LibraryIndexRouteImport } from './routes/library.index'
 import { Route as LibrarySlugRouteImport } from './routes/library.$slug'
 import { Route as PodcastIndexRouteImport } from './routes/podcast.index'
 import { Route as PodcastSlugRouteImport } from './routes/podcast.$slug'
+import { Route as VideosIndexRouteImport } from './routes/videos.index'
 import { Route as AuthenticatedAccountReviewRouteImport } from './routes/_authenticated/account.review'
 import { Route as AuthenticatedLearnSlugRouteImport } from './routes/_authenticated/learn.$slug'
 import { Route as ApiGumroadSecretRouteImport } from './routes/api/gumroad.$secret'
@@ -168,6 +169,11 @@ const PodcastSlugRoute = PodcastSlugRouteImport.update({
   path: '/podcast/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VideosIndexRoute = VideosIndexRouteImport.update({
+  id: '/videos/',
+  path: '/videos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAccountReviewRoute =
   AuthenticatedAccountReviewRouteImport.update({
     id: '/review',
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/courses/': typeof CoursesIndexRoute
   '/library/': typeof LibraryIndexRoute
   '/podcast/': typeof PodcastIndexRoute
+  '/videos/': typeof VideosIndexRoute
   '/account/review': typeof AuthenticatedAccountReviewRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
   '/api/gumroad/$secret': typeof ApiGumroadSecretRoute
@@ -241,6 +248,7 @@ export interface FileRoutesByTo {
   '/courses': typeof CoursesIndexRoute
   '/library': typeof LibraryIndexRoute
   '/podcast': typeof PodcastIndexRoute
+  '/videos': typeof VideosIndexRoute
   '/account/review': typeof AuthenticatedAccountReviewRoute
   '/learn/$slug': typeof AuthenticatedLearnSlugRoute
   '/api/gumroad/$secret': typeof ApiGumroadSecretRoute
@@ -273,6 +281,7 @@ export interface FileRoutesById {
   '/courses/': typeof CoursesIndexRoute
   '/library/': typeof LibraryIndexRoute
   '/podcast/': typeof PodcastIndexRoute
+  '/videos/': typeof VideosIndexRoute
   '/_authenticated/account/review': typeof AuthenticatedAccountReviewRoute
   '/_authenticated/learn/$slug': typeof AuthenticatedLearnSlugRoute
   '/api/gumroad/$secret': typeof ApiGumroadSecretRoute
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
     | '/courses/'
     | '/library/'
     | '/podcast/'
+    | '/videos/'
     | '/account/review'
     | '/learn/$slug'
     | '/api/gumroad/$secret'
@@ -335,6 +345,7 @@ export interface FileRouteTypes {
     | '/courses'
     | '/library'
     | '/podcast'
+    | '/videos'
     | '/account/review'
     | '/learn/$slug'
     | '/api/gumroad/$secret'
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/courses/'
     | '/library/'
     | '/podcast/'
+    | '/videos/'
     | '/_authenticated/account/review'
     | '/_authenticated/learn/$slug'
     | '/api/gumroad/$secret'
@@ -395,6 +407,7 @@ export interface RootRouteChildren {
   CoursesIndexRoute: typeof CoursesIndexRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   PodcastIndexRoute: typeof PodcastIndexRoute
+  VideosIndexRoute: typeof VideosIndexRoute
   ApiGumroadSecretRoute: typeof ApiGumroadSecretRoute
 }
 
@@ -582,6 +595,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PodcastSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/videos/': {
+      id: '/videos/'
+      path: '/videos'
+      fullPath: '/videos/'
+      preLoaderRoute: typeof VideosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/account/review': {
       id: '/_authenticated/account/review'
       path: '/review'
@@ -658,6 +678,7 @@ const rootRouteChildren: RootRouteChildren = {
   CoursesIndexRoute: CoursesIndexRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   PodcastIndexRoute: PodcastIndexRoute,
+  VideosIndexRoute: VideosIndexRoute,
   ApiGumroadSecretRoute: ApiGumroadSecretRoute,
 }
 export const routeTree = rootRouteImport

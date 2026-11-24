@@ -32,6 +32,7 @@ import { Route as PrivacyRoute } from "@/routes/privacy";
 import { Route as ProgramsRoute } from "@/routes/programs";
 import { Route as RefundsRoute } from "@/routes/refunds";
 import { Route as TermsRoute } from "@/routes/terms";
+import { Route as VideosRoute } from "@/routes/videos.index";
 
 type HeadResult = {
   meta?: readonly object[];
@@ -323,6 +324,7 @@ describe("Public pages", () => {
     { path: "/pricing", head: PricingRoute.options.head as HeadFn },
     { path: "/calculator", head: CalculatorRoute.options.head as HeadFn },
     { path: "/podcast", head: PodcastIndexRoute.options.head as HeadFn },
+    { path: "/videos", head: VideosRoute.options.head as HeadFn },
     {
       path: `/podcast/${raiseYourPricesArticle.slug}`,
       head: PodcastRoute.options.head as HeadFn,

@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { EpisodePlayer } from "@/components/EpisodePlayer";
 import { GoldText } from "@/components/GoldText";
+import { NewBadge } from "@/components/NewBadge";
 import {
   formatEpisodeDate,
   podcastName,
   spotifyShowEmbedUrl,
   type PodcastEpisode,
 } from "@/lib/podcast";
+import { isNewlyPublished } from "@/lib/new-drop";
 import { useT } from "@/i18n";
 
 // Homepage "Latest Podcasts": a big player (the newest episode to start with) and the other
@@ -38,8 +40,9 @@ export function LatestPodcasts({ episodes }: { episodes: PodcastEpisode[] }) {
                 <div className="eyebrow text-gold">
                   {current === episodes[0] ? t("home.podcast.newest") : t("home.podcast.playing")}
                 </div>
-                <h3 className="mt-2 text-2xl font-semibold leading-snug sm:text-3xl">
-                  {current.title}
+                <h3 className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-2xl font-semibold leading-snug sm:text-3xl">
+                  <span>{current.title}</span>
+                  {isNewlyPublished(current.publishedAt) && <NewBadge />}
                 </h3>
                 <p className="mt-1 text-sm text-primary-foreground/60">{meta(current)}</p>
                 <EpisodePlayer
@@ -87,8 +90,11 @@ export function LatestPodcasts({ episodes }: { episodes: PodcastEpisode[] }) {
                         <span className="h-16 w-16 shrink-0 rounded-md bg-white/5 ring-1 ring-gold/20" />
                       )}
                       <span className="min-w-0 flex-1">
-                        <span className="line-clamp-2 font-semibold leading-snug group-hover:text-gold">
-                          {e.title}
+                        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="line-clamp-2 font-semibold leading-snug group-hover:text-gold">
+                            {e.title}
+                          </span>
+                          {isNewlyPublished(e.publishedAt) && <NewBadge />}
                         </span>
                         <span className="mt-1 block text-xs text-primary-foreground/60">
                           {meta(e)}
