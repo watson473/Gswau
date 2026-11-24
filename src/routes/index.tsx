@@ -26,7 +26,6 @@ import { HeroNewsletter } from "@/components/HeroNewsletter";
 import { HeroShowcase } from "@/components/HeroShowcase";
 import { LatestPodcasts } from "@/components/LatestPodcasts";
 import { LatestPosts } from "@/components/LatestPosts";
-import { NewBadge } from "@/components/NewBadge";
 import { NewRibbon } from "@/components/NewRibbon";
 import { PricingPlans } from "@/components/Pricing";
 import { Slider } from "@/components/Slider";
@@ -337,7 +336,7 @@ function TrustStrip({ stats }: { stats: { key: string; count: number }[] }) {
 function ResourcesAndNewest({ newest }: { newest: Product[] }) {
   const { t } = useT();
   const { data: episodes } = useSuspenseQuery(episodesQuery);
-  const podcastIsNew = episodes.some((episode) => isNewlyPublished(episode.publishedAt));
+  const podcastIsNew = isNewlyPublished(episodes[0]?.publishedAt);
   const videosTabIsNew = isNewlyPublished(VIDEOS_TAB_LAUNCHED_AT);
   const resources = [
     { to: "/library", key: "home.resources.audiobooks", Icon: Headphones },
@@ -367,10 +366,8 @@ function ResourcesAndNewest({ newest }: { newest: Product[] }) {
                     {to === "/videos" && videosTabIsNew && (
                       <NewRibbon hint={t("badge.new.tab", { days: NEW_WINDOW_DAYS })} />
                     )}
-                    <span className="inline-flex items-center gap-2">
-                      {t(key)}
-                      {to === "/podcast" && podcastIsNew && <NewBadge />}
-                    </span>
+                    {to === "/podcast" && podcastIsNew && <NewRibbon />}
+                    <span className="whitespace-nowrap">{t(key)}</span>
                   </span>
                   <ChevronRight
                     className="h-4 w-4 text-gold/70 transition-transform group-hover:translate-x-1"
