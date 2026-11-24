@@ -1,3 +1,4 @@
+import { useState, type ReactNode } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { author } from "@/lib/catalog";
@@ -6,6 +7,7 @@ import { pageMeta } from "@/lib/share";
 import { videosQuery } from "@/lib/youtube.functions";
 import {
   youtubeChannelUrl,
+  youtubeEmbedUrl,
   youtubeThumbnailUrl,
   youtubeWatchUrl,
   type YoutubeVideo,
@@ -97,53 +99,117 @@ function VideoList({ videos }: { videos: YoutubeVideo[] }) {
 
 function BigCard({ video, featured = false }: { video: YoutubeVideo; featured?: boolean }) {
   return (
-    <a
-      href={youtubeWatchUrl(video.id)}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group block"
-    >
-      <img
-        src={youtubeThumbnailUrl(video.id)}
-        alt=""
-        width={1280}
-        height={720}
-        loading="lazy"
-        decoding="async"
-        className="aspect-video w-full object-cover"
-      />
+    <VideoCard video={video}>
       <h2
-        className={`mt-4 font-sans font-bold leading-snug text-white group-hover:text-gold ${
+        className={`mt-4 font-sans font-bold leading-snug text-white ${
           featured ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl"
         }`}
       >
         <Title video={video} />
       </h2>
-    </a>
+    </VideoCard>
   );
 }
 
 function SmallCard({ video }: { video: YoutubeVideo }) {
   return (
-    <a
-      href={youtubeWatchUrl(video.id)}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4"
-    >
-      <img
-        src={youtubeThumbnailUrl(video.id)}
-        alt=""
-        width={320}
-        height={180}
-        loading="lazy"
-        decoding="async"
-        className="aspect-video w-full object-cover sm:w-40 sm:shrink-0"
-      />
-      <h2 className="min-w-0 font-sans text-base font-bold leading-snug text-white group-hover:text-gold sm:text-lg">
+    <VideoCard video={video} compact>
+      <h2 className="min-w-0 font-sans text-base font-bold leading-snug text-white sm:text-lg">
         <Title video={video} />
       </h2>
-    </a>
+    </VideoCard>
+  );
+}
+
+// Thumbnail is a facade. The iframe is created only after Watch here or the picture is clicked.
+function VideoCard({
+  video,
+  compact = false,
+  children,
+}: {
+  video: YoutubeVideo;
+  compact?: boolean;
+  children: ReactNode;
+}) {
+  const [playing, setPlaying] = useState(false);
+  const embed = youtubeEmbedUrl(video.id);
+  const play = () => {
+    if (embed) setPlaying(true);
+  };
+  const media = (
+    <div
+      className={`relative aspect-video ${compact && !playing ? "w-full sm:w-40 sm:shrink-0" : "w-full"}`}
+    >
+      {playing && embed ? (
+        <iframe
+          title={video.title}
+          src={embed}
+          className="absolute inset-0 h-full w-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={play}
+          className="group absolute inset-0"
+          aria-label={`Watch here: ${video.title}`}
+        >
+          <img
+            src={youtubeThumbnailUrl(video.id)}
+            alt=""
+            width={compact ? 320 : 1280}
+            height={compact ? 180 : 720}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover"
+          />
+          <span className="absolute inset-0 grid place-items-center">
+            <span className="grid h-14 w-14 place-items-center rounded-full bg-gold-gradient text-navy-deep shadow-lg transition group-hover:brightness-110">
+              <svg viewBox="0 0 24 24" className="ml-0.5 h-6 w-6" aria-hidden="true">
+                <path d="M8 5v14l11-7z" fill="currentColor" />
+              </svg>
+            </span>
+          </span>
+        </button>
+      )}
+    </div>
+  );
+  const actions = (
+    <div className="mt-4 flex flex-wrap gap-3">
+      <button type="button" onClick={play} className="btn-gold !rounded-full !px-4 !py-2 text-sm">
+        Watch here
+      </button>
+      <a
+        href={youtubeWatchUrl(video.id)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn-ghost !rounded-full !px-4 !py-2 text-sm"
+      >
+        Watch on YouTube
+      </a>
+    </div>
+  );
+
+  if (compact && !playing) {
+    return (
+      <article className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+        {media}
+        <div className="min-w-0 flex-1">
+          {children}
+          {actions}
+        </div>
+      </article>
+    );
+  }
+
+  return (
+    <article>
+      {media}
+      {children}
+      {actions}
+    </article>
   );
 }
 

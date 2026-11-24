@@ -8,6 +8,7 @@ import {
   longFormFromUploads,
   parseIsoDuration,
   VIDEOS_TAB_LAUNCHED_AT,
+  youtubeEmbedUrl,
 } from "@/lib/videos";
 
 describe("Long-form YouTube videos", () => {
@@ -72,6 +73,14 @@ describe("Long-form YouTube videos", () => {
       },
     ]);
     expect(fallbackLongFormVideos).toHaveLength(1);
+  });
+
+  it("builds a nocookie embed only for a real video id", () => {
+    expect(youtubeEmbedUrl(fallbackLongFormVideo.id)).toBe(
+      "https://www.youtube-nocookie.com/embed/dqI6Pj4cl8U?autoplay=1",
+    );
+    expect(youtubeEmbedUrl("not an id")).toBeNull();
+    expect(youtubeEmbedUrl("short")).toBeNull();
   });
 
   it("shows the Videos tab mark for seven days after the launch instant", () => {

@@ -70,6 +70,12 @@ export function youtubeWatchUrl(id: string) {
   return `https://www.youtube.com/watch?v=${id}`;
 }
 
+// Privacy-enhanced player. The page mounts this only after a click.
+export function youtubeEmbedUrl(id: string) {
+  if (!videoId.test(id)) return null;
+  return `https://www.youtube-nocookie.com/embed/${id}?autoplay=1`;
+}
+
 export function youtubeThumbnailUrl(id: string) {
   return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 }
