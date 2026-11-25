@@ -12,8 +12,10 @@ import {
 } from "@/lib/videos";
 
 describe("Long-form YouTube videos", () => {
-  it("keeps a lesson only when it runs strictly over 30 minutes", () => {
-    expect(LONG_FORM_MIN_SECONDS).toBe(1800);
+  it("keeps a lesson only when it runs strictly over 10 minutes", () => {
+    expect(LONG_FORM_MIN_SECONDS).toBe(600);
+    expect(parseIsoDuration("PT10M")).toBe(600);
+    expect(parseIsoDuration("PT10M1S")).toBe(601);
     expect(parseIsoDuration("PT30M")).toBe(1800);
     expect(parseIsoDuration("PT30M1S")).toBe(1801);
     expect(parseIsoDuration("PT36M")).toBe(36 * 60);
@@ -21,13 +23,15 @@ describe("Long-form YouTube videos", () => {
     expect(parseIsoDuration("PT59S")).toBe(59);
     expect(parseIsoDuration("")).toBe(0);
     expect(parseIsoDuration("nope")).toBe(0);
-    expect(isLongFormDuration(1800)).toBe(false);
-    expect(isLongFormDuration(1801)).toBe(true);
+    expect(isLongFormDuration(180)).toBe(false);
+    expect(isLongFormDuration(600)).toBe(false);
+    expect(isLongFormDuration(601)).toBe(true);
+    expect(isLongFormDuration(1800)).toBe(true);
     expect(fallbackLongFormVideo.durationSeconds).toBe(36 * 60);
     expect(isLongFormDuration(fallbackLongFormVideo.durationSeconds)).toBe(true);
   });
 
-  it("drops Shorts, a 30-minute video, and private rows, newest first", () => {
+  it("drops Shorts, a 10-minute video, and private rows, newest first", () => {
     const videos = longFormFromUploads([
       {
         id: "short111111",
@@ -36,10 +40,22 @@ describe("Long-form YouTube videos", () => {
         duration: "PT45S",
       },
       {
-        id: "thirty30min",
-        title: "Exactly thirty",
+        id: "shortmax3mn",
+        title: "A three-minute Short",
+        publishedAt: "2026-11-24T00:30:00Z",
+        duration: "PT3M",
+      },
+      {
+        id: "exactly10mn",
+        title: "Exactly ten",
         publishedAt: "2026-11-24T01:00:00Z",
-        duration: "PT30M",
+        duration: "PT10M",
+      },
+      {
+        id: "elevenmin11",
+        title: "Just over ten",
+        publishedAt: "2026-11-24T02:00:00Z",
+        duration: "PT10M1S",
       },
       {
         id: "dqI6Pj4cl8U",
@@ -61,7 +77,7 @@ describe("Long-form YouTube videos", () => {
       },
     ]);
 
-    expect(videos.map((video) => video.id)).toEqual(["newerlong11", "dqI6Pj4cl8U"]);
+    expect(videos.map((video) => video.id)).toEqual(["newerlong11", "elevenmin11", "dqI6Pj4cl8U"]);
   });
 
   it("falls back to the one known 36-minute lesson", () => {

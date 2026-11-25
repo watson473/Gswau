@@ -4,8 +4,9 @@
 export const youtubeChannelUrl = "https://www.youtube.com/@gswau";
 export const youtubeChannelId = "UCD4sRes0HE57pHpDTYRKngA";
 
-// Strictly over 30 minutes. A video of exactly 30:00, and every Short, stays off /videos.
-export const LONG_FORM_MIN_SECONDS = 30 * 60;
+// Strictly over 10 minutes. A video of exactly 10:00 stays off /videos, and so does every
+// Short, since YouTube caps Shorts at 3 minutes.
+export const LONG_FORM_MIN_SECONDS = 10 * 60;
 
 // The Videos tab shows its NEW mark for NEW_WINDOW_DAYS after this instant, then hides it.
 // Change this date to start that week again.

@@ -1,5 +1,5 @@
 // Server-only. Reads the @gswau uploads playlist with the YouTube Data API and keeps
-// videos longer than 30 minutes. A missing key or a failed read returns the known
+// videos longer than 10 minutes. A missing key or a failed read returns the known
 // 36-minute lesson so /videos still opens. Successful reads are reused for 10 minutes,
 // the same pause the podcast feed uses. The key is YOUTUBE_API_KEY and is never logged.
 import {
@@ -16,7 +16,7 @@ let cached: { at: number; videos: YoutubeVideo[] } | null = null;
 
 export async function loadLongFormVideos(): Promise<YoutubeVideo[]> {
   if (cached && Date.now() - cached.at < CACHE_MS) return cached.videos;
-  const key = process.env.YOUTUBE_API_KEY?.trim();
+  const key = process.env["YOUTUBE_API_KEY"]?.trim();
   if (!key) return [...fallbackLongFormVideos];
   try {
     const videos = await fetchLongForm(key);
