@@ -76,6 +76,13 @@ function PricingGuide() {
         <p className="mt-3 text-lg leading-relaxed">{pricingGuide.shortAnswer}</p>
       </section>
 
+      <div className="mt-6">
+        <Link to="/calculator" className="btn-gold">
+          <Calculator className="h-4 w-4" aria-hidden="true" />
+          Try the free pricing calculator
+        </Link>
+      </div>
+
       <Prose>
         <h2>How to price your barber services, step by step</h2>
         <ol>
@@ -197,16 +204,18 @@ function PricingGuide() {
       </Prose>
 
       <div className="mt-12 grid gap-5 sm:grid-cols-2">
-        <Link
-          to="/calculator"
-          className="lift lift-box block rounded-lg border border-gold/40 bg-card p-6 shadow-card transition hover:border-gold"
-        >
+        <div className="rounded-lg border border-gold/40 bg-card p-6 shadow-card">
           <Calculator className="h-6 w-6 text-gold" aria-hidden="true" />
-          <h2 className="mt-3 text-2xl font-semibold">Free earnings calculator</h2>
+          <h2 className="mt-3 text-2xl font-semibold">Free pricing calculator</h2>
           <p className="mt-2 text-base text-muted-foreground">
             Put in your own prices and clients and see what a week in your chair earns.
           </p>
-        </Link>
+          <div className="mt-4">
+            <Link to="/calculator" className="btn-gold">
+              Try the free pricing calculator
+            </Link>
+          </div>
+        </div>
         <div className="rounded-lg border border-gold/40 bg-card p-6 shadow-card">
           <GraduationCap className="h-6 w-6 text-gold" aria-hidden="true" />
           <h2 className="mt-3 text-2xl font-semibold">The Price Shift course</h2>
