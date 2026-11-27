@@ -12,6 +12,7 @@ export const publicPaths = [
   "/courses",
   "/blog",
   "/guides/how-to-price-barber-services",
+  "/guides/how-to-get-more-barber-clients",
   "/about",
   "/faq",
   "/contact",

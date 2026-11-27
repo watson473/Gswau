@@ -6,7 +6,7 @@ unticked topic. When a guide is finished, its line is ticked and the page addres
 Add new questions anywhere in the list as plain lines starting with `- [ ]`.
 
 - [x] How do I price my barber services? — /guides/how-to-price-barber-services
-- [ ] How do I get more clients as a barber?
+- [x] How do I get more clients as a barber? — /guides/how-to-get-more-barber-clients
 - [ ] How do I keep regular clients coming back?
 - [ ] Should I rent a booth, work on commission, or open my own shop?
 - [ ] How do I raise my prices without losing clients?

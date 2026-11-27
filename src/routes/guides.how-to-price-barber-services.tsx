@@ -13,6 +13,7 @@ import {
   raiseSignals,
   raiseSteps,
 } from "@/lib/guides/how-to-price-barber-services";
+import { clientsGuide } from "@/lib/guides/how-to-get-more-barber-clients";
 import { breadcrumbList, canonicalUrl, faqPage, jsonLdGraph, shareMeta } from "@/lib/share";
 
 const PRICE_SHIFT_SLUG = "the-price-shift-course";
@@ -201,6 +202,14 @@ function PricingGuide() {
             <p>{f.answer}</p>
           </div>
         ))}
+
+        <h2>Related guides</h2>
+        <ul>
+          <li>
+            <Link to={clientsGuide.path}>{clientsGuide.title}</Link>: keep the clients you have,
+            make booking easy and ask for referrals.
+          </li>
+        </ul>
       </Prose>
 
       <div className="mt-12 grid gap-5 sm:grid-cols-2">
