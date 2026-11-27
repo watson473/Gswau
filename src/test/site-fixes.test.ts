@@ -92,6 +92,7 @@ describe("Sitemap", () => {
     expect(xml).toContain("<loc>https://gswau.com/podcast</loc>");
     expect(xml).toContain("<loc>https://gswau.com/videos</loc>");
     expect(xml).toContain("<loc>https://gswau.com/guides/how-to-price-barber-services</loc>");
+    expect(xml).toContain("<loc>https://gswau.com/guides/how-to-get-more-barber-clients</loc>");
     expect(xml).toContain("<loc>https://gswau.com/pricing</loc>");
     expect(xml).not.toContain("/admin");
     expect(xml).not.toContain("/account");

@@ -31,6 +31,7 @@ import { Route as AuthenticatedMfaRouteImport } from './routes/_authenticated/mf
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
+import { Route as GuidesHowToGetMoreBarberClientsRouteImport } from './routes/guides.how-to-get-more-barber-clients'
 import { Route as GuidesHowToPriceBarberServicesRouteImport } from './routes/guides.how-to-price-barber-services'
 import { Route as LibraryIndexRouteImport } from './routes/library.index'
 import { Route as LibrarySlugRouteImport } from './routes/library.$slug'
@@ -150,6 +151,12 @@ const CoursesIndexRoute = CoursesIndexRouteImport.update({
   path: '/courses/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesHowToGetMoreBarberClientsRoute =
+  GuidesHowToGetMoreBarberClientsRouteImport.update({
+    id: '/guides/how-to-get-more-barber-clients',
+    path: '/guides/how-to-get-more-barber-clients',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const GuidesHowToPriceBarberServicesRoute =
   GuidesHowToPriceBarberServicesRouteImport.update({
     id: '/guides/how-to-price-barber-services',
@@ -218,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/guides/how-to-get-more-barber-clients': typeof GuidesHowToGetMoreBarberClientsRoute
   '/guides/how-to-price-barber-services': typeof GuidesHowToPriceBarberServicesRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/podcast/$slug': typeof PodcastSlugRoute
@@ -250,6 +258,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/guides/how-to-get-more-barber-clients': typeof GuidesHowToGetMoreBarberClientsRoute
   '/guides/how-to-price-barber-services': typeof GuidesHowToPriceBarberServicesRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/podcast/$slug': typeof PodcastSlugRoute
@@ -284,6 +293,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/guides/how-to-get-more-barber-clients': typeof GuidesHowToGetMoreBarberClientsRoute
   '/guides/how-to-price-barber-services': typeof GuidesHowToPriceBarberServicesRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/podcast/$slug': typeof PodcastSlugRoute
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/mfa'
     | '/blog/$slug'
+    | '/guides/how-to-get-more-barber-clients'
     | '/guides/how-to-price-barber-services'
     | '/library/$slug'
     | '/podcast/$slug'
@@ -350,6 +361,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/mfa'
     | '/blog/$slug'
+    | '/guides/how-to-get-more-barber-clients'
     | '/guides/how-to-price-barber-services'
     | '/library/$slug'
     | '/podcast/$slug'
@@ -383,6 +395,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/mfa'
     | '/blog/$slug'
+    | '/guides/how-to-get-more-barber-clients'
     | '/guides/how-to-price-barber-services'
     | '/library/$slug'
     | '/podcast/$slug'
@@ -414,6 +427,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  GuidesHowToGetMoreBarberClientsRoute: typeof GuidesHowToGetMoreBarberClientsRoute
   GuidesHowToPriceBarberServicesRoute: typeof GuidesHowToPriceBarberServicesRoute
   LibrarySlugRoute: typeof LibrarySlugRoute
   PodcastSlugRoute: typeof PodcastSlugRoute
@@ -581,6 +595,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/how-to-get-more-barber-clients': {
+      id: '/guides/how-to-get-more-barber-clients'
+      path: '/guides/how-to-get-more-barber-clients'
+      fullPath: '/guides/how-to-get-more-barber-clients'
+      preLoaderRoute: typeof GuidesHowToGetMoreBarberClientsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/guides/how-to-price-barber-services': {
       id: '/guides/how-to-price-barber-services'
       path: '/guides/how-to-price-barber-services'
@@ -693,6 +714,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
+  GuidesHowToGetMoreBarberClientsRoute: GuidesHowToGetMoreBarberClientsRoute,
   GuidesHowToPriceBarberServicesRoute: GuidesHowToPriceBarberServicesRoute,
   LibrarySlugRoute: LibrarySlugRoute,
   PodcastSlugRoute: PodcastSlugRoute,
