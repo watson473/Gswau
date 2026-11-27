@@ -31,6 +31,7 @@ import { Route as AuthenticatedMfaRouteImport } from './routes/_authenticated/mf
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
+import { Route as GuidesHowToPriceBarberServicesRouteImport } from './routes/guides.how-to-price-barber-services'
 import { Route as LibraryIndexRouteImport } from './routes/library.index'
 import { Route as LibrarySlugRouteImport } from './routes/library.$slug'
 import { Route as PodcastIndexRouteImport } from './routes/podcast.index'
@@ -149,6 +150,12 @@ const CoursesIndexRoute = CoursesIndexRouteImport.update({
   path: '/courses/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesHowToPriceBarberServicesRoute =
+  GuidesHowToPriceBarberServicesRouteImport.update({
+    id: '/guides/how-to-price-barber-services',
+    path: '/guides/how-to-price-barber-services',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const LibraryIndexRoute = LibraryIndexRouteImport.update({
   id: '/library/',
   path: '/library/',
@@ -211,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/guides/how-to-price-barber-services': typeof GuidesHowToPriceBarberServicesRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/podcast/$slug': typeof PodcastSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -242,6 +250,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/guides/how-to-price-barber-services': typeof GuidesHowToPriceBarberServicesRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/podcast/$slug': typeof PodcastSlugRoute
   '/blog': typeof BlogIndexRoute
@@ -275,6 +284,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/mfa': typeof AuthenticatedMfaRoute
   '/blog/$slug': typeof BlogSlugRoute
+  '/guides/how-to-price-barber-services': typeof GuidesHowToPriceBarberServicesRoute
   '/library/$slug': typeof LibrarySlugRoute
   '/podcast/$slug': typeof PodcastSlugRoute
   '/blog/': typeof BlogIndexRoute
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/mfa'
     | '/blog/$slug'
+    | '/guides/how-to-price-barber-services'
     | '/library/$slug'
     | '/podcast/$slug'
     | '/blog/'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/mfa'
     | '/blog/$slug'
+    | '/guides/how-to-price-barber-services'
     | '/library/$slug'
     | '/podcast/$slug'
     | '/blog'
@@ -371,6 +383,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/mfa'
     | '/blog/$slug'
+    | '/guides/how-to-price-barber-services'
     | '/library/$slug'
     | '/podcast/$slug'
     | '/blog/'
@@ -401,6 +414,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
+  GuidesHowToPriceBarberServicesRoute: typeof GuidesHowToPriceBarberServicesRoute
   LibrarySlugRoute: typeof LibrarySlugRoute
   PodcastSlugRoute: typeof PodcastSlugRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -567,6 +581,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/how-to-price-barber-services': {
+      id: '/guides/how-to-price-barber-services'
+      path: '/guides/how-to-price-barber-services'
+      fullPath: '/guides/how-to-price-barber-services'
+      preLoaderRoute: typeof GuidesHowToPriceBarberServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/library/': {
       id: '/library/'
       path: '/library'
@@ -672,6 +693,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
+  GuidesHowToPriceBarberServicesRoute: GuidesHowToPriceBarberServicesRoute,
   LibrarySlugRoute: LibrarySlugRoute,
   PodcastSlugRoute: PodcastSlugRoute,
   BlogIndexRoute: BlogIndexRoute,

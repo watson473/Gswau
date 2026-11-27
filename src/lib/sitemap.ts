@@ -11,6 +11,7 @@ export const publicPaths = [
   "/library",
   "/courses",
   "/blog",
+  "/guides/how-to-price-barber-services",
   "/about",
   "/faq",
   "/contact",
